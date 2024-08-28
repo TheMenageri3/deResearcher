@@ -1,4 +1,4 @@
-import { PRIMARY_COLOR } from "./src/utils/constants";
+import { PRIMARY_COLOR, PRIMARY_COLOR_DARK } from "./src/utils/constants";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: PRIMARY_COLOR,
+        primaryDark: PRIMARY_COLOR_DARK,
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
