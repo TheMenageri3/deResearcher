@@ -17,13 +17,14 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: white;
+}
+
+p {
+  color: #2d3648;
+  font-weight: 600;
+  font-size: 16px;
+  font-family: "Inter", sans-serif;
 }
 
 @layer utilities {
