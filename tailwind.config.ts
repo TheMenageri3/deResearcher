@@ -10,6 +10,9 @@ const config = {
 	],
   prefix: "",
   theme: {
+    screens:{
+      "tablet": "600px"
+    },
     container: {
       center: true,
       padding: "2rem",
