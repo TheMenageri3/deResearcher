@@ -1,3 +1,4 @@
+"use client";
 import { WalletProviderUI } from "./WalletProvider";
 
 export const UIProvider = ({ children }: { children: React.ReactNode }) => {
