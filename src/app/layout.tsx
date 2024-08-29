@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} min-w-[350px] md:ml-[150px] md:mr-[150px] ml-[10px] mr-[10px]`}
+        className={`${inter.className} min-h-screen min-w-[350px] md:mx-[50px] lg:mx-[150px] ml-[10px] mr-[10px]`}
       >
         <UIProvider>
           <div className="flex flex-col gap-10">
