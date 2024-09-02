@@ -3,13 +3,15 @@
 import H1 from "@/components/H1";
 import P from "@/components/P";
 import { Button } from "@/components/ui/button";
+import { DialogHeader } from "@/components/ui/dialog";
 
 export default function LandingPage() {
   return (
-    <main className="m-auto my-10 max-w-5xl space-y-10 px-3">
+    <div className="m-auto my-10 max-w-5xl space-y-10 px-3">
       <H1>deResearcher</H1>
-      <H1>Profile</H1>
-      <P>deResearcher - a decentralized research platform on solana</P>
+      <P className="text-[20px]">
+        deResearcher - a decentralized research platform on solana
+      </P>
       <Button
         className="text-white text-center"
         onClick={() => {
@@ -19,6 +21,6 @@ export default function LandingPage() {
       >
         Get Started
       </Button>
-    </main>
+    </div>
   );
 }
