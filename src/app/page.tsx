@@ -1,5 +1,6 @@
 "use client";
 
+import { CreateProfile } from "@/components/CreateProfile/CreateProfile";
 import H1 from "@/components/H1";
 import P from "@/components/P";
 import { Button } from "@/components/ui/button";
