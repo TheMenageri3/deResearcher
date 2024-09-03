@@ -1,4 +1,5 @@
 import P from "@/components/P";
+import { CreateProfileModal } from "@/components/Profile/CreateProfileModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -24,12 +25,16 @@ export default function DashboardCard({
       </CardHeader>
       <CardContent>
         <P>{description}</P>
-        <Button
-          size="lg"
-          className="mt-4 bg-primary text-white px-4 py-2 rounded-md w-24"
-        >
-          {buttonText}
-        </Button>
+        {buttonText === "Complete" ? (
+          <CreateProfileModal />
+        ) : (
+          <Button
+            size="lg"
+            className="mt-4 bg-primary text-white px-4 py-2 rounded-md w-24"
+          >
+            {buttonText}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

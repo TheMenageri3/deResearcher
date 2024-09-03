@@ -46,13 +46,13 @@ const CardContent = [
   {
     title: "Complete your profile",
     description: "Supervise your drive space in the easiest way",
-    buttonText: "Complete",
+    buttonText: "Complete Profile",
     onClick: () => {},
   },
   {
     title: "Upload your paper",
     description: "Supervise your drive space in the easiest way",
-    buttonText: "Upload",
+    buttonText: "Upload Paper",
     onClick: () => {},
   },
 ];
