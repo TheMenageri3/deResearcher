@@ -20,7 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-w-[350px]`}>
+      <body
+        className={`${inter.className} min-w-[350px] md:mx-[150px] sm:mx-[10px]`}
+      >
         <UIProvider>{children}</UIProvider>
       </body>
     </html>
