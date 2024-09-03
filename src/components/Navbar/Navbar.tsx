@@ -39,7 +39,7 @@ export const Navbar = () => {
             <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" />
             <a
               href={link.href}
-              className="text-primary font-bold"
+              className="text-zinc-800 font-bold"
               onClick={() => handleClick(link.name)}
             >
               {link.name}
