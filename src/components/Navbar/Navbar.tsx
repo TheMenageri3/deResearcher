@@ -4,8 +4,9 @@ import { Logo } from "../Logo";
 import { useState } from "react";
 import { cva } from "class-variance-authority";
 import { Wallet } from "./Wallet";
+import { MobileMenu } from "./MobileMenu";
 
-const NavLinks = [
+export const NavLinks = [
   {
     name: "Home",
     href: "/",
@@ -23,9 +24,9 @@ export const Navbar = () => {
     setActive(title);
   };
   return (
-    <nav className="flex items-center justify-between p-4">
+    <nav className="flex items-center justify-between p-4 relative">
       <Logo />
-      <div className="flex flex-row justify-between gap-[20px]">
+      <div className="hidden tablet:flex flex-row justify-between gap-[20px]">
         {NavLinks.map((link) => (
           <div
             key={link.name}
@@ -38,7 +39,7 @@ export const Navbar = () => {
             <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" />
             <a
               href={link.href}
-              className="text-primary font-bold"
+              className="text-zinc-800 font-bold"
               onClick={() => handleClick(link.name)}
             >
               {link.name}
@@ -47,6 +48,9 @@ export const Navbar = () => {
         ))}
         <Wallet />
       </div>
+      <MobileMenu active={active} setActive={setActive} />
     </nav>
   );
 };
+
+export default Navbar;
