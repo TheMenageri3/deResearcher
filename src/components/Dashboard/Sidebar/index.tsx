@@ -34,7 +34,7 @@ function SidebarHeader({ expanded, onToggle }: SidebarHeaderProps) {
   return (
     <div className="p-4 flex justify-between items-center">
       {expanded && (
-        <h1 className="text-2xl font-bold text-primary">deResearch</h1>
+        <h1 className="text-2xl font-bold text-primary">deResearcher</h1>
       )}
       <button onClick={onToggle} className="p-2 rounded-md hover:bg-zinc-200">
         <Menu className="h-6 w-6" />
