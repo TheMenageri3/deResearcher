@@ -22,7 +22,11 @@ export const MobileMenu = ({active, setActive}: menu) => {
                 <Image src={"/WF Icon Button.svg"} width={35} height={35} alt="logo" />
             </button>
 
-            <div className={`${openMenu? "flex" : "hidden"} flex-col gap-4 w-full py-4 absolute left-0 top-20 border-2 border-primary rounded-md bg-background`}>
+            <div className={`${openMenu? "right-0" : "-right-80"} transition-all flex flex-col gap-4 w-full max-w-72 h-screen py-5 px-3 absolute top-0 bg-background shadow-lg`}>
+
+                <button onClick={toggleMenu} title="menu" className="flex flex-row gap-[3px] items-center justify-end">
+                    <Image src={"/WF Icon Button.svg"} width={35} height={35} alt="logo" />
+                </button>
             {NavLinks.map((link) => (
                 <div
                     key={link.name}
