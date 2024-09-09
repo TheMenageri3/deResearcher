@@ -1,7 +1,6 @@
 import DashboardCard from "@/components/Dashboard/Card";
 import DashboardNavbar from "@/components/Dashboard/Navbar";
 import Sidebar from "@/components/Dashboard/Sidebar";
-import DashboardLayout from "./layout";
 import H3 from "@/components/H3";
 import Table from "@/components/Dashboard/Table";
 

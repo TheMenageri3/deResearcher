@@ -6,16 +6,18 @@ import P from "@/components/P";
 import { Button } from "@/components/ui/button";
 import { DialogHeader } from "@/components/ui/dialog";
 import MainLayout from "./main-layout";
+import { ResearchPapers } from "@/components/ResearchPaper/ResearchPapers";
 
 export default function LandingPage() {
   return (
-    <MainLayout>
-      <div className="m-auto my-10 max-w-5xl space-y-10 px-3">
-        <H1>deResearcher</H1>
-        <P className="text-[20px]">
-          deResearcher - a decentralized research platform on solana
-        </P>
-        <Button
+    <div className="flex flex-col m-auto my-10 max-w-5xl space-y-10 px-3 gap-[20px]">
+      <H1>deResearcher</H1>
+      <P className="text-[20px] font-bold">
+        deResearcher - a decentralized research platform on solana
+      </P>
+
+      <ResearchPapers />
+      {/* <Button
           className="text-white text-center"
           onClick={() => {
             console.log("clicked");
@@ -23,8 +25,7 @@ export default function LandingPage() {
           size="lg"
         >
           Get Started
-        </Button>
-      </div>
-    </MainLayout>
+        </Button> */}
+    </div>
   );
 }
