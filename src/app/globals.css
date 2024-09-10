@@ -58,6 +58,7 @@
     @apply bg-background text-foreground;
     background-image: url("/nnnoise.svg");
     background-repeat: repeat;
+    background-size: cover;
   }
 }
 
