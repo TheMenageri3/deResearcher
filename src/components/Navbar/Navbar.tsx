@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Logo } from "../Logo";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cva } from "class-variance-authority";
 import { Wallet } from "./Wallet";
 import { MobileMenu } from "./MobileMenu";
@@ -31,6 +31,10 @@ export const Navbar = () => {
 
   let path = usePathname();
 
+  useEffect(() => {
+    setActive(NavLinks.find((link) => link.href === path)?.name || "Home");
+  }, [path]);
+
   const handleClick = (routeName: string, routeLink: string): void => {
     console.log(routeName);
     setActive(routeName);
@@ -48,8 +52,8 @@ export const Navbar = () => {
             key={link.name}
             className={
               active === link.name
-                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary cursor-pointer"
-                : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent cursor-pointer"
+                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary cursor-pointer rounded hover:bg-backgroundHover"
+                : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent cursor-pointer rounded hover:bg-backgroundHover"
             }
           >
             <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" />

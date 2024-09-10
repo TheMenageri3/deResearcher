@@ -4,7 +4,7 @@ import { ResearchPaperCard } from "./ResearchPaperCard";
 
 export const ResearchPapers = () => {
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {researchPapers.map((paper) => {
         return <ResearchPaperCard key={paper.title} {...paper} />;
       })}

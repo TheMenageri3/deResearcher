@@ -5,6 +5,7 @@
 @layer base {
   :root {
     --background: 343 0% 100%;
+    --background-hover: 188 44% 86%;
     --foreground: 343 62% 3%;
     --muted: 340 0% 88.85%;
     --muted-foreground: 0 0% 46.92%;
@@ -56,9 +57,7 @@
   body {
     @apply bg-background text-foreground;
     background-image: url("/nnnoise.svg");
-    background-position: center;
     background-repeat: repeat;
-    background-size: cover;
   }
 }
 
