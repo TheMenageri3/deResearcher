@@ -3,10 +3,8 @@ import MainLayout from "../main-layout";
 
 export default function ProfilePage() {
   return (
-    <MainLayout>
-      <div className="flex h-screen bg-zinc-100">
-        <ProfileComponent />
-      </div>
-    </MainLayout>
+    <div className="flex h-screen bg-zinc-100">
+      <ProfileComponent />
+    </div>
   );
 }
