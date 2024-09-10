@@ -1,20 +1,32 @@
+"use client";
 import P from "@/components/P";
+import { CreateProfile } from "@/components/Profile/CreateProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UploadPaper } from "@/components/UploadPaper/UploadPaper";
 
 type DashboardCardProps = {
   title: string;
   description: string;
   buttonText: string;
-  onClick: () => void;
 };
 
 export default function DashboardCard({
   title,
   description,
   buttonText,
-  onClick,
 }: DashboardCardProps) {
+  const handleClick = () => {
+    switch (buttonText) {
+      case "Complete Profile":
+        return;
+      case "Upload Paper":
+        return;
+      default:
+        return;
+    }
+  };
+
   return (
     <Card className="border-none">
       <CardHeader>
@@ -22,14 +34,13 @@ export default function DashboardCard({
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col gap-[10px]">
         <P>{description}</P>
-        <Button
-          size="lg"
-          className="mt-4 bg-primary text-white px-4 py-2 rounded-md w-24"
-        >
-          {buttonText}
-        </Button>
+        {buttonText === "Complete Profile" ? (
+          <CreateProfile />
+        ) : (
+          <UploadPaper />
+        )}
       </CardContent>
     </Card>
   );

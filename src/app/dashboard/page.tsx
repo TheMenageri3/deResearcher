@@ -1,43 +1,39 @@
 import DashboardCard from "@/components/Dashboard/Card";
 import DashboardNavbar from "@/components/Dashboard/Navbar";
 import Sidebar from "@/components/Dashboard/Sidebar";
-import DashboardLayout from "./layout";
 import H3 from "@/components/H3";
 import Table from "@/components/Dashboard/Table";
 
 export default function DashboardPage() {
   return (
-    <DashboardLayout>
-      <div className="flex h-screen bg-zinc-100 ">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          <DashboardNavbar />
-          <main className="flex-1 overflow-x-hidden bg-zinc-100">
-            <div className="container mx-auto px-6 py-8">
-              <H3 className="text-zinc-700">Dashboard</H3>
-              {/* Cards */}
-              <div className="mt-8  gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {CardContent.map((card, index) => (
-                  <DashboardCard
-                    key={index}
-                    title={card.title}
-                    description={card.description}
-                    buttonText={card.buttonText}
-                    onClick={card.onClick}
-                  />
-                ))}
-              </div>
-
-              <H3 className="mt-8 text-zinc-700">Latest Peer Review Papers</H3>
-              {/* Table */}
-              <div className="flex flex-col">
-                <Table columns={columns} data={data} renderCell={renderCell} />
-              </div>
+    <div className="flex h-screen bg-zinc-100 ">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-y-auto">
+        <DashboardNavbar />
+        <main className="flex-1 overflow-x-hidden bg-zinc-100">
+          <div className="container mx-auto px-6 py-8">
+            <H3 className="text-zinc-700">Dashboard</H3>
+            {/* Cards */}
+            <div className="mt-8  gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {CardContent.map((card, index) => (
+                <DashboardCard
+                  key={index}
+                  title={card.title}
+                  description={card.description}
+                  buttonText={card.buttonText}
+                />
+              ))}
             </div>
-          </main>
-        </div>
+
+            <H3 className="mt-8 text-zinc-700">Latest Peer Review Papers</H3>
+            {/* Table */}
+            <div className="flex flex-col">
+              <Table columns={columns} data={data} renderCell={renderCell} />
+            </div>
+          </div>
+        </main>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
 
@@ -46,13 +42,13 @@ const CardContent = [
   {
     title: "Complete your profile",
     description: "Supervise your drive space in the easiest way",
-    buttonText: "Complete",
+    buttonText: "Complete Profile",
     onClick: () => {},
   },
   {
     title: "Upload your paper",
     description: "Supervise your drive space in the easiest way",
-    buttonText: "Upload",
+    buttonText: "Upload Paper",
     onClick: () => {},
   },
 ];
