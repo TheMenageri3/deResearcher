@@ -59,9 +59,10 @@ export const Navbar = () => {
                 ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary cursor-pointer rounded-t-lg hover:bg-backgroundHover"
                 : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent cursor-pointer rounded hover:bg-backgroundHover"
             }
+            onClick={() => handleClick(link.name, link.href)}
           >
             <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" />
-            <div onClick={() => handleClick(link.name, link.href)}>
+            <div>
               <P className="font-bold">{link.name}</P>
             </div>
           </div>
