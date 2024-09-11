@@ -22,6 +22,10 @@ export const NavLinks: NavLink[] = [
     name: "Profile",
     href: "/dashboard",
   },
+  {
+    name: "Peer Review",
+    href: "/peer-review",
+  },
 ];
 
 export const Navbar = () => {
@@ -46,13 +50,13 @@ export const Navbar = () => {
   return (
     <nav className="flex items-center justify-between p-4 relative">
       <Logo />
-      <div className="hidden tablet:flex flex-row justify-between gap-[20px]">
+      <div className="hidden md:flex flex-row justify-between gap-[20px]">
         {NavLinks.map((link) => (
           <div
             key={link.name}
             className={
               active === link.name
-                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary cursor-pointer rounded hover:bg-backgroundHover"
+                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary cursor-pointer rounded-t-lg hover:bg-backgroundHover"
                 : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent cursor-pointer rounded hover:bg-backgroundHover"
             }
           >
