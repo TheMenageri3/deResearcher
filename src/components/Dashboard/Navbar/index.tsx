@@ -18,7 +18,7 @@ type UserMenuButtonProps = {
 // SearchBar Component
 function SearchBar({ placeholder }: SearchBarProps) {
   return (
-    <div className="w-full max-w-lg">
+    <form className="w-full max-w-lg">
       <div className="relative rounded-md shadow-sm">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-zinc-400" />
@@ -29,7 +29,7 @@ function SearchBar({ placeholder }: SearchBarProps) {
           placeholder={placeholder}
         />
       </div>
-    </div>
+    </form>
   );
 }
 

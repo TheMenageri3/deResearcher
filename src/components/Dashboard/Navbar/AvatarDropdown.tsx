@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useCallback } from "react";
@@ -26,6 +25,7 @@ export const AvatarDropdown = () => {
   const { setVisible } = useWalletModal();
   const { connected, publicKey, disconnect, wallet } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
+  const { userRole, userName } = dummyUserData;
 
   const handleConnect = () => {
     setVisible(true);
@@ -37,6 +37,21 @@ export const AvatarDropdown = () => {
     window.location.href = "/";
   }, [disconnect]);
 
+  const getDropdownLabel = () => {
+    if (userRole && userName) {
+      return (
+        <>
+          <div className="font-bold">{userName}</div>
+          <div className="text-xs text-zinc-500 font-normal">{userRole}</div>
+        </>
+      );
+    } else if (userName) {
+      return userName;
+    } else {
+      return "My Account";
+    }
+  };
+
   return (
     <DropdownMenu onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -46,14 +61,14 @@ export const AvatarDropdown = () => {
             <Avatar className="h-8 w-8 rounded-full" />
           </div>
           {isOpen ? (
-            <ChevronUp className="h-4 w-4 text-gray-500" />
+            <ChevronUp className="h-4 w-4 text-zinc-500" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <ChevronDown className="h-4 w-4 text-zinc-500" />
           )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-52 mr-4">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>{getDropdownLabel()}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {!connected ? (
           <DropdownMenuItem onClick={handleConnect}>
@@ -83,4 +98,9 @@ export const AvatarDropdown = () => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+};
+
+const dummyUserData = {
+  userName: "Adela Parkson",
+  userRole: "Researcher",
 };
