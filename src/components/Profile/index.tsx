@@ -13,7 +13,7 @@ export default function ProfileComponent() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 lg:px-8">
+    <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 mb-20">
       <ProfileBanner
         bannerSrc="https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         avatarSrc="https://plus.unsplash.com/premium_photo-1689977968861-9c91dbb16049?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"

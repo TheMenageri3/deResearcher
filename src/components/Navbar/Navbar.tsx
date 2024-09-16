@@ -26,7 +26,9 @@ export const Navbar = () => {
   };
   return (
     <nav className="flex items-center justify-between p-4 relative">
-      <Link href="/"><Logo /></Link>
+      <Link href="/">
+        <Logo />
+      </Link>
       <div className="hidden tablet:flex flex-row justify-between gap-[20px]">
         {NavLinks.map((link) => (
           <div

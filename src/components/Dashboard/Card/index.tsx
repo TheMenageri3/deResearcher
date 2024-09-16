@@ -16,18 +16,15 @@ export default function DashboardCard({
   onClick,
 }: DashboardCardProps) {
   return (
-    <Card className="border-none">
+    <Card className="border-none h-full flex flex-col text-center">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-zinc-700">
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <P>{description}</P>
-        <Button
-          size="lg"
-          className="mt-4 bg-primary text-white px-4 py-2 rounded-md w-24"
-        >
+      <CardContent className="flex flex-col flex-grow">
+        <P className="flex-grow text-zinc-500 text-sm">{description}</P>
+        <Button className="mt-4 w-full" onClick={onClick}>
           {buttonText}
         </Button>
       </CardContent>
