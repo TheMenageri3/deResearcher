@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Search, Bell } from "lucide-react";
+import { AvatarDropdown } from "./AvatarDropdown";
 
 type SearchBarProps = {
   placeholder: string;
@@ -63,14 +64,9 @@ export default function DashboardNavbar() {
             <SearchBar placeholder="Search" />
           </div>
           {/* Notifications and User Menu */}
-          <div className="ml-4 flex items-center md:ml-6">
+          <div className="flex items-center space-x-6">
             <NotificationButton ariaLabel="View notifications" />
-            <div className="ml-3 relative">
-              <UserMenuButton
-                imageUrl="https://plus.unsplash.com/premium_vector-1689096833880-42980c252802?q=80&w=2960&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                ariaLabel="Open user menu"
-              />
-            </div>
+            <AvatarDropdown />
           </div>
         </div>
       </div>

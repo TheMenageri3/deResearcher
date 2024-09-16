@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { UIProvider } from "@/components/providers/UIProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +15,9 @@ export default function DashboardLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-w-[350px]`}>{children}</body>
+      <body className={`${inter.className} min-w-[350px]`}>
+        <UIProvider>{children}</UIProvider>
+      </body>
     </html>
   );
 }
