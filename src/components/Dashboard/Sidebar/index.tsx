@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Home, FileText, Star, Beaker, Menu } from "lucide-react";
+import { Home, FileText, Star, Beaker, Menu, User2Icon } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 type LinkDefinition = {
   name: string;
@@ -24,6 +25,7 @@ type SidebarLinkProps = {
 // Constants
 const links: LinkDefinition[] = [
   { name: "Dashboard", icon: Home, href: "/dashboard" },
+  { name: "Profile", icon: User2Icon, href: "/dashboard" },
   { name: "Papers", icon: FileText, href: "/dashboard" },
   { name: "Reviews", icon: Star, href: "/dashboard" },
   { name: "Labs", icon: Beaker, href: "/dashboard" },
@@ -34,7 +36,9 @@ function SidebarHeader({ expanded, onToggle }: SidebarHeaderProps) {
   return (
     <div className="p-4 flex justify-between items-center">
       {expanded && (
-        <h1 className="text-2xl font-bold text-primary">deResearcher</h1>
+        <Link href="/">
+          <Logo />
+        </Link>
       )}
       <button onClick={onToggle} className="p-2 rounded-md hover:bg-zinc-200">
         <Menu className="h-6 w-6" />

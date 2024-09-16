@@ -65,13 +65,53 @@ const columns = [
   { key: "status", header: "Status" },
 ];
 
-const data = [...Array(5)].map((_, index) => ({
-  title: "",
-  authors: "",
-  createdDate: "",
-  domain: "",
-  status:
-    index % 3 === 0 ? "Approved" : index % 3 === 1 ? "Reviewing" : "Rejected",
+const papers = [
+  {
+    title:
+      "The Role of Artificial Intelligence in Revolutionizing Healthcare Systems",
+    authors: ["John Doe"],
+    createdDate: "2024-08-10",
+    domain: "Healthcare",
+    status: "Approved",
+  },
+  {
+    title: "Quantum Computing: Advances, Challenges, and Future Directions",
+    authors: ["Jane Smith", "Robert White", "Clara Adams"],
+    createdDate: "2024-08-11",
+    domain: "Quantum Computing",
+    status: "Reviewing",
+  },
+  {
+    title: "Exploring Blockchain Technology for Enhanced Education Systems",
+    authors: ["Alice Johnson"],
+    createdDate: "2024-08-12",
+    domain: "Education",
+    status: "Rejected",
+  },
+  {
+    title:
+      "Neural Networks and Their Application in Artificial Intelligence Systems",
+    authors: ["Mark Brown", "Sarah Green", "Tom Lee"],
+    createdDate: "2024-08-13",
+    domain: "Artificial Intelligence",
+    status: "Approved",
+  },
+  {
+    title:
+      "Data Privacy and Security: Challenges and Solutions in the Digital Age",
+    authors: ["Emily Davis"],
+    createdDate: "2024-08-14",
+    domain: "Cybersecurity",
+    status: "Reviewing",
+  },
+];
+
+const data = papers.map((paper) => ({
+  title: paper.title,
+  authors: paper.authors.join(", "),
+  createdDate: paper.createdDate,
+  domain: paper.domain,
+  status: paper.status,
 }));
 
 function renderCell(item: any, column: { key: string; header: string }) {
@@ -91,14 +131,8 @@ function renderCell(item: any, column: { key: string; header: string }) {
     );
   }
   return (
-    <div
-      className={`h-2 bg-zinc-200 rounded ${
-        column.key === "title"
-          ? "w-3/4"
-          : column.key === "authors"
-          ? "w-full"
-          : "w-1/2"
-      }`}
-    ></div>
+    <span className="text-zinc-700 text-sm break-words whitespace-normal">
+      {item[column.key]}
+    </span>
   );
 }
