@@ -9,45 +9,59 @@ type TableProps = {
   renderCell: (item: any, column: ColumnDefinition) => React.ReactNode;
 };
 
+// Utility function to determine column visibility
+const getColumnVisibility = (columnKey: string) => {
+  switch (columnKey) {
+    case "title":
+    case "status":
+      return "";
+    case "createdDate":
+      return "hidden md:table-cell";
+    default:
+      return "hidden lg:table-cell";
+  }
+};
+
 // Table Header Component
-function TableHeader({ columns }: { columns: ColumnDefinition[] }) {
-  return (
-    <thead className="bg-zinc-50">
-      <tr>
-        {columns.map((column) => (
-          <th
-            key={column.key}
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
-          >
-            {column.header}
-          </th>
-        ))}
-      </tr>
-    </thead>
-  );
-}
+const TableHeader: React.FC<{ columns: ColumnDefinition[] }> = ({
+  columns,
+}) => (
+  <thead className="bg-zinc-50">
+    <tr>
+      {columns.map((column) => (
+        <th
+          key={column.key}
+          scope="col"
+          className={`px-6 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider ${getColumnVisibility(
+            column.key,
+          )}`}
+        >
+          {column.header}
+        </th>
+      ))}
+    </tr>
+  </thead>
+);
 
 // Table Row Component
-function TableRow({
-  item,
-  columns,
-  renderCell,
-}: {
+const TableRow: React.FC<{
   item: any;
   columns: ColumnDefinition[];
   renderCell: TableProps["renderCell"];
-}) {
-  return (
-    <tr className="hover:bg-zinc-50 cursor-pointer">
-      {columns.map((column) => (
-        <td key={column.key} className="px-6 py-4 whitespace-nowrap">
-          {renderCell(item, column)}
-        </td>
-      ))}
-    </tr>
-  );
-}
+}> = ({ item, columns, renderCell }) => (
+  <tr className="hover:bg-zinc-50 cursor-pointer">
+    {columns.map((column) => (
+      <td
+        key={column.key}
+        className={`px-6 py-4 whitespace-nowrap ${getColumnVisibility(
+          column.key,
+        )}`}
+      >
+        {renderCell(item, column)}
+      </td>
+    ))}
+  </tr>
+);
 
 // Main Table Component
 export default function Table({ columns, data, renderCell }: TableProps) {
@@ -58,7 +72,7 @@ export default function Table({ columns, data, renderCell }: TableProps) {
           <div className="shadow overflow-hidden border-b border-zinc-200 sm:rounded-lg">
             <table className="min-w-full divide-y divide-zinc-200">
               <TableHeader columns={columns} />
-              <tbody className="bg-white divide-y divide-zinc-200">
+              <tbody className="bg-white divide-y divide-zinc-200 ">
                 {data.map((item, index) => (
                   <TableRow
                     key={index}

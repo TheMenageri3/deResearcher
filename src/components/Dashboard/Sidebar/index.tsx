@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Home, FileText, Star, Beaker, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Home, FileText, Star, Beaker, Menu, User2Icon } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 type LinkDefinition = {
   name: string;
@@ -24,9 +26,10 @@ type SidebarLinkProps = {
 // Constants
 const links: LinkDefinition[] = [
   { name: "Dashboard", icon: Home, href: "/dashboard" },
-  { name: "Papers", icon: FileText, href: "/dashboard" },
-  { name: "Reviews", icon: Star, href: "/dashboard" },
-  { name: "Labs", icon: Beaker, href: "/dashboard" },
+  { name: "Profile", icon: User2Icon, href: "/dashboard/profile" },
+  { name: "Papers", icon: FileText, href: "/dashboard/papers" },
+  { name: "Reviews", icon: Star, href: "/dashboard/reviews" },
+  { name: "Labs", icon: Beaker, href: "/dashboard/labs" },
 ];
 
 // Sidebar Header Component
@@ -34,7 +37,9 @@ function SidebarHeader({ expanded, onToggle }: SidebarHeaderProps) {
   return (
     <div className="p-4 flex justify-between items-center">
       {expanded && (
-        <h1 className="text-2xl font-bold text-primary">deResearcher</h1>
+        <Link href="/">
+          <Logo />
+        </Link>
       )}
       <button onClick={onToggle} className="p-2 rounded-md hover:bg-zinc-200">
         <Menu className="h-6 w-6" />
@@ -61,6 +66,7 @@ function SidebarLink({ item, expanded, active }: SidebarLinkProps) {
 // Main Sidebar Component
 export default function Sidebar() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const pathname = usePathname();
 
   // Sidebar resize depending on screen size
   useEffect(() => {
@@ -85,12 +91,12 @@ export default function Sidebar() {
     >
       <SidebarHeader expanded={sidebarExpanded} onToggle={toggleSidebar} />
       <nav className="mt-8">
-        {links.map((item, index) => (
+        {links.map((item) => (
           <SidebarLink
             key={item.name}
             item={item}
             expanded={sidebarExpanded}
-            active={index === 0}
+            active={pathname === item.href}
           />
         ))}
       </nav>

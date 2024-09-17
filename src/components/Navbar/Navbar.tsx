@@ -1,71 +1,56 @@
 "use client";
 import Image from "next/image";
 import { Logo } from "../Logo";
-import { useEffect, useState } from "react";
-import { cva } from "class-variance-authority";
+import { usePathname } from "next/navigation";
 import { Wallet } from "./Wallet";
 import { MobileMenu } from "./MobileMenu";
-import { usePathname, useRouter } from "next/navigation";
-import P from "../P";
+import Link from "next/link";
+import { SearchBar } from "../Dashboard/Navbar";
 
-type NavLink = {
-  name: string;
-  href: string;
-};
-
-export const NavLinks: NavLink[] = [
+export const NavLinks = [
   {
     name: "Home",
     href: "/",
   },
   {
-    name: "Profile",
-    href: "/dashboard",
+    name: "Research",
+    href: "/research",
   },
 ];
 
 export const Navbar = () => {
-  const [active, setActive] = useState<string>("Home");
-
-  let router = useRouter();
-
-  let path = usePathname();
-
-  useEffect(() => {
-    setActive(NavLinks.find((link) => link.href === path)?.name || "Home");
-  }, [path]);
-
-  const handleClick = (routeName: string, routeLink: string): void => {
-    console.log(routeName);
-    setActive(routeName);
-    if (path !== routeLink) {
-      router.push(routeLink);
-    }
-  };
+  const pathname = usePathname();
 
   return (
     <nav className="flex items-center justify-between p-4 relative">
-      <Logo />
+      <div className="flex items-center flex-1 max-w-3xl">
+        <Link href="/" className="mr-4">
+          <Logo />
+        </Link>
+        <button className="hidden sm:block flex-1">
+          <span className="sr-only">Search</span>
+          <SearchBar placeholder="Search the universe" />
+        </button>
+      </div>
       <div className="hidden tablet:flex flex-row justify-between gap-[20px]">
         {NavLinks.map((link) => (
           <div
             key={link.name}
             className={
-              active === link.name
-                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary cursor-pointer rounded hover:bg-backgroundHover p-[5px]"
-                : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent cursor-pointer rounded hover:bg-backgroundHover p-[5px]"
+              pathname === link.href
+                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary"
+                : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent"
             }
-            onClick={() => handleClick(link.name, link.href)}
           >
-            <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" />
-            <div>
-              <P className="font-bold">{link.name}</P>
-            </div>
+            {/* <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" /> */}
+            <Link href={link.href} className="text-zinc-800 font-bold">
+              {link.name}
+            </Link>
           </div>
         ))}
         <Wallet />
       </div>
-      <MobileMenu active={active} setActive={setActive} />
+      <MobileMenu pathname={pathname} />
     </nav>
   );
 };

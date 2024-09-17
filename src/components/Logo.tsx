@@ -14,7 +14,7 @@ export const Logo = () => {
       onClick={handleClick}
     >
       <Image src={"/atom3.svg"} width={50} height={50} alt="logo" />
-      <P className="font-bold">deResearcher</P>
+      <P className="font-bold hidden md:block">deResearcher</P>
     </div>
   );
 };
