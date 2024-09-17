@@ -1,13 +1,8 @@
-"use client";
-
 import DashboardCard from "@/components/Dashboard/Card";
 import H3 from "@/components/H3";
 import Table from "@/components/Dashboard/Table";
-import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const router = useRouter();
-
   return (
     <main className="flex-1 overflow-x-hidden bg-zinc-100">
       <div className="container mx-auto px-6 pt-2 pb-8">
@@ -19,7 +14,7 @@ export default function DashboardPage() {
               title={card.title}
               description={card.description}
               buttonText={card.buttonText}
-              onClick={() => router.push(card.action)}
+              path={card.path}
             />
           ))}
         </div>
@@ -41,14 +36,14 @@ const CardContent = [
     description:
       "Ensure your profile is up to date to maximize visibility and enhance collaboration opportunities.",
     buttonText: "Complete Profile",
-    action: "/dashboard/profile",
+    path: "/dashboard/profile",
   },
   {
     title: "Upload your paper 🦒",
     description:
       "Contribute to the community by sharing your research and gaining valuable peer feedback.",
     buttonText: "Upload Paper",
-    action: "/dashboard/papers",
+    path: "/dashboard/papers",
   },
 ];
 
@@ -126,7 +121,7 @@ function renderCell(item: any, column: { key: string; header: string }) {
     );
   }
   return (
-    <span className="text-zinc-700 text-sm break-words whitespace-normal">
+    <span className="text-zinc-600 text-sm break-words whitespace-normal">
       {item[column.key]}
     </span>
   );

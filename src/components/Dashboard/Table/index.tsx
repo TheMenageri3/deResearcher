@@ -32,7 +32,7 @@ const TableHeader: React.FC<{ columns: ColumnDefinition[] }> = ({
         <th
           key={column.key}
           scope="col"
-          className={`px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider ${getColumnVisibility(
+          className={`px-6 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider ${getColumnVisibility(
             column.key,
           )}`}
         >
@@ -72,7 +72,7 @@ export default function Table({ columns, data, renderCell }: TableProps) {
           <div className="shadow overflow-hidden border-b border-zinc-200 sm:rounded-lg">
             <table className="min-w-full divide-y divide-zinc-200">
               <TableHeader columns={columns} />
-              <tbody className="bg-white divide-y divide-zinc-200">
+              <tbody className="bg-white divide-y divide-zinc-200 ">
                 {data.map((item, index) => (
                   <TableRow
                     key={index}

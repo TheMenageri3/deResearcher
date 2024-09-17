@@ -1,11 +1,11 @@
 "use client";
 import Image from "next/image";
 import { Logo } from "../Logo";
-import { useState } from "react";
-import { cva } from "class-variance-authority";
+import { usePathname } from "next/navigation";
 import { Wallet } from "./Wallet";
 import { MobileMenu } from "./MobileMenu";
 import Link from "next/link";
+import { SearchBar } from "../Dashboard/Navbar";
 
 export const NavLinks = [
   {
@@ -14,44 +14,43 @@ export const NavLinks = [
   },
   {
     name: "Research",
-    href: "#",
+    href: "/research",
   },
 ];
 
 export const Navbar = () => {
-  const [active, setActive] = useState<string>("Home");
+  const pathname = usePathname();
 
-  const handleClick = (title: string) => {
-    setActive(title);
-  };
   return (
     <nav className="flex items-center justify-between p-4 relative">
-      <Link href="/">
-        <Logo />
-      </Link>
+      <div className="flex items-center flex-1 max-w-3xl">
+        <Link href="/" className="mr-4">
+          <Logo />
+        </Link>
+        <button className="hidden sm:block flex-1">
+          <span className="sr-only">Search</span>
+          <SearchBar placeholder="Search the universe" />
+        </button>
+      </div>
       <div className="hidden tablet:flex flex-row justify-between gap-[20px]">
         {NavLinks.map((link) => (
           <div
             key={link.name}
             className={
-              active === link.name
+              pathname === link.href
                 ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary"
                 : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent"
             }
           >
-            <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" />
-            <a
-              href={link.href}
-              className="text-zinc-800 font-bold"
-              onClick={() => handleClick(link.name)}
-            >
+            {/* <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" /> */}
+            <Link href={link.href} className="text-zinc-800 font-bold">
               {link.name}
-            </a>
+            </Link>
           </div>
         ))}
         <Wallet />
       </div>
-      <MobileMenu active={active} setActive={setActive} />
+      <MobileMenu pathname={pathname} />
     </nav>
   );
 };

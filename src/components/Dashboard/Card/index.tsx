@@ -1,20 +1,25 @@
+"use client";
+
 import P from "@/components/P";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 type DashboardCardProps = {
   title: string;
   description: string;
   buttonText: string;
-  onClick: () => void;
+  path: string;
 };
 
 export default function DashboardCard({
   title,
   description,
   buttonText,
-  onClick,
+  path,
 }: DashboardCardProps) {
+  const router = useRouter();
+
   return (
     <Card className="border-none h-full flex flex-col text-center">
       <CardHeader>
@@ -24,7 +29,7 @@ export default function DashboardCard({
       </CardHeader>
       <CardContent className="flex flex-col flex-grow">
         <P className="flex-grow text-zinc-500 text-sm">{description}</P>
-        <Button className="mt-4 w-full" onClick={onClick}>
+        <Button className="mt-4 w-full" onClick={() => router.push(path)}>
           {buttonText}
         </Button>
       </CardContent>
