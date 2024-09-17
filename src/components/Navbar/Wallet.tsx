@@ -55,7 +55,7 @@ export const Wallet = () => {
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div className="flex flex-row gap-2 items-center border-2 border-primary p-[5px] rounded-md cursor-pointer hover:bg-backgroundHover">
+                <div className="flex flex-row gap-2 items-center border-2 border-primary p-[5px] rounded-md cursor-pointer">
                   <Image
                     alt={wallet.adapter.name}
                     height={24}
