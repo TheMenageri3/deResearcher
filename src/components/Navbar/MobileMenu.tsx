@@ -6,6 +6,9 @@ import { NavLinks } from "./Navbar";
 import Link from "next/link";
 import { Search } from "lucide-react";
 
+interface menu {
+  active: string;
+  setActive: React.Dispatch<React.SetStateAction<string>>;
 interface MobileMenuProps {
   pathname: string;
 }
