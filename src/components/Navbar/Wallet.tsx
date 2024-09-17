@@ -42,7 +42,12 @@ export const Wallet = () => {
   return (
     <>
       {!connected ? (
-        <Button onClick={handleConnect}>Connect Wallet</Button>
+        <Button
+          onClick={handleConnect}
+          className="bg-zinc-800 hover:bg-zinc-700"
+        >
+          Connect Wallet
+        </Button>
       ) : (
         connected &&
         wallet && (

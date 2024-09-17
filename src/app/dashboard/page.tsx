@@ -1,55 +1,49 @@
 import DashboardCard from "@/components/Dashboard/Card";
-import DashboardNavbar from "@/components/Dashboard/Navbar";
-import Sidebar from "@/components/Dashboard/Sidebar";
 import H3 from "@/components/H3";
 import Table from "@/components/Dashboard/Table";
 
 export default function DashboardPage() {
   return (
-    <div className="flex h-screen bg-zinc-100 ">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        <DashboardNavbar />
-        <main className="flex-1 overflow-x-hidden bg-zinc-100">
-          <div className="container mx-auto px-6 py-8">
-            <H3 className="text-zinc-700">Dashboard</H3>
-            {/* Cards */}
-            <div className="mt-8  gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {CardContent.map((card, index) => (
-                <DashboardCard
-                  key={index}
-                  title={card.title}
-                  description={card.description}
-                  buttonText={card.buttonText}
-                />
-              ))}
-            </div>
+    <main className="flex-1 overflow-x-hidden bg-zinc-100">
+      <div className="container mx-auto px-6 pt-2 pb-8">
+        {/* Cards */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {CardContent.map((card, index) => (
+            <DashboardCard
+              key={index}
+              title={card.title}
+              description={card.description}
+              buttonText={card.buttonText}
+              path={card.path}
+            />
+          ))}
+        </div>
 
-            <H3 className="mt-8 text-zinc-700">Latest Peer Review Papers</H3>
-            {/* Table */}
-            <div className="flex flex-col">
-              <Table columns={columns} data={data} renderCell={renderCell} />
-            </div>
-          </div>
-        </main>
+        <H3 className="mt-8 text-zinc-700">Latest Peer Review Papers</H3>
+        {/* Table */}
+        <div className="flex flex-col">
+          <Table columns={columns} data={data} renderCell={renderCell} />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
 // Fake data
 const CardContent = [
   {
-    title: "Complete your profile",
-    description: "Supervise your drive space in the easiest way",
+    title: "Complete your profile ⚡",
+    description:
+      "Ensure your profile is up to date to maximize visibility and enhance collaboration opportunities.",
     buttonText: "Complete Profile",
-    onClick: () => {},
+    path: "/dashboard/profile",
   },
   {
-    title: "Upload your paper",
-    description: "Supervise your drive space in the easiest way",
+    title: "Upload your paper 🦒",
+    description:
+      "Contribute to the community by sharing your research and gaining valuable peer feedback.",
     buttonText: "Upload Paper",
-    onClick: () => {},
+    path: "/dashboard/papers",
   },
 ];
 
@@ -61,13 +55,53 @@ const columns = [
   { key: "status", header: "Status" },
 ];
 
-const data = [...Array(5)].map((_, index) => ({
-  title: "",
-  authors: "",
-  createdDate: "",
-  domain: "",
-  status:
-    index % 3 === 0 ? "Approved" : index % 3 === 1 ? "Reviewing" : "Rejected",
+const papers = [
+  {
+    title:
+      "The Role of Artificial Intelligence in Revolutionizing Healthcare Systems",
+    authors: ["John Doe"],
+    createdDate: "2024-08-10",
+    domain: "Healthcare",
+    status: "Approved",
+  },
+  {
+    title: "Quantum Computing: Advances, Challenges, and Future Directions",
+    authors: ["Jane Smith", "Robert White", "Clara Adams"],
+    createdDate: "2024-08-11",
+    domain: "Quantum Computing",
+    status: "Reviewing",
+  },
+  {
+    title: "Exploring Blockchain Technology for Enhanced Education Systems",
+    authors: ["Alice Johnson"],
+    createdDate: "2024-08-12",
+    domain: "Education",
+    status: "Rejected",
+  },
+  {
+    title:
+      "Neural Networks and Their Application in Artificial Intelligence Systems",
+    authors: ["Mark Brown", "Sarah Green", "Tom Lee"],
+    createdDate: "2024-08-13",
+    domain: "Artificial Intelligence",
+    status: "Approved",
+  },
+  {
+    title:
+      "Data Privacy and Security: Challenges and Solutions in the Digital Age",
+    authors: ["Emily Davis"],
+    createdDate: "2024-08-14",
+    domain: "Cybersecurity",
+    status: "Reviewing",
+  },
+];
+
+const data = papers.map((paper) => ({
+  title: paper.title,
+  authors: paper.authors.join(", "),
+  createdDate: paper.createdDate,
+  domain: paper.domain,
+  status: paper.status,
 }));
 
 function renderCell(item: any, column: { key: string; header: string }) {
@@ -87,14 +121,8 @@ function renderCell(item: any, column: { key: string; header: string }) {
     );
   }
   return (
-    <div
-      className={`h-2 bg-zinc-200 rounded ${
-        column.key === "title"
-          ? "w-3/4"
-          : column.key === "authors"
-          ? "w-full"
-          : "w-1/2"
-      }`}
-    ></div>
+    <span className="text-zinc-600 text-sm break-words whitespace-normal">
+      {item[column.key]}
+    </span>
   );
 }

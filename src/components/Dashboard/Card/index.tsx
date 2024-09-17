@@ -1,46 +1,38 @@
 "use client";
+
 import P from "@/components/P";
 import { CreateProfile } from "@/components/Profile/CreateProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UploadPaper } from "@/components/UploadPaper/UploadPaper";
+import { useRouter } from "next/navigation";
 
 type DashboardCardProps = {
   title: string;
   description: string;
   buttonText: string;
+  path: string;
 };
 
 export default function DashboardCard({
   title,
   description,
   buttonText,
+  path,
 }: DashboardCardProps) {
-  const handleClick = () => {
-    switch (buttonText) {
-      case "Complete Profile":
-        return;
-      case "Upload Paper":
-        return;
-      default:
-        return;
-    }
-  };
+  const router = useRouter();
 
   return (
-    <Card className="border-none">
+    <Card className="border-none h-full flex flex-col text-center">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-zinc-700">
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-[10px]">
-        <P>{description}</P>
-        {buttonText === "Complete Profile" ? (
-          <CreateProfile />
-        ) : (
-          <UploadPaper />
-        )}
+      <CardContent className="flex flex-col flex-grow">
+        <P className="flex-grow text-zinc-500 text-sm">{description}</P>
+        <Button className="mt-4 w-full" onClick={() => router.push(path)}>
+          {buttonText}
+        </Button>
       </CardContent>
     </Card>
   );
