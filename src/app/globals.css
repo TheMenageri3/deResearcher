@@ -5,6 +5,7 @@
 @layer base {
   :root {
     --background: 343 0% 100%;
+    --background-hover: 188 44% 86%;
     --foreground: 343 62% 3%;
     --muted: 340 0% 88.85%;
     --muted-foreground: 0 0% 46.92%;
@@ -14,15 +15,15 @@
     --card-foreground: 340 0% 1.96%;
     --border: 340 60% 2%;
     --input: 0 0% 18.82%;
-    --primary: 258 86.27% 54.31%;
-    --primary-foreground: 257.91 0% 95%;
+    --primary: 188 100% 30%;
+    --primary-foreground: 188.91 0% 95%;
     --secondary: 140.56 73.55% 47.45%;
     --secondary-foreground: 140.56 77.18% 94.94%;
-    --accent: 226.42 100% 98%;
-    --accent-foreground: 258 74% 24%;
+    --accent: 188 100% 98%;
+    --accent-foreground: 217 74% 24%;
     --destructive: 5.37 86% 54%;
     --destructive-foreground: 5 100% 96%;
-    --ring: 257 86% 54%;
+    --ring: 188 86% 54%;
     --radius: 0.5rem;
   }
 
@@ -55,5 +56,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: url("/nnnoise.svg");
+    background-repeat: repeat;
+    background-size: cover;
   }
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  margin-block: auto;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #48b8cc;
+  border-radius: 2px;
 }

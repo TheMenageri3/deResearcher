@@ -1,5 +1,6 @@
+"use client";
 import { Role } from "@/lib/utils/helpers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogFooter, DialogHeader } from "../ui/dialog";
 import {
   DialogContent,
@@ -10,53 +11,61 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { useWallet } from "@solana/wallet-adapter-react";
+import P from "../P";
 
-type ProfileData = {
+type PaperData = {
   userName: string;
-  pubkey: string;
   role: Role;
   domain: string;
   proofOfWork: string[]; // link to profiles of other research platforms
 };
 
-const profileDataKeys = ["UserName", "Pubkey", "Role", "Domain", "ProofOfWork"];
+const profileDataKeys = ["UserName", "Role", "Domain", "ProofOfWork"];
 
-export const CreateProfile = () => {
-  const [profileData, setProfileData] = useState<ProfileData>({
+export const UploadPaper = () => {
+  const { publicKey, connected } = useWallet();
+  const [profileData, setProfileData] = useState<PaperData>({
     userName: "",
-    pubkey: "",
     role: Role.Reader,
     domain: "",
     proofOfWork: [],
   });
 
-  const handleProfileDataChange = (key: keyof ProfileData, value: string) => {
+  useEffect(() => {
+    if (publicKey) {
+      setProfileData((prev) => ({ ...prev, pubkey: publicKey.toBase58() }));
+    }
+  }, [publicKey]);
+
+  const handleProfileDataChange = (key: keyof PaperData, value: string) => {
     setProfileData((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Create Profile</Button>
+        <Button>Upload Paper</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Profile</DialogTitle>
+          <DialogTitle>Upload Paper</DialogTitle>
           <DialogDescription>
             Create your profile to start contributing to the platform as a
             researcher or reader.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-[10px] p-[5px]">
+          <P className="font-bold">Pubkey : {publicKey?.toBase58()}</P>
           {profileDataKeys.map((key) => (
             <div key={key} className="flex flex-col gap-[5px]">
               <Label htmlFor={key}>{key}</Label>
               <Input
                 id={key}
-                value={profileData[key.toLowerCase() as keyof ProfileData]}
+                value={profileData[key.toLowerCase() as keyof PaperData]}
                 onChange={(e) =>
                   handleProfileDataChange(
-                    key.toLowerCase() as keyof ProfileData,
+                    key.toLowerCase() as keyof PaperData,
                     e.target.value
                   )
                 }
@@ -65,7 +74,7 @@ export const CreateProfile = () => {
           ))}
         </div>
         <DialogFooter>
-          <Button>Create</Button>
+          <Button>Upload Paper</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
