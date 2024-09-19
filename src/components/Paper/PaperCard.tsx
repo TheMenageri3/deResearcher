@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar } from "../Avatar";
-import { SolanaLogo } from "../solanaLogo";
+import { SolanaLogo } from "../SolanaLogo";
 import H3 from "../H3";
 import H4 from "../H4";
 import P from "../P";
