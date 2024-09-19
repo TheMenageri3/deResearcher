@@ -1,11 +1,10 @@
 "use client";
 
-import { CreateProfile } from "@/components/CreateProfile/CreateProfile";
-import H1 from "@/components/H1";
 import P from "@/components/P";
 import { Button } from "@/components/ui/button";
 import { DialogHeader } from "@/components/ui/dialog";
 import MainLayout from "./main-layout";
+import H1 from "@/components/H1";
 
 export default function LandingPage() {
   return (
