@@ -43,7 +43,7 @@ const CardContent = [
     description:
       "Contribute to the community by sharing your research and gaining valuable peer feedback.",
     buttonText: "Upload Paper",
-    path: "/dashboard/papers",
+    path: "/dashboard/papers/create",
   },
 ];
 

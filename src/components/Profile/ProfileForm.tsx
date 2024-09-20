@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import CustomFormItem from "@/components/Profile/CustomProfileForm";
 import { ProfileFormData } from "@/lib/validation";
+import CustomFormItem from "../CustomForm";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera, Upload } from "lucide-react";
 
 type ProfileFormProps = {
-  initialData?: ProfileFormData & { isVerified: boolean };
+  initialData: ProfileFormData & { isVerified: boolean };
 };
 
 export default function ProfileForm({ initialData }: ProfileFormProps) {
@@ -51,7 +51,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6 max-w-4xl mx-auto bg-white pt-6 p-6 md:p-20 md:pt-6 rounded-lg shadow"
+        className="space-y-6 max-w-4xl mx-auto bg-white p-6 pb-12 md:p-20 md:pt-6 md:pb-16 rounded-lg shadow"
       >
         <div className="flex flex-col items-center mb-6">
           <div
@@ -97,6 +97,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                 isEditing={isEditing}
               />
             )}
+            required
           />
           <FormField
             control={form.control}
@@ -109,6 +110,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                 isEditing={isEditing}
               />
             )}
+            required
           />
         </div>
 
@@ -124,6 +126,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                 isEditing={isEditing}
               />
             )}
+            required
           />
           <FormField
             control={form.control}
@@ -145,7 +148,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             name="website"
             render={({ field }) => (
               <CustomFormItem
-                label="Website"
+                label="Websit/Github"
                 field={field}
                 placeholder="Enter your website"
                 isEditing={isEditing}

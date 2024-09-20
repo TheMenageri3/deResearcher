@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 type CustomFormItemProps = {
   label: string;
   field: any; // Replace with the specific type from react-hook-form if possible
-  isEditing: boolean;
+  isEditing?: boolean;
   placeholder: string;
   InputComponent?: React.ElementType;
   inputProps?: InputProps | TextareaProps;
@@ -19,16 +19,16 @@ type CustomFormItemProps = {
   inputClassName?: string;
 };
 
-const CustomFormItem: React.FC<CustomFormItemProps> = ({
+export default function CustomFormItem({
   label,
   field,
-  isEditing,
+  isEditing = true,
   placeholder,
   InputComponent = Input,
   inputProps = {},
   labelClassName = "",
   inputClassName = "",
-}) => {
+}: CustomFormItemProps) {
   return (
     <FormItem>
       <FormLabel
@@ -53,6 +53,4 @@ const CustomFormItem: React.FC<CustomFormItemProps> = ({
       <FormMessage />
     </FormItem>
   );
-};
-
-export default CustomFormItem;
+}
