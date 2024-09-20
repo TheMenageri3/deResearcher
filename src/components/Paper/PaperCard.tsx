@@ -1,7 +1,7 @@
+import { generateRandomGradient } from "@/lib/utils/helpers";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "../Avatar";
 import { SolanaLogo } from "../SolanaLogo";
-import H3 from "../H3";
 import H4 from "../H4";
 import P from "../P";
 
@@ -12,24 +12,6 @@ interface PaperCardProps {
   reads: number;
   price: number;
 }
-
-const topColors = [
-  "#4318FF",
-  "#FFAD08",
-  "#00B69B",
-  "#DC6262",
-  "#919393",
-  "#FF1875",
-  "#51A637",
-  "#A984FF",
-];
-
-const generateRandomGradient = () => {
-  const getRandomTopColor = () =>
-    topColors[Math.floor(Math.random() * topColors.length)];
-  const topColor = getRandomTopColor();
-  return `linear-gradient(to bottom, ${topColor}, #9574E2)`;
-};
 
 export default function PaperCard({
   title,
@@ -66,12 +48,13 @@ export default function PaperCard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mt-8">
           <div className="flex items-center">
             <div className="flex -space-x-2 mr-2">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <Avatar
-                  key={index}
-                  className="w-6 h-6 border-2 border-white rounded-full shadow-md"
-                />
-              ))}
+              {reads > 0 &&
+                Array.from({ length: 3 }).map((_, index) => (
+                  <Avatar
+                    key={index}
+                    className="w-6 h-6 border-2 border-white rounded-full shadow-md"
+                  />
+                ))}
             </div>
             <span className="text-zinc-600 text-xs">{reads} Reads</span>
           </div>
