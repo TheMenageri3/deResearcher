@@ -30,7 +30,7 @@ const links: LinkDefinition[] = [
     href: "/dashboard/papers/overview",
     subItems: [
       { name: "Overview", href: "/dashboard/papers/overview" },
-      { name: "Published", href: "/dashboard/papers/published" },
+      { name: "Minted", href: "/dashboard/papers/minted" },
     ],
   },
   { name: "Reviews", icon: Star, href: "/dashboard/reviews" },

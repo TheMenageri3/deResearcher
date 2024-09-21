@@ -9,7 +9,6 @@ export default async function UpdateProfilePage() {
     <>
       <div className="flex justify-end items-center mb-6">
         <Link href="/profile/">
-          {/* TODO: use like /profile/[:id] for example */}
           <Button className="bg-zinc-600 text-white hover:bg-zinc-500 text-xs">
             Go to your public profile
           </Button>

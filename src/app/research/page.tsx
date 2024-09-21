@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import PaperCard from "@/components/Paper/PaperCard";
 import H3 from "@/components/H3";
 import { ChevronDown } from "lucide-react";
-import papers from "../../../dummyPapers.json";
+import papers from "../../dummyData/dummyPapers.json";
+import { PAPER_STATUS } from "@/lib/utils/constants";
 
 export const metadata: Metadata = {
   title: "Research",
@@ -39,14 +40,15 @@ export default function ResearchPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {papers.map(
-            (paper, index) =>
-              paper.state === "published" && (
+            (paper) =>
+              paper.status === PAPER_STATUS.PUBLISHED && (
                 <PaperCard
                   key={paper.id}
                   title={paper.title}
                   authors={paper.authors}
                   domain={paper.domain[0]}
-                  reads={paper.reads ?? 0}
+                  /********* TODO: THIS IS FAKE FOR DEMO PURPOSE *********/
+                  minted={paper.minted.length * 123}
                   price={paper.price ?? 0}
                 />
               ),

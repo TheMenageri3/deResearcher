@@ -9,7 +9,7 @@ interface PaperCardProps {
   title: string;
   authors: string[];
   domain: string;
-  reads: number;
+  minted: number;
   price: number;
 }
 
@@ -17,7 +17,7 @@ export default function PaperCard({
   title,
   authors,
   domain,
-  reads,
+  minted,
   price,
 }: PaperCardProps) {
   const gradientStyle = {
@@ -48,7 +48,7 @@ export default function PaperCard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mt-8">
           <div className="flex items-center">
             <div className="flex -space-x-2 mr-2">
-              {reads > 0 &&
+              {minted > 0 &&
                 Array.from({ length: 3 }).map((_, index) => (
                   <Avatar
                     key={index}
@@ -56,7 +56,7 @@ export default function PaperCard({
                   />
                 ))}
             </div>
-            <span className="text-zinc-600 text-xs">{reads} Reads</span>
+            <span className="text-zinc-600 text-xs">{minted} minted</span>
           </div>
           <Button className="w-full sm:w-auto text-xs flex items-center justify-center bg-zinc-800 hover:bg-zinc-700">
             <SolanaLogo className="w-3 h-3 mr-2" />

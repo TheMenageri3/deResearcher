@@ -3,9 +3,11 @@ import CreatePaperForm from "@/components/Paper/PaperCreateForm";
 
 export default function CreatePaperPage() {
   return (
-    <div>
-      <H3 className="text-center my-6 font-semibold">Create a new paper</H3>
+    <>
+      <H3 className="text-zinc-700 text-center my-6 font-semibold">
+        Create a new paper
+      </H3>
       <CreatePaperForm />
-    </div>
+    </>
   );
 }
