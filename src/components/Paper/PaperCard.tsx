@@ -1,49 +1,41 @@
+"use client";
+import { generateRandomGradient } from "@/lib/utils/helpers";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "../Avatar";
 import { SolanaLogo } from "../SolanaLogo";
-import H3 from "../H3";
 import H4 from "../H4";
 import P from "../P";
+import { useRouter } from "next/navigation";
 
 interface PaperCardProps {
+  id: string;
   title: string;
   authors: string[];
   domain: string;
-  reads: number;
+  minted: number;
   price: number;
+  status: string;
 }
 
-const topColors = [
-  "#4318FF",
-  "#FFAD08",
-  "#00B69B",
-  "#DC6262",
-  "#919393",
-  "#FF1875",
-  "#51A637",
-  "#A984FF",
-];
-
-const generateRandomGradient = () => {
-  const getRandomTopColor = () =>
-    topColors[Math.floor(Math.random() * topColors.length)];
-  const topColor = getRandomTopColor();
-  return `linear-gradient(to bottom, ${topColor}, #9574E2)`;
-};
-
 export default function PaperCard({
+  id,
   title,
   authors,
   domain,
-  reads,
+  minted,
   price,
+  status,
 }: PaperCardProps) {
   const gradientStyle = {
     background: generateRandomGradient(),
   };
+  const router = useRouter();
+
+  const handleClick = () =>
+    router.push(`/research/${status.toLowerCase()}/${id}`);
 
   return (
-    <div className="rounded-lg overflow-hidden shadow-lg">
+    <div className="rounded-lg overflow-hidden shadow-lg cursor-pointer">
       <div className="relative h-48 p-6 md:h-56 group" style={gradientStyle}>
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
         <span className="inline-block bg-zinc-800 bg-opacity-50 rounded-full px-3 py-1 text-xs font-semibold text-white mb-2">
@@ -54,6 +46,7 @@ export default function PaperCard({
           <Button
             variant="secondary"
             className="bg-white text-zinc-800 hover:bg-zinc-100"
+            onClick={handleClick}
           >
             Read More
           </Button>
@@ -66,14 +59,15 @@ export default function PaperCard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mt-8">
           <div className="flex items-center">
             <div className="flex -space-x-2 mr-2">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <Avatar
-                  key={index}
-                  className="w-6 h-6 border-2 border-white rounded-full shadow-md"
-                />
-              ))}
+              {minted > 0 &&
+                Array.from({ length: 3 }).map((_, index) => (
+                  <Avatar
+                    key={index}
+                    className="w-6 h-6 border-2 border-white rounded-full shadow-md"
+                  />
+                ))}
             </div>
-            <span className="text-zinc-600 text-xs">{reads} Reads</span>
+            <span className="text-zinc-600 text-xs">{minted} minted</span>
           </div>
           <Button className="w-full sm:w-auto text-xs flex items-center justify-center bg-zinc-800 hover:bg-zinc-700">
             <SolanaLogo className="w-3 h-3 mr-2" />

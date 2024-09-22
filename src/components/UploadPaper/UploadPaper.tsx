@@ -66,7 +66,7 @@ export const UploadPaper = () => {
                 onChange={(e) =>
                   handleProfileDataChange(
                     key.toLowerCase() as keyof PaperData,
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />

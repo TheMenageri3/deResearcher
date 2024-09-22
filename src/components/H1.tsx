@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/helpers";
+import { cn } from "@/lib/utils";
 
 export default function H1(props: React.HTMLProps<HTMLHeadingElement>) {
   return (
@@ -6,7 +6,7 @@ export default function H1(props: React.HTMLProps<HTMLHeadingElement>) {
       {...props}
       className={cn(
         "text-4xl font-extrabold text-primarytracking-tighter",
-        props.className
+        props.className,
       )}
     />
   );

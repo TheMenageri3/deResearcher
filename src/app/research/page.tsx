@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import PaperCard from "@/components/Paper/PaperCard";
 import H3 from "@/components/H3";
 import { ChevronDown } from "lucide-react";
+import papers from "../../dummyData/dummyPapers.json";
+import { PAPER_STATUS } from "@/lib/utils/constants";
 
 export const metadata: Metadata = {
   title: "Research",
@@ -37,74 +39,25 @@ export default function ResearchPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {papers.map((paper, index) => (
-            <PaperCard key={index} {...paper} />
-          ))}
+          {papers.map(
+            (paper) =>
+              paper.status === PAPER_STATUS.PUBLISHED && (
+                <PaperCard
+                  key={paper.id}
+                  title={paper.title}
+                  authors={paper.authors}
+                  /********* TODO: FOR DEMO ONLY SHOW FIRST DOMAIN *********/
+                  domain={paper.domains[0]}
+                  /********* TODO: THIS IS FAKE FOR DEMO PURPOSE *********/
+                  minted={paper.minted.length * 123}
+                  price={paper.price ?? 0}
+                  status={paper.status}
+                  id={paper.id}
+                />
+              ),
+          )}
         </div>
       </div>
     </MainLayout>
   );
 }
-
-const papers = [
-  {
-    title:
-      "The Role of Artificial Intelligence in Revolutionizing Healthcare Systems",
-    authors: ["John Doe"],
-    domain: "Healthcare",
-    reads: 1009,
-    price: 1,
-  },
-  {
-    title: "Quantum Computing: Advances, Challenges, and Future Directions",
-    authors: ["Jane Smith", "Robert White", "Clara Adams"],
-    domain: "Quantum Computing",
-    reads: 2000,
-    price: 0.8,
-  },
-  {
-    title: "Exploring Blockchain Technology for Enhanced Education Systems",
-    authors: ["Alice Johnson"],
-    domain: "Education",
-    reads: 823,
-    price: 1.4,
-  },
-  {
-    title:
-      "Neural Networks and Their Application in Artificial Intelligence Systems",
-    authors: ["Mark Brown", "Sarah Green", "Tom Lee"],
-    domain: "Artificial Intelligence",
-    reads: 932,
-    price: 10,
-  },
-  {
-    title:
-      "Data Privacy and Security: Challenges and Solutions in the Digital Age",
-    authors: ["Emily Davis"],
-    domain: "Cybersecurity",
-    reads: 1200,
-    price: 1,
-  },
-  {
-    title:
-      "The Role of Artificial Intelligence in Revolutionizing Healthcare Systems",
-    authors: ["John Doe"],
-    domain: "Healthcare",
-    reads: 1009,
-    price: 1,
-  },
-  {
-    title: "Quantum Computing: Advances, Challenges, and Future Directions",
-    authors: ["Jane Smith", "Robert White", "Clara Adams"],
-    domain: "Quantum Computing",
-    reads: 2000,
-    price: 0.8,
-  },
-  {
-    title: "Exploring Blockchain Technology for Enhanced Education Systems",
-    authors: ["Alice Johnson"],
-    domain: "Education",
-    reads: 823,
-    price: 1.4,
-  },
-];
