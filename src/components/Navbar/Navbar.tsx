@@ -36,7 +36,7 @@ export const Navbar = () => {
           <SearchBar placeholder="Search the universe" />
         </button>
       </div>
-      <div className="hidden tablet:flex flex-row justify-between gap-[20px]">
+      <div className="hidden sm:flex flex-row justify-between gap-[20px]">
         {NavLinks.map((link) => (
           <div
             key={link.name}

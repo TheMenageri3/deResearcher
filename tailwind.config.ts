@@ -11,7 +11,6 @@ const config = {
   prefix: "",
   theme: {
     screens: {
-      tablet: "600px",
       sm: "640px",
       md: "768px",
       lg: "1024px",
@@ -28,6 +27,7 @@ const config = {
     extend: {
       fontFamily: {
         kalnia: ["var(--font-kalnia)"],
+        atkinson: ["var(--font-atkinson)"],
       },
       colors: {
         border: "hsl(var(--border))",

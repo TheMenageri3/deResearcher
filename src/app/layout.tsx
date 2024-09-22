@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Kalnia } from "next/font/google";
+import { Inter, Kalnia, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { UIProvider } from "@/components/Providers/UIProvider";
 
@@ -8,6 +8,11 @@ const kalnia = Kalnia({
   subsets: ["latin"],
   weight: "600",
   variable: "--font-kalnia",
+});
+const atkinson = Atkinson_Hyperlegible({
+  subsets: ["latin"],
+  weight: "700",
+  variable: "--font-atkinson",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={kalnia.variable}>
+    <html lang="en" className={`${kalnia.variable} ${atkinson.variable}`}>
       <body className={`${inter.className} min-w-[350px]`}>
         <UIProvider>{children}</UIProvider>
       </body>
