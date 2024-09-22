@@ -10,7 +10,7 @@ export default function LandingPage() {
   return (
     <MainLayout>
       <div className="m-auto my-10 max-w-5xl space-y-10 px-3">
-        <H1 className="font-kalnia">deResearcher</H1>
+        <H1>deResearcher</H1>
         <P className="text-[20px]">
           deResearcher - a decentralized research platform on solana
         </P>

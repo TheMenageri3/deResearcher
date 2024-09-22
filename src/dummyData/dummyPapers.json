@@ -7,7 +7,7 @@
     "status": "peer_reviewing",
     "authors": ["Adela Parkson", "Bob Lee"],
     "domains": ["Healthcare", "AI", "Medical Imaging"],
-    "description": "Explores how AI enhances diagnostic accuracy in medical imaging through advanced algorithms and machine learning techniques.",
+    "description": "Explores how AI enhances diagnostic accuracy in medical imaging through advanced algorithms and machine learning techniques. The authors present a comprehensive overview of the current state of the field, including the various approaches and techniques used in medical imaging diagnostics, as well as the challenges and limitations of these methods. The paper also discusses the potential benefits and drawbacks of using AI in medical imaging diagnostics, including the potential for biases and errors in the models, and the need for transparency and accountability in the development of these models. The authors also explore the potential applications of AI in medical imaging diagnostics, including improved diagnosis accuracy, enhanced decision-making, and increased efficiency in the healthcare system. The paper also discusses the potential challenges and limitations of using AI in medical imaging diagnostics, including data quality and availability issues, as well as the potential for biases and errors in the AI models. The authors also present a case study of a successful AI application in medical imaging diagnostics, highlighting the potential of AI to improve healthcare outcomes.",
     "price": null,
     "image_url": "https://example.com/image1.png",
     "pdf_url": "https://example.com/pdf1.pdf",
@@ -25,7 +25,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f300"
@@ -39,7 +39,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f300"
@@ -54,7 +54,7 @@
     "status": "published",
     "authors": ["Adela Parkson", "David Brown"],
     "domains": ["Finance", "AI", "Machine Learning"],
-    "description": "Analyzes the application of machine learning models in assessing financial risks, improving prediction accuracy and decision-making.",
+    "description": "Analyzes the application of machine learning models in assessing financial risks, improving prediction accuracy and decision-making. The authors present a comprehensive overview of the current state of the field, including the various approaches and techniques used in financial risk assessment, as well as the challenges and limitations of these methods. The paper also discusses the potential benefits and drawbacks of using machine learning in finance, including the potential for biases and errors in the models, and the need for transparency and accountability in the development of these models.",
     "price": 0.9,
     "image_url": "https://example.com/image2.png",
     "pdf_url": "https://example.com/pdf2.pdf",
@@ -77,7 +77,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -91,7 +91,7 @@
         "rating": 4.0,
         "reviewers": {
           "id": "user4",
-          "name": "Dr. Grace Liu"
+          "name": "Grace Liu"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -105,7 +105,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user5",
-          "name": "Dr. David Chen"
+          "name": "David Chen"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -119,7 +119,7 @@
         "rating": 4.6,
         "reviewers": {
           "id": "user6",
-          "name": "Dr. Robert Chen"
+          "name": "Robert Chen"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -148,7 +148,7 @@
     "status": "approved",
     "authors": ["Adela Parkson", "Henry Thompson"],
     "domains": ["Automotive", "AI", "Autonomous Systems"],
-    "description": "Investigates the role of AI in improving the safety features of autonomous vehicles through real-time data processing and decision-making.",
+    "description": "Investigates the role of AI in improving the safety features of autonomous vehicles through real-time data processing and decision-making. The authors discuss the potential applications of AI in autonomous vehicles, including improved collision detection and avoidance, enhanced driver assistance systems, and increased vehicle safety. The paper also explores the challenges and limitations of integrating AI into autonomous vehicles, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
     "price": null,
     "image_url": "https://example.com/image3.png",
     "pdf_url": "https://example.com/pdf3.pdf",
@@ -166,7 +166,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -180,7 +180,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -194,7 +194,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -208,7 +208,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user4",
-          "name": "Dr. Grace Liu"
+          "name": "Grace Liu"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -237,7 +237,7 @@
     "status": "request_revision",
     "authors": ["Adela Parkson", "Jack Wilson"],
     "domains": ["Energy", "AI", "Machine Learning"],
-    "description": "Explores machine learning techniques to optimize renewable energy sources, focusing on solar and wind energy efficiency.",
+    "description": "Explores machine learning techniques to optimize renewable energy sources, focusing on solar and wind energy efficiency. The authors discuss the potential applications of AI in renewable energy optimization, including improved predictive modeling, enhanced decision-making, and increased energy efficiency. The paper also explores the challenges and limitations of integrating AI into renewable energy systems, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
     "price": null,
     "image_url": "https://example.com/image4.png",
     "pdf_url": "https://example.com/pdf4.pdf",
@@ -255,7 +255,7 @@
         "rating": 2,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -269,7 +269,7 @@
         "rating": 2.5,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -283,7 +283,7 @@
         "rating": 3,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -297,7 +297,7 @@
         "rating": 2,
         "reviewers": {
           "id": "user4",
-          "name": "Dr. Grace Liu"
+          "name": "Grace Liu"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -311,7 +311,7 @@
         "rating": 2.5,
         "reviewers": {
           "id": "user8",
-          "name": "Prof. Daniel Brown"
+          "name": "Daniel Brown"
         },
         "user_id": "cjo0grj7u0005x0s9esb6sjrg",
         "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -326,7 +326,7 @@
     "status": "peer_reviewing",
     "authors": ["Adela Parkson", "Liam Brown"],
     "domains": ["Customer Service", "AI", "NLP"],
-    "description": "Examines advancements in NLP to develop more responsive and intuitive customer service chatbots.",
+    "description": "Examines advancements in natural language processing (NLP) to develop more responsive and intuitive customer service chatbots. The authors discuss the potential applications of NLP in customer service, including improved customer satisfaction, enhanced decision-making, and reduced costs. The paper also explores the challenges and limitations of integrating NLP into customer service systems, including data quality and availability issues, as well as the potential for biases and errors in the NLP models.",
     "price": null,
     "image_url": "https://example.com/image5.png",
     "pdf_url": "https://example.com/pdf5.pdf",
@@ -344,7 +344,7 @@
     "status": "published",
     "authors": ["Mia Patel", "Noah Scott"],
     "domains": ["E-Commerce", "AI", "Personalization"],
-    "description": "Analyzes how AI algorithms can personalize the e-commerce experience, enhancing customer satisfaction and sales.",
+    "description": "Analyzes how AI algorithms can personalize the e-commerce experience, enhancing customer satisfaction and sales. The authors discuss the benefits of personalization, including improved customer satisfaction, enhanced decision-making, and increased sales. The paper also explores the challenges and limitations of personalization, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
     "price": 4,
     "image_url": "https://example.com/image6.png",
     "pdf_url": "https://example.com/pdf6.pdf",
@@ -394,7 +394,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user8",
-          "name": "Prof. Daniel Brown"
+          "name": "Daniel Brown"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f305"
@@ -408,7 +408,7 @@
         "rating": 5.0,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f305"
@@ -422,7 +422,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user8",
-          "name": "Prof. Daniel Brown"
+          "name": "Daniel Brown"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f305"
@@ -437,7 +437,7 @@
     "status": "peer_reviewing",
     "authors": ["Samuel Turner", "Tina Lee"],
     "domains": ["Manufacturing", "AI", "Predictive Maintenance"],
-    "description": "Investigates the use of AI for predictive maintenance in manufacturing, aiming to reduce downtime and costs.",
+    "description": "Investigates the use of AI for predictive maintenance in manufacturing, aiming to reduce downtime and costs. The authors present a comprehensive overview of the current state of AI-driven predictive maintenance in manufacturing, highlighting its potential benefits and challenges. The paper also explores the technical feasibility of various AI approaches, such as machine learning and deep learning, and discusses their potential applications in the manufacturing industry.",
     "price": null,
     "image_url": "https://example.com/image7.png",
     "pdf_url": "https://example.com/pdf7.pdf",
@@ -455,7 +455,7 @@
         "rating": 4.6,
         "reviewers": {
           "id": "user9",
-          "name": "Dr. Rachel Taylor"
+          "name": "Rachel Taylor"
         },
         "user_id": "user9",
         "paper_id": "cl9wvqzh9000000l8mzt6f306"
@@ -470,7 +470,7 @@
     "status": "approved",
     "authors": ["Uma Singh", "Victor Chen"],
     "domains": ["Education", "AI", "Adaptive Learning"],
-    "description": "Explores AI-driven personalized learning systems that adapt to individual student needs and learning styles.",
+    "description": "Explores AI-driven personalized learning systems that adapt to individual student needs and learning styles in real-time. The authors present a comprehensive overview of the current state of AI-driven personalized learning systems, highlighting their potential benefits and challenges. The paper also explores the technical feasibility of various AI approaches, such as machine learning and deep learning, and discusses their potential applications in education.",
     "price": null,
     "image_url": "https://example.com/image8.png",
     "pdf_url": "https://example.com/pdf8.pdf",
@@ -487,7 +487,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user9",
-          "name": "Dr. Rachel Taylor"
+          "name": "Rachel Taylor"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f307"
@@ -501,7 +501,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f307"
@@ -515,7 +515,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f307"
@@ -529,7 +529,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u05",
         "paper_id": "cl9wvqzh9000000l8mzt6f307"
@@ -558,7 +558,7 @@
     "status": "published",
     "authors": ["William Harris", "Xenia Zhao"],
     "domains": ["Blockchain", "AI", "Data Security"],
-    "description": "Examines the synergy between blockchain and AI to bolster data security and transparency in various applications.",
+    "description": "Examines the synergy between blockchain and AI to bolster data security and transparency in various applications. The authors explore the potential of integrating blockchain with AI to create a secure and transparent infrastructure for data storage and analysis. The paper also discusses the challenges and limitations of using blockchain and AI for data security and transparency.",
     "price": 1,
     "image_url": "https://example.com/image9.png",
     "pdf_url": "https://example.com/pdf9.pdf",
@@ -579,7 +579,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u08",
         "paper_id": "cl9wvqzh9000000l8mzt6f308"
@@ -593,7 +593,7 @@
         "rating": 4.2,
         "reviewers": {
           "id": "user4",
-          "name": "Dr. Grace Liu"
+          "name": "Grace Liu"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u08",
         "paper_id": "cl9wvqzh9000000l8mzt6f308"
@@ -607,7 +607,7 @@
         "rating": 4.0,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u08",
         "paper_id": "cl9wvqzh9000000l8mzt6f308"
@@ -621,7 +621,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user5",
-          "name": "Dr. David Chen"
+          "name": "David Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u08",
         "paper_id": "cl9wvqzh9000000l8mzt6f308"
@@ -635,7 +635,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user6",
-          "name": "Dr. Robert Chen"
+          "name": "Robert Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u08",
         "paper_id": "cl9wvqzh9000000l8mzt6f308"
@@ -650,7 +650,7 @@
     "status": "published",
     "authors": ["Yara Al-Farsi", "Zainab Ahmed"],
     "domains": ["Cybersecurity", "AI", "Threat Detection"],
-    "description": "Investigates AI-powered cybersecurity solutions to combat modern cyber threats.",
+    "description": "Investigates AI-powered cybersecurity solutions to combat modern cyber threats. The authors discuss the latest AI techniques used in cybersecurity, including machine learning, deep learning, and natural language processing. The paper also explores the challenges and limitations of AI-powered cybersecurity solutions, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
     "price": 3,
     "image_url": "https://example.com/image10.png",
     "pdf_url": "https://example.com/pdf10.pdf",
@@ -661,6 +661,7 @@
       { "user_id": "user22" },
       { "user_id": "user23" }
     ],
+    "version": 1,
     "created_at": "2024-10-01T15:20:00.000Z",
     "updated_at": "2024-10-02T16:30:00.000Z",
     "peer_reviews": [
@@ -673,7 +674,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u09",
         "paper_id": "cl9wvqzh9000000l8mzt6f309"
@@ -687,7 +688,7 @@
         "rating": 4.5,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u09",
         "paper_id": "cl9wvqzh9000000l8mzt6f309"
@@ -701,7 +702,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u09",
         "paper_id": "cl9wvqzh9000000l8mzt6f309"
@@ -715,7 +716,21 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user4",
-          "name": "Dr. Grace Liu"
+          "name": "Grace Liu"
+        },
+        "user_id": "cl9wvqzg7000000l8mz9w8u09",
+        "paper_id": "cl9wvqzh9000000l8mzt6f309"
+      },
+      {
+        "id": "rev236",
+        "title": "Innovative Approach",
+        "description": "The authors present an innovative approach to AI-driven cybersecurity solutions.",
+        "created_at": "2024-10-13T11:30:00.000Z",
+        "updated_at": "2024-10-14T16:45:00.000Z",
+        "rating": 4.7,
+        "reviewers": {
+          "id": "user5",
+          "name": "David Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u09",
         "paper_id": "cl9wvqzh9000000l8mzt6f309"
@@ -731,7 +746,7 @@
     "status": "published",
     "authors": ["Olivia Green", "Paul Roberts"],
     "domains": ["Climate Science", "AI", "Environmental Studies"],
-    "description": "Explores the application of AI in predicting climate change patterns and developing mitigation strategies.",
+    "description": "Explores the application of AI in predicting climate change patterns and developing mitigation strategies. The authors present a comprehensive analysis of the current state of the field, including the various approaches and techniques used in climate change prediction and mitigation. The paper also discusses the challenges and limitations of using AI in climate change research, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
     "price": 2.5,
     "image_url": "https://example.com/image11.png",
     "pdf_url": "https://example.com/pdf11.pdf",
@@ -752,7 +767,7 @@
         "rating": 4.9,
         "reviewers": {
           "id": "user9",
-          "name": "Dr. Rachel Taylor"
+          "name": "Rachel Taylor"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u10",
         "paper_id": "cl9wvqzh9000000l8mzt6f310"
@@ -780,7 +795,7 @@
         "rating": 4.9,
         "reviewers": {
           "id": "user5",
-          "name": "Dr. David Chen"
+          "name": "David Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u10",
         "paper_id": "cl9wvqzh9000000l8mzt6f310"
@@ -794,7 +809,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u10",
         "paper_id": "cl9wvqzh9000000l8mzt6f310"
@@ -808,7 +823,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user10",
-          "name": "Prof. Mark Johnson"
+          "name": "Mark Johnson"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u10",
         "paper_id": "cl9wvqzh9000000l8mzt6f310"
@@ -821,9 +836,9 @@
     "paper_pubkey": "0xf1e2d3c4b5a6f7e8",
     "title": "AI-Driven Personalized Medicine: Tailoring Treatments",
     "status": "published",
-    "authors": ["Dr. James Wilson", "Emma Thompson"],
+    "authors": ["James Wilson", "Emma Thompson"],
     "domains": ["Healthcare", "AI", "Personalized Medicine"],
-    "description": "Investigates the use of AI in developing personalized medical treatments based on individual patient data and genetic profiles.",
+    "description": "Investigates the use of AI in developing personalized medical treatments based on individual patient data and genetic profiles. The authors explore various AI techniques for tailoring treatments to specific patient needs, including machine learning, natural language processing, and computer vision. The paper also discusses the potential benefits and challenges of AI-driven personalized medicine, as well as the need for further research and development in this field.",
     "price": 3.5,
     "image_url": "https://example.com/image12.png",
     "pdf_url": "https://example.com/pdf12.pdf",
@@ -844,7 +859,7 @@
         "rating": 4.9,
         "reviewers": {
           "id": "user6",
-          "name": "Dr. Robert Chen"
+          "name": "Robert Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u11",
         "paper_id": "cl9wvqzh9000000l8mzt6f311"
@@ -858,7 +873,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u11",
         "paper_id": "cl9wvqzh9000000l8mzt6f311"
@@ -872,7 +887,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u11",
         "paper_id": "cl9wvqzh9000000l8mzt6f311"
@@ -886,7 +901,7 @@
         "rating": 4.9,
         "reviewers": {
           "id": "user5",
-          "name": "Dr. David Chen"
+          "name": "David Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u11",
         "paper_id": "cl9wvqzh9000000l8mzt6f311"
@@ -913,9 +928,9 @@
     "paper_pubkey": "0xa9b8c7d6e5f4a3b2",
     "title": "AI in Smart Cities: Optimizing Urban Infrastructure",
     "status": "published",
-    "authors": ["Dr. Sophia Lee", "Alexander Wright"],
+    "authors": ["Sophia Lee", "Alexander Wright"],
     "domains": ["Urban Planning", "AI", "Smart Cities"],
-    "description": "Examines the role of AI in optimizing urban infrastructure and improving quality of life in smart cities.",
+    "description": "Examines the role of AI in optimizing urban infrastructure and improving quality of life in smart cities. The authors discuss the potential applications of AI in various urban domains, including transportation, energy, waste management, public safety, and healthcare. The paper also explores the challenges and limitations of implementing AI in urban infrastructure, including data quality and availability, bias and fairness, cybersecurity, and governance.",
     "price": 2.8,
     "image_url": "https://example.com/image13.png",
     "pdf_url": "https://example.com/pdf13.pdf",
@@ -938,7 +953,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user1",
-          "name": "Dr. Emily Clark"
+          "name": "Elon Musk"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u12",
         "paper_id": "cl9wvqzh9000000l8mzt6f312"
@@ -952,7 +967,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u12",
         "paper_id": "cl9wvqzh9000000l8mzt6f312"
@@ -966,7 +981,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user3",
-          "name": "Dr. Emily Clark"
+          "name": "Emily Clark"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u12",
         "paper_id": "cl9wvqzh9000000l8mzt6f312"
@@ -994,7 +1009,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user10",
-          "name": "Prof. Mark Johnson"
+          "name": "Mark Johnson"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u12",
         "paper_id": "cl9wvqzh9000000l8mzt6f312"
@@ -1007,9 +1022,9 @@
     "paper_pubkey": "0xc1d2e3f4a5b6c7d8",
     "title": "AI in Renewable Energy: Optimizing Grid Integration",
     "status": "published",
-    "authors": ["Dr. Thomas Green", "Laura Chen"],
+    "authors": ["Thomas Green", "Laura Chen"],
     "domains": ["Renewable Energy", "AI", "Grid Integration"],
-    "description": "Investigates the application of AI in optimizing the integration of renewable energy sources into existing power grids.",
+    "description": "Investigates the application of AI in optimizing the integration of renewable energy sources into existing power grids, focusing on predictive modeling, real-time optimization, and energy storage. The authors discuss the potential of AI to improve grid stability, reduce emissions, and enhance energy efficiency. The paper also explores the challenges and limitations of using AI in renewable energy integration, including data quality and availability issues, as well as the need for increased transparency and accountability in AI decision-making.",
     "price": 3.2,
     "image_url": "https://example.com/image14.png",
     "pdf_url": "https://example.com/pdf14.pdf",
@@ -1033,7 +1048,7 @@
         "rating": 4.9,
         "reviewers": {
           "id": "user2",
-          "name": "Prof. Frank Green"
+          "name": "Frank Green"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u13",
         "paper_id": "cl9wvqzh9000000l8mzt6f313"
@@ -1047,7 +1062,7 @@
         "rating": 4.8,
         "reviewers": {
           "id": "user4",
-          "name": "Dr. Grace Liu"
+          "name": "Grace Liu"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u13",
         "paper_id": "cl9wvqzh9000000l8mzt6f313"
@@ -1061,7 +1076,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user6",
-          "name": "Dr. Robert Chen"
+          "name": "Robert Chen"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u13",
         "paper_id": "cl9wvqzh9000000l8mzt6f313"
@@ -1075,7 +1090,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user8",
-          "name": "Prof. Daniel Brown"
+          "name": "Daniel Brown"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u13",
         "paper_id": "cl9wvqzh9000000l8mzt6f313"
@@ -1089,7 +1104,7 @@
         "rating": 4.7,
         "reviewers": {
           "id": "user10",
-          "name": "Prof. Mark Johnson"
+          "name": "Mark Johnson"
         },
         "user_id": "cl9wvqzg7000000l8mz9w8u13",
         "paper_id": "cl9wvqzh9000000l8mzt6f313"

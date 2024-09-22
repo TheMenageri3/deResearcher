@@ -24,7 +24,7 @@
         "status": "peer_reviewing",
         "authors": ["Adela Parkson", "Bob Lee"],
         "domains": ["Healthcare", "AI", "Medical Imaging"],
-        "description": "Explores how AI enhances diagnostic accuracy in medical imaging through advanced algorithms and machine learning techniques.",
+        "description": "Explores how AI enhances diagnostic accuracy in medical imaging through advanced algorithms and machine learning techniques. The authors present a comprehensive overview of the current state of the field, including the various approaches and techniques used in medical imaging diagnostics, as well as the challenges and limitations of these methods. The paper also discusses the potential benefits and drawbacks of using AI in medical imaging diagnostics, including the potential for biases and errors in the models, and the need for transparency and accountability in the development of these models. The authors also explore the potential applications of AI in medical imaging diagnostics, including improved diagnosis accuracy, enhanced decision-making, and increased efficiency in the healthcare system. The paper also discusses the potential challenges and limitations of using AI in medical imaging diagnostics, including data quality and availability issues, as well as the potential for biases and errors in the AI models. The authors also present a case study of a successful AI application in medical imaging diagnostics, highlighting the potential of AI to improve healthcare outcomes.",
         "price": null,
         "image_url": "https://example.com/image1.png",
         "pdf_url": "https://example.com/pdf1.pdf",
@@ -42,7 +42,7 @@
             "rating": 4.5,
             "reviewers": {
               "id": "user1",
-              "name": "Dr. Emily Clark"
+              "name": "Elon Musk"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f300"
@@ -56,7 +56,7 @@
             "rating": 4.7,
             "reviewers": {
               "id": "user2",
-              "name": "Prof. Frank Green"
+              "name": "Frank Green"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f300"
@@ -71,7 +71,7 @@
         "status": "published",
         "authors": ["Adela Parkson", "David Brown"],
         "domains": ["Finance", "AI", "Machine Learning"],
-        "description": "Analyzes the application of machine learning models in assessing financial risks, improving prediction accuracy and decision-making.",
+        "description": "Analyzes the application of machine learning models in assessing financial risks, improving prediction accuracy and decision-making. The authors present a comprehensive overview of the current state of the field, including the various approaches and techniques used in financial risk assessment, as well as the challenges and limitations of these methods. The paper also discusses the potential benefits and drawbacks of using machine learning in finance, including the potential for biases and errors in the models, and the need for transparency and accountability in the development of these models.",
         "price": 0.9,
         "image_url": "https://example.com/image2.png",
         "pdf_url": "https://example.com/pdf2.pdf",
@@ -94,7 +94,7 @@
             "rating": 4.5,
             "reviewers": {
               "id": "user3",
-              "name": "Dr. Emily Clark"
+              "name": "Emily Clark"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -108,7 +108,7 @@
             "rating": 4.0,
             "reviewers": {
               "id": "user4",
-              "name": "Dr. Grace Liu"
+              "name": "Grace Liu"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -122,7 +122,7 @@
             "rating": 4.8,
             "reviewers": {
               "id": "user5",
-              "name": "Dr. David Chen"
+              "name": "David Chen"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -136,7 +136,7 @@
             "rating": 4.6,
             "reviewers": {
               "id": "user6",
-              "name": "Dr. Robert Chen"
+              "name": "Robert Chen"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f301"
@@ -165,7 +165,7 @@
         "status": "approved",
         "authors": ["Adela Parkson", "Henry Thompson"],
         "domains": ["Automotive", "AI", "Autonomous Systems"],
-        "description": "Investigates the role of AI in improving the safety features of autonomous vehicles through real-time data processing and decision-making.",
+        "description": "Investigates the role of AI in improving the safety features of autonomous vehicles through real-time data processing and decision-making. The authors discuss the potential applications of AI in autonomous vehicles, including improved collision detection and avoidance, enhanced driver assistance systems, and increased vehicle safety. The paper also explores the challenges and limitations of integrating AI into autonomous vehicles, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
         "price": null,
         "image_url": "https://example.com/image3.png",
         "pdf_url": "https://example.com/pdf3.pdf",
@@ -183,7 +183,7 @@
             "rating": 4.8,
             "reviewers": {
               "id": "user1",
-              "name": "Dr. Emily Clark"
+              "name": "Elon Musk"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -197,7 +197,7 @@
             "rating": 4.5,
             "reviewers": {
               "id": "user2",
-              "name": "Prof. Frank Green"
+              "name": "Frank Green"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -211,7 +211,7 @@
             "rating": 4.7,
             "reviewers": {
               "id": "user3",
-              "name": "Dr. Emily Clark"
+              "name": "Emily Clark"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -225,7 +225,7 @@
             "rating": 4.8,
             "reviewers": {
               "id": "user4",
-              "name": "Dr. Grace Liu"
+              "name": "Grace Liu"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f302"
@@ -254,7 +254,7 @@
         "status": "request_revision",
         "authors": ["Adela Parkson", "Jack Wilson"],
         "domains": ["Energy", "AI", "Machine Learning"],
-        "description": "Explores machine learning techniques to optimize renewable energy sources, focusing on solar and wind energy efficiency.",
+        "description": "Explores machine learning techniques to optimize renewable energy sources, focusing on solar and wind energy efficiency. The authors discuss the potential applications of AI in renewable energy optimization, including improved predictive modeling, enhanced decision-making, and increased energy efficiency. The paper also explores the challenges and limitations of integrating AI into renewable energy systems, including data quality and availability issues, as well as the potential for biases and errors in the AI models.",
         "price": null,
         "image_url": "https://example.com/image4.png",
         "pdf_url": "https://example.com/pdf4.pdf",
@@ -272,7 +272,7 @@
             "rating": 2,
             "reviewers": {
               "id": "user1",
-              "name": "Dr. Emily Clark"
+              "name": "Elon Musk"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -286,7 +286,7 @@
             "rating": 2.5,
             "reviewers": {
               "id": "user2",
-              "name": "Prof. Frank Green"
+              "name": "Frank Green"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -300,7 +300,7 @@
             "rating": 3,
             "reviewers": {
               "id": "user3",
-              "name": "Dr. Emily Clark"
+              "name": "Emily Clark"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -314,7 +314,7 @@
             "rating": 2,
             "reviewers": {
               "id": "user4",
-              "name": "Dr. Grace Liu"
+              "name": "Grace Liu"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -328,7 +328,7 @@
             "rating": 2.5,
             "reviewers": {
               "id": "user8",
-              "name": "Prof. Daniel Brown"
+              "name": "Daniel Brown"
             },
             "user_id": "cjo0grj7u0005x0s9esb6sjrg",
             "paper_id": "cl9wvqzh9000000l8mzt6f303"
@@ -343,7 +343,7 @@
         "status": "peer_reviewing",
         "authors": ["Adela Parkson", "Liam Brown"],
         "domains": ["Customer Service", "AI", "NLP"],
-        "description": "Examines advancements in NLP to develop more responsive and intuitive customer service chatbots.",
+        "description": "Examines advancements in natural language processing (NLP) to develop more responsive and intuitive customer service chatbots. The authors discuss the potential applications of NLP in customer service, including improved customer satisfaction, enhanced decision-making, and reduced costs. The paper also explores the challenges and limitations of integrating NLP into customer service systems, including data quality and availability issues, as well as the potential for biases and errors in the NLP models.",
         "price": null,
         "image_url": "https://example.com/image5.png",
         "pdf_url": "https://example.com/pdf5.pdf",

@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Kalnia, Atkinson_Hyperlegible } from "next/font/google";
+import { Inter, Arbutus, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { UIProvider } from "@/components/Providers/UIProvider";
 
 const inter = Inter({ subsets: ["latin"] });
-const kalnia = Kalnia({
+const arbutus = Arbutus({
   subsets: ["latin"],
-  weight: "600",
-  variable: "--font-kalnia",
+  weight: "400",
+  variable: "--font-arbutus",
 });
 const atkinson = Atkinson_Hyperlegible({
   subsets: ["latin"],
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${kalnia.variable} ${atkinson.variable}`}>
+    <html lang="en" className={`${arbutus.variable} ${atkinson.variable}`}>
       <body className={`${inter.className} min-w-[350px]`}>
         <UIProvider>{children}</UIProvider>
       </body>

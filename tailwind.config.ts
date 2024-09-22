@@ -26,7 +26,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        kalnia: ["var(--font-kalnia)"],
+        arbutus: ["var(--font-arbutus)"],
         atkinson: ["var(--font-atkinson)"],
       },
       colors: {
