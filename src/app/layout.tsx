@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Arbutus, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
-import { UIProvider } from "@/components/providers/UIProvider";
+import { UIProvider } from "@/components/Providers/UIProvider";
 
 const inter = Inter({ subsets: ["latin"] });
+const arbutus = Arbutus({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-arbutus",
+});
+const atkinson = Atkinson_Hyperlegible({
+  subsets: ["latin"],
+  weight: "700",
+  variable: "--font-atkinson",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -19,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${arbutus.variable} ${atkinson.variable}`}>
       <body className={`${inter.className} min-w-[350px]`}>
         <UIProvider>{children}</UIProvider>
       </body>
