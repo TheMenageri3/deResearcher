@@ -1,9 +1,9 @@
 import H3 from "@/components/H3";
-import Table from "../Dashboard/Table";
-import users from "../../dummyData/dummyUser.json";
+import Table from "../Table";
+import users from "../../../dummyData/dummyUser.json";
 import { COLUMNS } from "@/lib/utils/constants";
 import H4 from "@/components/H4";
-import P from "../P";
+import P from "../../P";
 
 export default function MintedComponent() {
   // Create a new columns array based on COLUMNS, but replace the last item
@@ -20,8 +20,9 @@ export default function MintedComponent() {
         title: paper.title,
         authors: paper.authors.join(", "),
         createdDate: new Date(paper.created_at).toISOString().split("T")[0],
-        domain: paper.domain.join(", "),
+        domains: paper.domains.join(", "),
         minted: paper.minted.length,
+        status: paper.status,
       })) || [];
 
   return (

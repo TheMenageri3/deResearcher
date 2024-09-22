@@ -19,7 +19,7 @@ export default async function DashboardPage() {
         title: paper.title,
         authors: paper.authors.join(", "),
         createdDate: new Date(paper.created_at).toISOString().split("T")[0],
-        domain: paper.domain.join(", "),
+        domains: paper.domains.join(", "),
         status: paper.status,
       })) || [];
 
@@ -47,11 +47,7 @@ export default async function DashboardPage() {
         </P>
       )}
       {latestPeerReviewingPapers.length > 0 && (
-        <Table
-          columns={COLUMNS}
-          data={latestPeerReviewingPapers}
-          marginTop="mt-8"
-        />
+        <Table columns={COLUMNS} data={latestPeerReviewingPapers} />
       )}
     </main>
   );

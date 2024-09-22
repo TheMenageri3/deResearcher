@@ -13,7 +13,7 @@ export default function OverviewComponent() {
       title: paper.title,
       authors: paper.authors.join(", "),
       createdDate: new Date(paper.created_at).toISOString().split("T")[0],
-      domain: paper.domain.join(", "),
+      domains: paper.domains.join(", "),
       status: paper.status,
     })) || [];
 

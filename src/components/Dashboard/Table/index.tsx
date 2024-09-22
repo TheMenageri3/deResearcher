@@ -1,7 +1,9 @@
 "use client";
+
 import { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { PAPER_STATUS } from "@/lib/utils/constants";
+import { useRouter } from "next/navigation";
 
 type ColumnDefinition = {
   key: string;
@@ -75,8 +77,12 @@ const TableHeader: React.FC<{
 const TableRow: React.FC<{
   item: any;
   columns: ColumnDefinition[];
-}> = ({ item, columns }) => (
-  <tr className="hover:bg-zinc-50 cursor-pointer">
+  onRowClick: (item: any) => void;
+}> = ({ item, columns, onRowClick }) => (
+  <tr
+    className="hover:bg-zinc-50 cursor-pointer"
+    onClick={() => onRowClick(item)}
+  >
     {columns.map((column) => (
       <td
         key={column.key}
@@ -117,6 +123,7 @@ export default function Table({
     key: "createdDate",
     direction: "desc",
   });
+  const router = useRouter();
 
   const sortedData = useMemo(() => {
     if (!Array.isArray(data)) {
@@ -157,6 +164,9 @@ export default function Table({
     });
   };
 
+  const handleRowClick = (item: { id: string; status: string }) =>
+    router.push(`/research/${item.status.toLowerCase()}/${item.id}`);
+
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available</div>;
   }
@@ -178,6 +188,7 @@ export default function Table({
                     key={item.id || index}
                     item={item}
                     columns={columns}
+                    onRowClick={handleRowClick}
                   />
                 ))}
               </tbody>

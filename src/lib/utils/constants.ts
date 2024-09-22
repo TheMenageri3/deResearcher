@@ -16,6 +16,6 @@ export const COLUMNS: ColumnDefinition[] = [
   { key: "title", header: "Paper Title" },
   { key: "authors", header: "Authors" },
   { key: "createdDate", header: "Created Date", sortable: true },
-  { key: "domain", header: "Domain" },
+  { key: "domains", header: "Domains" },
   { key: "status", header: "Status", sortable: true },
 ];

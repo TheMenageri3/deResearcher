@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Kalnia } from "next/font/google";
 import "./globals.css";
 import { UIProvider } from "@/components/Providers/UIProvider";
 
 const inter = Inter({ subsets: ["latin"] });
+const kalnia = Kalnia({
+  subsets: ["latin"],
+  weight: "600",
+  variable: "--font-kalnia",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -19,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={kalnia.variable}>
       <body className={`${inter.className} min-w-[350px]`}>
         <UIProvider>{children}</UIProvider>
       </body>

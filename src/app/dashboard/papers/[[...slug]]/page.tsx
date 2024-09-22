@@ -1,5 +1,5 @@
 import OverviewComponent from "@/components/Dashboard/Overview";
-import MintedComponent from "@/components/Minted";
+import MintedComponent from "@/components/Dashboard/Minted";
 import P from "@/components/P";
 import { PAPER_STATUS } from "@/lib/utils/constants";
 

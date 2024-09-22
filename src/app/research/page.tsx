@@ -46,10 +46,13 @@ export default function ResearchPage() {
                   key={paper.id}
                   title={paper.title}
                   authors={paper.authors}
-                  domain={paper.domain[0]}
+                  /********* TODO: FOR DEMO ONLY SHOW FIRST DOMAIN *********/
+                  domain={paper.domains[0]}
                   /********* TODO: THIS IS FAKE FOR DEMO PURPOSE *********/
                   minted={paper.minted.length * 123}
                   price={paper.price ?? 0}
+                  status={paper.status}
+                  id={paper.id}
                 />
               ),
           )}

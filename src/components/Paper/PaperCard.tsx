@@ -1,31 +1,41 @@
+"use client";
 import { generateRandomGradient } from "@/lib/utils/helpers";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "../Avatar";
 import { SolanaLogo } from "../SolanaLogo";
 import H4 from "../H4";
 import P from "../P";
+import { useRouter } from "next/navigation";
 
 interface PaperCardProps {
+  id: string;
   title: string;
   authors: string[];
   domain: string;
   minted: number;
   price: number;
+  status: string;
 }
 
 export default function PaperCard({
+  id,
   title,
   authors,
   domain,
   minted,
   price,
+  status,
 }: PaperCardProps) {
   const gradientStyle = {
     background: generateRandomGradient(),
   };
+  const router = useRouter();
+
+  const handleClick = () =>
+    router.push(`/research/${status.toLowerCase()}/${id}`);
 
   return (
-    <div className="rounded-lg overflow-hidden shadow-lg">
+    <div className="rounded-lg overflow-hidden shadow-lg cursor-pointer">
       <div className="relative h-48 p-6 md:h-56 group" style={gradientStyle}>
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
         <span className="inline-block bg-zinc-800 bg-opacity-50 rounded-full px-3 py-1 text-xs font-semibold text-white mb-2">
@@ -36,6 +46,7 @@ export default function PaperCard({
           <Button
             variant="secondary"
             className="bg-white text-zinc-800 hover:bg-zinc-100"
+            onClick={handleClick}
           >
             Read More
           </Button>

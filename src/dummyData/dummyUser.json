@@ -23,12 +23,13 @@
         "title": "AI-Driven Diagnostics: Transforming Medical Imaging",
         "status": "peer_reviewing",
         "authors": ["Adela Parkson", "Bob Lee"],
-        "domain": ["Healthcare", "AI", "Medical Imaging"],
+        "domains": ["Healthcare", "AI", "Medical Imaging"],
         "description": "Explores how AI enhances diagnostic accuracy in medical imaging through advanced algorithms and machine learning techniques.",
         "price": null,
         "image_url": "https://example.com/image1.png",
         "pdf_url": "https://example.com/pdf1.pdf",
         "minted": [],
+        "version": 1,
         "created_at": "2024-01-10T10:00:00.000Z",
         "updated_at": null,
         "peer_reviews": [
@@ -36,29 +37,29 @@
             "id": "rev1",
             "title": "Promising Research",
             "description": "This paper shows great potential in advancing medical imaging diagnostics.",
-            "createdAt": "2024-01-15T09:00:00.000Z",
-            "updatedAt": "2024-01-16T11:30:00.000Z",
+            "created_at": "2024-01-15T09:00:00.000Z",
+            "updated_at": "2024-01-16T11:30:00.000Z",
             "rating": 4.5,
             "reviewers": {
               "id": "user1",
               "name": "Dr. Emily Clark"
             },
-            "userId": "user2",
-            "paperId": "cl9wvqzh9000000l8mzt6f300"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f300"
           },
           {
             "id": "rev2",
             "title": "Innovative Approach",
             "description": "The authors present an innovative approach to AI-driven diagnostics.",
-            "createdAt": "2024-01-17T10:15:00.000Z",
-            "updatedAt": "2024-01-18T14:00:00.000Z",
+            "created_at": "2024-01-17T10:15:00.000Z",
+            "updated_at": "2024-01-18T14:00:00.000Z",
             "rating": 4.7,
             "reviewers": {
-              "id": "user3",
+              "id": "user2",
               "name": "Prof. Frank Green"
             },
-            "userId": "user4",
-            "paperId": "cl9wvqzh9000000l8mzt6f300"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f300"
           }
         ]
       },
@@ -69,7 +70,7 @@
         "title": "Machine Learning in Financial Risk Assessment",
         "status": "published",
         "authors": ["Adela Parkson", "David Brown"],
-        "domain": ["Finance", "AI", "Machine Learning"],
+        "domains": ["Finance", "AI", "Machine Learning"],
         "description": "Analyzes the application of machine learning models in assessing financial risks, improving prediction accuracy and decision-making.",
         "price": 0.9,
         "image_url": "https://example.com/image2.png",
@@ -80,6 +81,7 @@
           { "user_id": "user3" },
           { "user_id": "user4" }
         ],
+        "version": 1,
         "created_at": "2024-02-15T12:30:00.000Z",
         "updated_at": "2024-03-01T09:15:00.000Z",
         "peer_reviews": [
@@ -87,43 +89,71 @@
             "id": "rev3",
             "title": "Comprehensive Analysis",
             "description": "The paper provides a thorough analysis of machine learning techniques in financial risk.",
-            "createdAt": "2024-02-20T08:00:00.000Z",
-            "updatedAt": "2024-02-25T10:00:00.000Z",
+            "created_at": "2024-02-20T08:00:00.000Z",
+            "updated_at": "2024-02-25T10:00:00.000Z",
             "rating": 4.5,
             "reviewers": {
               "id": "user3",
-              "name": "Emily Clark"
+              "name": "Dr. Emily Clark"
             },
-            "userId": "user3",
-            "paperId": "cl9wvqzh9000000l8mzt6f301"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f301"
           },
           {
             "id": "rev4",
             "title": "Well-Structured",
             "description": "The methodology is well-structured and the results are promising.",
-            "createdAt": "2024-02-22T11:00:00.000Z",
-            "updatedAt": "2024-02-26T14:00:00.000Z",
+            "created_at": "2024-02-22T11:00:00.000Z",
+            "updated_at": "2024-02-26T14:00:00.000Z",
             "rating": 4.0,
             "reviewers": {
               "id": "user4",
-              "name": "Frank Green"
+              "name": "Dr. Grace Liu"
             },
-            "userId": "user4",
-            "paperId": "cl9wvqzh9000000l8mzt6f301"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f301"
           },
           {
             "id": "rev5",
             "title": "Practical Implications",
             "description": "The paper offers valuable insights with practical implications for the finance industry.",
-            "createdAt": "2024-02-24T13:30:00.000Z",
-            "updatedAt": "2024-02-28T15:45:00.000Z",
+            "created_at": "2024-02-24T13:30:00.000Z",
+            "updated_at": "2024-02-28T15:45:00.000Z",
             "rating": 4.8,
             "reviewers": {
               "id": "user5",
-              "name": "Grace Liu"
+              "name": "Dr. David Chen"
             },
-            "userId": "user5",
-            "paperId": "cl9wvqzh9000000l8mzt6f301"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f301"
+          },
+          {
+            "id": "rev116",
+            "title": "Innovative Methodology",
+            "description": "The authors present an innovative methodology for applying machine learning in financial risk assessment.",
+            "created_at": "2024-02-26T10:15:00.000Z",
+            "updated_at": "2024-03-01T12:30:00.000Z",
+            "rating": 4.6,
+            "reviewers": {
+              "id": "user6",
+              "name": "Dr. Robert Chen"
+            },
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f301"
+          },
+          {
+            "id": "rev117",
+            "title": "Comprehensive Analysis",
+            "description": "This paper provides a comprehensive analysis of machine learning applications in financial risk, covering both theoretical and practical aspects.",
+            "created_at": "2024-02-27T14:45:00.000Z",
+            "updated_at": "2024-03-02T16:00:00.000Z",
+            "rating": 4.7,
+            "reviewers": {
+              "id": "user7",
+              "name": "Peter Adams"
+            },
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f301"
           }
         ]
       },
@@ -134,12 +164,13 @@
         "title": "Autonomous Vehicles: Enhancing Safety with AI",
         "status": "approved",
         "authors": ["Adela Parkson", "Henry Thompson"],
-        "domain": ["Automotive", "AI", "Autonomous Systems"],
+        "domains": ["Automotive", "AI", "Autonomous Systems"],
         "description": "Investigates the role of AI in improving the safety features of autonomous vehicles through real-time data processing and decision-making.",
         "price": null,
         "image_url": "https://example.com/image3.png",
         "pdf_url": "https://example.com/pdf3.pdf",
         "minted": [],
+        "version": 1,
         "created_at": "2024-03-05T14:20:00.000Z",
         "updated_at": null,
         "peer_reviews": [
@@ -147,43 +178,71 @@
             "id": "rev6",
             "title": "Innovative Approach",
             "description": "The paper presents an innovative approach to AI-driven cybersecurity. The methodology is well-structured and the results are promising.",
-            "createdAt": "2024-10-05T09:30:00.000Z",
-            "updatedAt": "2024-10-06T14:15:00.000Z",
+            "created_at": "2024-10-05T09:30:00.000Z",
+            "updated_at": "2024-10-06T14:15:00.000Z",
             "rating": 4.8,
             "reviewers": {
               "id": "user1",
               "name": "Dr. Emily Clark"
             },
-            "userId": "user1",
-            "paperId": "cl9wvqzh9000000l8mzt6f302"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f302"
           },
           {
             "id": "rev7",
             "title": "Comprehensive Analysis",
             "description": "This paper provides a thorough analysis of modern cybersecurity threats and AI-powered solutions. The literature review is extensive and up-to-date.",
-            "createdAt": "2024-10-07T11:45:00.000Z",
-            "updatedAt": "2024-10-08T16:20:00.000Z",
+            "created_at": "2024-10-07T11:45:00.000Z",
+            "updated_at": "2024-10-08T16:20:00.000Z",
             "rating": 4.5,
             "reviewers": {
               "id": "user2",
-              "name": "Prof. Michael Brown"
+              "name": "Prof. Frank Green"
             },
-            "userId": "user2",
-            "paperId": "cl9wvqzh9000000l8mzt6f302"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f302"
           },
           {
             "id": "rev8",
             "title": "Practical Implications",
             "description": "The authors effectively demonstrate the practical implications of their research. The proposed solutions have significant potential for real-world application.",
-            "createdAt": "2024-10-09T10:00:00.000Z",
-            "updatedAt": "2024-10-10T15:30:00.000Z",
+            "created_at": "2024-10-09T10:00:00.000Z",
+            "updated_at": "2024-10-10T15:30:00.000Z",
             "rating": 4.7,
             "reviewers": {
               "id": "user3",
-              "name": "Dr. Sarah Johnson"
+              "name": "Dr. Emily Clark"
             },
-            "userId": "user3",
-            "paperId": "cl9wvqzh9000000l8mzt6f302"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f302"
+          },
+          {
+            "id": "rev119",
+            "title": "Innovative Approach",
+            "description": "The paper presents an innovative approach to AI-driven cybersecurity. The methodology is well-structured and the results are promising.",
+            "created_at": "2024-10-05T09:30:00.000Z",
+            "updated_at": "2024-10-06T14:15:00.000Z",
+            "rating": 4.8,
+            "reviewers": {
+              "id": "user4",
+              "name": "Dr. Grace Liu"
+            },
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f302"
+          },
+          {
+            "id": "rev110",
+            "title": "Comprehensive Analysis",
+            "description": "This paper provides a thorough analysis of modern cybersecurity threats and AI-powered solutions. The literature review is extensive and up-to-date.",
+            "created_at": "2024-10-07T11:45:00.000Z",
+            "updated_at": "2024-10-08T16:20:00.000Z",
+            "rating": 4.5,
+            "reviewers": {
+              "id": "user7",
+              "name": "Peter Adams"
+            },
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f302"
           }
         ]
       },
@@ -194,12 +253,13 @@
         "title": "Renewable Energy Optimization through Machine Learning",
         "status": "request_revision",
         "authors": ["Adela Parkson", "Jack Wilson"],
-        "domain": ["Energy", "AI", "Machine Learning"],
+        "domains": ["Energy", "AI", "Machine Learning"],
         "description": "Explores machine learning techniques to optimize renewable energy sources, focusing on solar and wind energy efficiency.",
         "price": null,
         "image_url": "https://example.com/image4.png",
         "pdf_url": "https://example.com/pdf4.pdf",
         "minted": [],
+        "version": 1,
         "created_at": "2024-04-10T09:45:00.000Z",
         "updated_at": null,
         "peer_reviews": [
@@ -207,43 +267,71 @@
             "id": "rev9",
             "title": "Promising Research",
             "description": "This paper shows great potential in advancing medical imaging diagnostics.",
-            "createdAt": "2024-01-15T09:00:00.000Z",
-            "updatedAt": "2024-01-16T11:30:00.000Z",
+            "created_at": "2024-01-15T09:00:00.000Z",
+            "updated_at": "2024-01-16T11:30:00.000Z",
             "rating": 2,
             "reviewers": {
               "id": "user1",
               "name": "Dr. Emily Clark"
             },
-            "userId": "user1",
-            "paperId": "cl9wvqzh9000000l8mzt6f303"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f303"
           },
           {
             "id": "rev10",
             "title": "Innovative Approach",
             "description": "The authors present an innovative approach to AI-driven diagnostics.",
-            "createdAt": "2024-01-17T10:15:00.000Z",
-            "updatedAt": "2024-01-18T14:00:00.000Z",
+            "created_at": "2024-01-17T10:15:00.000Z",
+            "updated_at": "2024-01-18T14:00:00.000Z",
             "rating": 2.5,
             "reviewers": {
               "id": "user2",
               "name": "Prof. Frank Green"
             },
-            "userId": "user2",
-            "paperId": "cl9wvqzh9000000l8mzt6f303"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f303"
           },
           {
             "id": "rev11",
             "title": "Comprehensive Analysis",
             "description": "The paper provides a thorough analysis of machine learning techniques in financial risk.",
-            "createdAt": "2024-02-20T08:00:00.000Z",
-            "updatedAt": "2024-02-25T10:00:00.000Z",
+            "created_at": "2024-02-20T08:00:00.000Z",
+            "updated_at": "2024-02-25T10:00:00.000Z",
             "rating": 3,
             "reviewers": {
               "id": "user3",
-              "name": "Emily Clark"
+              "name": "Dr. Emily Clark"
             },
-            "userId": "user3",
-            "paperId": "cl9wvqzh9000000l8mzt6f303"
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f303"
+          },
+          {
+            "id": "rev112",
+            "title": "Promising Research",
+            "description": "This paper shows great potential in advancing medical imaging diagnostics.",
+            "created_at": "2024-01-15T09:00:00.000Z",
+            "updated_at": "2024-01-16T11:30:00.000Z",
+            "rating": 2,
+            "reviewers": {
+              "id": "user4",
+              "name": "Dr. Grace Liu"
+            },
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f303"
+          },
+          {
+            "id": "rev113",
+            "title": "Innovative Approach",
+            "description": "The authors present an innovative approach to AI-driven diagnostics.",
+            "created_at": "2024-01-17T10:15:00.000Z",
+            "updated_at": "2024-01-18T14:00:00.000Z",
+            "rating": 2.5,
+            "reviewers": {
+              "id": "user8",
+              "name": "Prof. Daniel Brown"
+            },
+            "user_id": "cjo0grj7u0005x0s9esb6sjrg",
+            "paper_id": "cl9wvqzh9000000l8mzt6f303"
           }
         ]
       },
@@ -254,12 +342,13 @@
         "title": "Natural Language Processing for Customer Service Chatbots",
         "status": "peer_reviewing",
         "authors": ["Adela Parkson", "Liam Brown"],
-        "domain": ["Customer Service", "AI", "NLP"],
+        "domains": ["Customer Service", "AI", "NLP"],
         "description": "Examines advancements in NLP to develop more responsive and intuitive customer service chatbots.",
         "price": null,
         "image_url": "https://example.com/image5.png",
         "pdf_url": "https://example.com/pdf5.pdf",
         "minted": [],
+        "version": 1,
         "created_at": "2024-05-20T16:10:00.000Z",
         "updated_at": null,
         "peer_reviews": []
@@ -277,7 +366,7 @@
           "id": "cjo0grj7u0005x0s9esb6sjrg",
           "name": "Adela Parkson"
         },
-        "userId": "user6",
+        "userId": "cl9wvqzg7000000l8mz9w8u05",
         "paperId": "cl9wvqzh9000000l8mzt6f305"
       }
     ],

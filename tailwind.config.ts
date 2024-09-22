@@ -26,6 +26,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        kalnia: ["var(--font-kalnia)"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
