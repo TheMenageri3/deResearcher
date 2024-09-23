@@ -17,6 +17,10 @@ export const NavLinks = [
     href: "/research",
   },
   {
+    name: "Peer Review",
+    href: "/peer-review",
+  },
+  {
     name: "Dashboard", // TODO: Protect route & state with auth
     href: "/dashboard",
   },
