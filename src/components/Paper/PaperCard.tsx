@@ -7,7 +7,7 @@ import { SolanaLogo } from "../SolanaLogo";
 import H4 from "../H4";
 import P from "../P";
 import { PAPER_STATUS } from "@/lib/utils/constants";
-import { generateRandomGradient } from "@/lib/utils/helpers";
+import { getGradientForPaper } from "@/lib/utils/helpers";
 
 interface PaperCardProps {
   id: string;
@@ -17,7 +17,7 @@ interface PaperCardProps {
   minted?: number; // Optional - only for published papers
   price: number;
   status: string;
-  reviewers?: number;
+  reviewers?: number; // Optional - only for peer reviewing papers
 }
 
 export default function PaperCard({
@@ -34,6 +34,8 @@ export default function PaperCard({
   const handleClick = () =>
     router.push(`/research/${status.toLowerCase()}/${id}`);
 
+  const gradient = getGradientForPaper(id);
+
   return (
     <div
       className={`rounded-lg overflow-hidden shadow-lg ${
@@ -45,6 +47,7 @@ export default function PaperCard({
         domain={domain}
         status={status}
         handleClick={handleClick}
+        gradient={gradient}
       />
       <div className="px-6 py-4 bg-white">
         <AuthorsList authors={authors} />
@@ -74,16 +77,17 @@ const CardHeader = ({
   domain,
   status,
   handleClick,
+  gradient,
 }: {
   title: string;
   domain: string;
   status: string;
   handleClick: () => void;
+  gradient: string;
 }) => (
   <div
     className="relative h-48 p-6 md:h-56 group"
-    // TODO: May need to cache this - custom hook
-    style={{ background: generateRandomGradient() }}
+    style={{ background: gradient }}
   >
     {status === PAPER_STATUS.PUBLISHED && (
       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
