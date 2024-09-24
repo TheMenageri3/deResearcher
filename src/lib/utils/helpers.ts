@@ -1,3 +1,10 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export const minimizePubkey = (pubkey: string) => {
   return pubkey.slice(0, 4) + "..." + pubkey.slice(-4);
 };
@@ -8,22 +15,20 @@ export enum Role {
 }
 
 // Generate random gradient
-const topColors = [
-  "#4318FF",
-  "#FFAD08",
-  "#00B69B",
-  "#DC6262",
-  "#919393",
-  "#FF1875",
-  "#51A637",
-  "#A984FF",
+const gradients = [
+  "linear-gradient(to bottom, #4318FF, #9574E2)",
+  "linear-gradient(to bottom, #FFAD08, #9574E2)",
+  "linear-gradient(to bottom, #00B69B, #9574E2)",
+  "linear-gradient(to bottom, #DC6262, #9574E2)",
+  "linear-gradient(to bottom, #919393, #9574E2)",
+  "linear-gradient(to bottom, #FF1875, #9574E2)",
+  "linear-gradient(to bottom, #51A637, #9574E2)",
+  "linear-gradient(to bottom, #A984FF, #9574E2)",
 ];
 
-export const generateRandomGradient = () => {
-  const getRandomTopColor = () =>
-    topColors[Math.floor(Math.random() * topColors.length)];
-  const topColor = getRandomTopColor();
-  return `linear-gradient(to bottom, ${topColor}, #9574E2)`;
+export const getGradientForPaper = (paperId: string): string => {
+  const index = parseInt(paperId.slice(-1), 16) % gradients.length;
+  return gradients[index];
 };
 
 // Format large numbers with 'k' for thousands
