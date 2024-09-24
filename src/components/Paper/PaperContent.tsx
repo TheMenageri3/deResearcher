@@ -10,8 +10,20 @@ import { AvatarWithName } from "../Avatar";
 import { Lock } from "lucide-react";
 import { Paper, Review } from "@/lib/validation";
 import { formatTimeAgo } from "@/lib/utils/helpers";
+import { PAPER_STATUS } from "@/lib/utils/constants";
+import dynamic from "next/dynamic";
+import { pdfjs } from "react-pdf";
+
+const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 
 export default function PaperContentComponent({ paper }: { paper: Paper }) {
+  useEffect(() => {
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url,
+    ).toString();
+  }, []);
+
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
@@ -76,12 +88,20 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
               {paper.authors.join(", ")} • {formatTimeAgo(paper.created_at)}
             </span>
           </div>
-          <div className="mt-6 bg-zinc-100 p-4 flex items-center">
-            <Lock className="w-4 h-4 mr-2" />
-            <P className="text-pretty text-sm text-zinc-900">
-              Support research to show the paper
-            </P>
-          </div>
+          {/* TODO: NEED TO CHECK PAPER STATUS + USER ROLE + MINTED ID TO SHOW PDF*/}
+          {paper.status === PAPER_STATUS.PUBLISHED && (
+            <div className="mt-6 bg-zinc-100 p-4 flex items-center">
+              <Lock className="w-4 h-4 mr-2" />
+              <P className="text-pretty text-sm text-zinc-900">
+                Support research to show the paper
+              </P>
+            </div>
+          )}
+          {paper.status === PAPER_STATUS.PEER_REVIEWING && (
+            <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
+              <PDFViewComponent url="/test.pdf" />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col space-y-4 mt-10 md:mt-0">
