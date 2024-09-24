@@ -54,7 +54,7 @@ const PeerReviewSchema: Schema = new Schema({
     max: 10,
   },
   metaDataMerkleRoot: {
-    type: Uint8Array, // Array of size 64
+    type: [Number], // Array of size 64
     validate: [
       isLimitedByteArray,
       "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
