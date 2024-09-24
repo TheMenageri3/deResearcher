@@ -32,9 +32,9 @@ export default async function PaperContentPage({
       <div className="container mx-auto px-4 py-8 pb-20">
         <PaperContentComponent paper={paper} />
       </div>
-      <div className="fixed bottom-0 left-0 right-0 bg-zinc-100/50 backdrop-blur-md border-t border-zinc-200/20 p-4 flex justify-end items-center px-20">
-        <PaperActionButton paper={paper} />
-      </div>
+      {/* <div className="fixed bottom-0 left-0 right-0 bg-zinc-100/50 backdrop-blur-md border-t border-zinc-200/20 p-4 flex justify-start items-center px-20">
+        Only Possible On Solana
+      </div> */}
     </MainLayout>
   );
 }
