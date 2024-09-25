@@ -5,7 +5,7 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
+import * as beet from "@metaplex-foundation/beet";
 /**
  * @category enums
  * @category generated
@@ -25,4 +25,4 @@ export enum PaperState {
  */
 export const paperStateBeet = beet.fixedScalarEnum(
   PaperState
-) as beet.FixedSizeBeet<PaperState, PaperState>
+) as beet.FixedSizeBeet<PaperState, PaperState>;

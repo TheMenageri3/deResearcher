@@ -5,15 +5,15 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
+import * as beet from "@metaplex-foundation/beet";
 export type AddPeerReview = {
-  qualityOfResearch: number
-  potentialForRealWorldUseCase: number
-  domainKnowledge: number
-  practicalityOfResultObtained: number
-  metaDataMerkleRoot: string
-  pdaBump: number
-}
+  qualityOfResearch: number;
+  potentialForRealWorldUseCase: number;
+  domainKnowledge: number;
+  practicalityOfResultObtained: number;
+  metaDataMerkleRoot: string;
+  pdaBump: number;
+};
 
 /**
  * @category userTypes
@@ -21,12 +21,12 @@ export type AddPeerReview = {
  */
 export const addPeerReviewBeet = new beet.FixableBeetArgsStruct<AddPeerReview>(
   [
-    ['qualityOfResearch', beet.u8],
-    ['potentialForRealWorldUseCase', beet.u8],
-    ['domainKnowledge', beet.u8],
-    ['practicalityOfResultObtained', beet.u8],
-    ['metaDataMerkleRoot', beet.utf8String],
-    ['pdaBump', beet.u8],
+    ["qualityOfResearch", beet.u8],
+    ["potentialForRealWorldUseCase", beet.u8],
+    ["domainKnowledge", beet.u8],
+    ["practicalityOfResultObtained", beet.u8],
+    ["metaDataMerkleRoot", beet.utf8String],
+    ["pdaBump", beet.u8],
   ],
-  'AddPeerReview'
-)
+  "AddPeerReview"
+);

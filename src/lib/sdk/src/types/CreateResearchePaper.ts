@@ -5,13 +5,13 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
+import * as beet from "@metaplex-foundation/beet";
 export type CreateResearchePaper = {
-  accessFee: number
-  paperContentHash: string
-  metaDataMerkleRoot: string
-  pdaBump: number
-}
+  accessFee: number;
+  paperContentHash: string;
+  metaDataMerkleRoot: string;
+  pdaBump: number;
+};
 
 /**
  * @category userTypes
@@ -20,10 +20,10 @@ export type CreateResearchePaper = {
 export const createResearchePaperBeet =
   new beet.FixableBeetArgsStruct<CreateResearchePaper>(
     [
-      ['accessFee', beet.u32],
-      ['paperContentHash', beet.utf8String],
-      ['metaDataMerkleRoot', beet.utf8String],
-      ['pdaBump', beet.u8],
+      ["accessFee", beet.u32],
+      ["paperContentHash", beet.utf8String],
+      ["metaDataMerkleRoot", beet.utf8String],
+      ["pdaBump", beet.u8],
     ],
-    'CreateResearchePaper'
-  )
+    "CreateResearchePaper"
+  );

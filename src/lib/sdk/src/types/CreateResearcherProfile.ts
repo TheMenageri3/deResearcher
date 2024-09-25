@@ -5,11 +5,11 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
+import * as beet from "@metaplex-foundation/beet";
 export type CreateResearcherProfile = {
-  name: string
-  pdaBump: number
-}
+  name: string;
+  pdaBump: number;
+};
 
 /**
  * @category userTypes
@@ -18,8 +18,8 @@ export type CreateResearcherProfile = {
 export const createResearcherProfileBeet =
   new beet.FixableBeetArgsStruct<CreateResearcherProfile>(
     [
-      ['name', beet.utf8String],
-      ['pdaBump', beet.u8],
+      ["name", beet.utf8String],
+      ["pdaBump", beet.u8],
     ],
-    'CreateResearcherProfile'
-  )
+    "CreateResearcherProfile"
+  );
