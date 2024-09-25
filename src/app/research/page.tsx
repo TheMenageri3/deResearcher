@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { PAPER_STATUS } from "@/lib/utils/constants";
+import { PAPER_STATUS } from "@/lib/constants";
 import ResearchLayout from "@/components/ResearchPaper/ResearchPaperLayout";
 import { Paper } from "@/lib/validation";
 import papers from "../../dummyData/dummyPapers.json";

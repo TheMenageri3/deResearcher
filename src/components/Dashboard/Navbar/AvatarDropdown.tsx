@@ -18,7 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { minimizePubkey } from "@/lib/utils/helpers";
+import { minimizePubkey } from "@/lib/helpers";
 import { Avatar } from "@/components/Avatar";
 
 export const AvatarDropdown = () => {

@@ -1,8 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 import * as sdk from "@/lib/sdk";
-import { isLimitedByteArray } from "@/lib/utils/helpers";
+import { isLimitedByteArray } from "@/lib/helpers";
+import { getMongoDbUri } from "@/lib/env";
 
-mongoose.connect(process.env.MONGODB_PROD_URI as string);
+mongoose.connect(getMongoDbUri());
 
 mongoose.Promise = global.Promise;
 
@@ -18,6 +19,16 @@ export interface ResearchPaper extends Document {
   totalCitations: number; // Changed from bignum to number
   totalMints: number; // Changed from bignum to number
   metaDataMerkleRoot: number[]; // Array of size 64
+  metadata: {
+    title: string;
+    abstract: string;
+    authors: string[];
+    datePublished: string;
+    domain: string;
+    tags: string[];
+    references: string[];
+    decentralizedStorageURI: string;
+  };
   bump: number;
 }
 
@@ -90,7 +101,5 @@ const ResearchPaperSchema: Schema = new Schema({
   },
 });
 
-export default mongoose.model<ResearchPaper>(
-  "ResearchPaper",
-  ResearchPaperSchema
-);
+export default mongoose.models.ResearchPaper ||
+  mongoose.model<ResearchPaper>("ResearchPaper", ResearchPaperSchema);

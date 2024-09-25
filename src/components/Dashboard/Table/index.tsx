@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { PAPER_STATUS } from "@/lib/utils/constants";
+import { PAPER_STATUS } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 
 type ColumnDefinition = {
@@ -48,7 +48,7 @@ const TableHeader: React.FC<{
           key={column.key}
           scope="col"
           className={`px-6 py-3 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider ${getColumnVisibility(
-            column.key,
+            column.key
           )} ${column.sortable ? "cursor-pointer select-none" : ""}`}
           onClick={() => column.sortable && onSort(column.key)}
         >
@@ -87,7 +87,7 @@ const TableRow: React.FC<{
       <td
         key={column.key}
         className={`px-6 py-4 whitespace-nowrap ${getColumnVisibility(
-          column.key,
+          column.key
         )}`}
       >
         {column.key === "status" ? (

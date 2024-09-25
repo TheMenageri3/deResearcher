@@ -7,7 +7,7 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import P from "../P";
-import { minimizePubkey } from "@/lib/utils/helpers";
+import { minimizePubkey } from "@/lib/helpers";
 import {
   DropdownMenu,
   DropdownMenuContent,

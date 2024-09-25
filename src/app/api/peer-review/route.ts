@@ -21,7 +21,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       findFilters = { ...findFilters, paperPubkey };
     }
 
-    const peerReviews = await PeerReviewModel.find(findFilters);
+    const peerReviews = await PeerReviewModel.find<PeerReview>(findFilters);
 
     return toSuccessResponse(peerReviews);
   } catch (err) {

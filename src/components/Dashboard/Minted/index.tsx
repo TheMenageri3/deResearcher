@@ -1,7 +1,7 @@
 import H3 from "@/components/H3";
 import Table from "../Table";
 import users from "../../../dummyData/dummyUser.json";
-import { COLUMNS } from "@/lib/utils/constants";
+import { COLUMNS } from "@/lib/constants";
 import H4 from "@/components/H4";
 import P from "../../P";
 

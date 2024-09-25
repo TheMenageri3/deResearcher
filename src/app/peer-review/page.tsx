@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import ResearchLayout from "@/components/ResearchPaper/ResearchPaperLayout";
-import { PAPER_STATUS } from "@/lib/utils/constants";
+import { PAPER_STATUS } from "@/lib/constants";
 import { getPapers } from "../research/page";
 
 export const metadata: Metadata = {

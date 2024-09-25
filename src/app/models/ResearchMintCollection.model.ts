@@ -1,13 +1,17 @@
-import { isLimitedByteArray } from "@/lib/utils/helpers";
+import { getMongoDbUri } from "@/lib/env";
+import { isLimitedByteArray } from "@/lib/helpers";
 import mongoose, { Schema, Document } from "mongoose";
 
-mongoose.connect(process.env.MONGODB_PROD_URI as string);
+mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
 // Define interface for ResearchMintCollectionArgs
 export interface ResearchMintCollection extends Document {
   readerPubkey: string; // Storing the PublicKey as a String
   dataMerkleRoot: number[]; // Array of size 64
+  metadata: {
+    mintedResearchPaperPubkeys: string[];
+  };
   bump: number;
 }
 
@@ -42,7 +46,8 @@ function arrayLimit(val: number[]) {
   return val.length === 64;
 }
 
-export default mongoose.model<ResearchMintCollection>(
-  "ResearchMintCollection",
-  ResearchMintCollectionSchema
-);
+export default mongoose.models.ResearchMintCollection ||
+  mongoose.model<ResearchMintCollection>(
+    "ResearchMintCollection",
+    ResearchMintCollectionSchema
+  );

@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document, SchemaType } from "mongoose";
-import { isLimitedByteArray } from "@/lib/utils/helpers";
+import { isLimitedByteArray } from "@/lib/helpers";
+import { getMongoDbUri } from "@/lib/env";
 
-mongoose.connect(process.env.MONGODB_PROD_URI as string);
+mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
 export interface PeerReview extends Document {
@@ -13,6 +14,9 @@ export interface PeerReview extends Document {
   domainKnowledge: number;
   practicalityOfResultObtained: number;
   metaDataMerkleRoot: number[]; // Array of size 64
+  metadata: {
+    reviewComments: String;
+  };
   bump: number;
 }
 
@@ -75,4 +79,5 @@ const PeerReviewSchema: Schema = new Schema({
   },
 });
 
-export default mongoose.model<PeerReview>("PeerReview", PeerReviewSchema);
+export default mongoose.models.PeerReview ||
+  mongoose.model<PeerReview>("PeerReview", PeerReviewSchema);

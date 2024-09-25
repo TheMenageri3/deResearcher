@@ -20,6 +20,7 @@ import {
  */
 export type ResearcherProfileArgs = {
   address: web3.PublicKey;
+  researcherPubkey: web3.PublicKey;
   name: number[] /* size: 64 */;
   state: ResearcherProfileState;
   totalPapersPublished: beet.bignum;
@@ -39,6 +40,7 @@ export type ResearcherProfileArgs = {
 export class ResearcherProfile implements ResearcherProfileArgs {
   private constructor(
     readonly address: web3.PublicKey,
+    readonly researcherPubkey: web3.PublicKey,
     readonly name: number[] /* size: 64 */,
     readonly state: ResearcherProfileState,
     readonly totalPapersPublished: beet.bignum,
@@ -55,6 +57,7 @@ export class ResearcherProfile implements ResearcherProfileArgs {
   static fromArgs(args: ResearcherProfileArgs) {
     return new ResearcherProfile(
       args.address,
+      args.researcherPubkey,
       args.name,
       args.state,
       args.totalPapersPublished,
@@ -167,6 +170,7 @@ export class ResearcherProfile implements ResearcherProfileArgs {
   pretty() {
     return {
       address: this.address.toBase58(),
+      researcherPubkey: this.researcherPubkey.toBase58(),
       name: this.name,
       state: "ResearcherProfileState." + ResearcherProfileState[this.state],
       totalPapersPublished: (() => {
@@ -219,6 +223,7 @@ export const researcherProfileBeet = new beet.BeetStruct<
 >(
   [
     ["address", beetSolana.publicKey],
+    ["researcherPubkey", beetSolana.publicKey],
     ["name", beet.uniformFixedSizeArray(beet.u8, 64)],
     ["state", researcherProfileStateBeet],
     ["totalPapersPublished", beet.u64],

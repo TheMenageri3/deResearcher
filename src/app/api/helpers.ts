@@ -11,7 +11,7 @@ export const toErrResponse = (err: string): NextResponse => {
   );
 };
 
-export const toSuccessResponse = (data: any): NextResponse => {
+export const toSuccessResponse = <T>(data: T): NextResponse => {
   return NextResponse.json(
     {
       data,

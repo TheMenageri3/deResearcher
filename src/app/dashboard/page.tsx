@@ -1,7 +1,7 @@
 import DashboardCard from "@/components/Dashboard/Card";
 import H3 from "@/components/H3";
 import Table from "@/components/Dashboard/Table";
-import { COLUMNS, PAPER_STATUS } from "@/lib/utils/constants";
+import { COLUMNS, PAPER_STATUS } from "@/lib/constants";
 import papers from "../../dummyData/dummyPapers.json";
 import P from "@/components/P";
 
@@ -11,7 +11,7 @@ export default async function DashboardPage() {
       .filter((paper) => paper.status === PAPER_STATUS.PEER_REVIEWING)
       .sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
       .slice(0, 5)
       .map((paper) => ({

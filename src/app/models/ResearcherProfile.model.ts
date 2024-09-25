@@ -1,26 +1,38 @@
 import mongoose, { Schema, Document } from "mongoose";
 import * as sdk from "@/lib/sdk";
-import { isLimitedByteArray } from "@/lib/utils/helpers";
+import { isLimitedByteArray } from "@/lib/helpers";
+import { getMongoDbUri } from "@/lib/env";
 
-mongoose.connect(process.env.MONGODB_PROD_URI as string);
+mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
 // Define interface for ResearcherProfileArgs
 export interface ResearcherProfile extends Document {
   address: string; // Storing the PublicKey as a String
+  researcherPubkey: string; // Storing the PublicKey as a String
   name: number[]; // Array of size 64
   state: sdk.ResearcherProfileState;
   totalPapersPublished: number;
   totalCitations: number;
   totalReviews: number;
   reputation: number;
-  metaDataMerkleRoot: Uint8Array; // Array of size 64
+  metaDataMerkleRoot: number[]; // Array of size 64
+  metadata: {
+    externalResearchProfiles: string[];
+    interestedDomains: string[];
+    topPublications: string[];
+    socialLinks: string[];
+  };
   bump: number;
 }
 
 // Define the ResearcherProfile schema
 const ResearcherProfileSchema: Schema = new Schema({
   address: {
+    type: String,
+    required: true,
+  },
+  researcherPubkey: {
     type: String,
     required: true,
   },
@@ -71,7 +83,8 @@ const ResearcherProfileSchema: Schema = new Schema({
   },
 });
 
-export default mongoose.model<ResearcherProfile>(
-  "ResearcherProfile",
-  ResearcherProfileSchema
-);
+export default mongoose.models.ResearcherProfile ||
+  mongoose.model<ResearcherProfile>(
+    "ResearcherProfile",
+    ResearcherProfileSchema
+  );
