@@ -6,6 +6,7 @@ import { Wallet } from "./Wallet";
 import { MobileMenu } from "./MobileMenu";
 import Link from "next/link";
 import { SearchBar } from "../Dashboard/Navbar";
+import { useUserStore } from "@/app/store/userStore";
 
 export const NavLinks = [
   {
@@ -23,11 +24,13 @@ export const NavLinks = [
   {
     name: "Dashboard", // TODO: Protect route & state with auth
     href: "/dashboard",
+    protected: true,
   },
 ];
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
 
   return (
     <nav className="flex items-center justify-between p-4 relative">
@@ -41,21 +44,22 @@ export const Navbar = () => {
         </button>
       </div>
       <div className="hidden sm:flex flex-row justify-between gap-[20px]">
-        {NavLinks.map((link) => (
-          <div
-            key={link.name}
-            className={
-              pathname === link.href
-                ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary"
-                : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent"
-            }
-          >
-            {/* <Image src={"/navbar-link.svg"} width={20} height={20} alt="link" /> */}
-            <Link href={link.href} className="text-zinc-800 font-bold">
-              {link.name}
-            </Link>
-          </div>
-        ))}
+        {NavLinks.filter((link) => !link.protected || isAuthenticated).map(
+          (link) => (
+            <div
+              key={link.name}
+              className={
+                pathname === link.href
+                  ? "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-primary"
+                  : "flex p-[5px] flex-row gap-[10px] items-center border-b-2 border-transparent"
+              }
+            >
+              <Link href={link.href} className="text-zinc-800 font-bold">
+                {link.name}
+              </Link>
+            </div>
+          ),
+        )}
         <Wallet />
       </div>
       <MobileMenu pathname={pathname} />

@@ -82,10 +82,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     await newPaper.save();
 
-    console.log("Paper created successfully:", paperData);
+    console.log("Paper created successfully:", newPaper);
     console.log("Paper file:", paperFile);
     console.log("Paper image:", paperImage);
-    return toSuccessResponse(paperData);
+    return toSuccessResponse(newPaper);
   } catch (err: any) {
     console.error("Error in POST handler:", err);
     return toErrResponse(`Error creating research paper: ${err.message}`);
