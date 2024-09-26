@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
+import * as beet from '@metaplex-foundation/beet'
 export type CheckAndAssignReputation = {
-  reputation: number;
-};
+  reputation: number
+}
 
 /**
  * @category userTypes
@@ -16,6 +16,6 @@ export type CheckAndAssignReputation = {
  */
 export const checkAndAssignReputationBeet =
   new beet.BeetArgsStruct<CheckAndAssignReputation>(
-    [["reputation", beet.u8]],
-    "CheckAndAssignReputation"
-  );
+    [['reputation', beet.u8]],
+    'CheckAndAssignReputation'
+  )

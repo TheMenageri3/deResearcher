@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from "@solana/web3.js";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
-import * as beet from "@metaplex-foundation/beet";
+import * as web3 from '@solana/web3.js'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
+import * as beet from '@metaplex-foundation/beet'
 
 /**
  * Arguments used to create {@link ResearchMintCollection}
@@ -15,10 +15,11 @@ import * as beet from "@metaplex-foundation/beet";
  * @category generated
  */
 export type ResearchMintCollectionArgs = {
-  readerPubkey: web3.PublicKey;
-  dataMerkleRoot: number[] /* size: 64 */;
-  bump: number;
-};
+  address: web3.PublicKey
+  readerPubkey: web3.PublicKey
+  metaDataMerkleRoot: number[] /* size: 64 */
+  bump: number
+}
 /**
  * Holds the data for the {@link ResearchMintCollection} Account and provides de/serialization
  * functionality for that data
@@ -28,8 +29,9 @@ export type ResearchMintCollectionArgs = {
  */
 export class ResearchMintCollection implements ResearchMintCollectionArgs {
   private constructor(
+    readonly address: web3.PublicKey,
     readonly readerPubkey: web3.PublicKey,
-    readonly dataMerkleRoot: number[] /* size: 64 */,
+    readonly metaDataMerkleRoot: number[] /* size: 64 */,
     readonly bump: number
   ) {}
 
@@ -38,10 +40,11 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
    */
   static fromArgs(args: ResearchMintCollectionArgs) {
     return new ResearchMintCollection(
+      args.address,
       args.readerPubkey,
-      args.dataMerkleRoot,
+      args.metaDataMerkleRoot,
       args.bump
-    );
+    )
   }
 
   /**
@@ -52,7 +55,7 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [ResearchMintCollection, number] {
-    return ResearchMintCollection.deserialize(accountInfo.data, offset);
+    return ResearchMintCollection.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -69,13 +72,13 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
-    );
+    )
     if (accountInfo == null) {
       throw new Error(
         `Unable to find ResearchMintCollection account at ${address}`
-      );
+      )
     }
-    return ResearchMintCollection.fromAccountInfo(accountInfo, 0)[0];
+    return ResearchMintCollection.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -86,13 +89,13 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "C5M2JxBaxmsW62BgujPXEPytw65igtUjr6mFbD5pmypM"
+      'C5M2JxBaxmsW62BgujPXEPytw65igtUjr6mFbD5pmypM'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(
       programId,
       researchMintCollectionBeet
-    );
+    )
   }
 
   /**
@@ -103,7 +106,7 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
     buf: Buffer,
     offset = 0
   ): [ResearchMintCollection, number] {
-    return researchMintCollectionBeet.deserialize(buf, offset);
+    return researchMintCollectionBeet.deserialize(buf, offset)
   }
 
   /**
@@ -111,7 +114,7 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
    * @returns a tuple of the created Buffer and the offset up to which the buffer was written to store it.
    */
   serialize(): [Buffer, number] {
-    return researchMintCollectionBeet.serialize(this);
+    return researchMintCollectionBeet.serialize(this)
   }
 
   /**
@@ -119,7 +122,7 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
    * {@link ResearchMintCollection}
    */
   static get byteSize() {
-    return researchMintCollectionBeet.byteSize;
+    return researchMintCollectionBeet.byteSize
   }
 
   /**
@@ -135,7 +138,7 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
     return connection.getMinimumBalanceForRentExemption(
       ResearchMintCollection.byteSize,
       commitment
-    );
+    )
   }
 
   /**
@@ -143,7 +146,7 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
    * hold {@link ResearchMintCollection} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === ResearchMintCollection.byteSize;
+    return buf.byteLength - offset === ResearchMintCollection.byteSize
   }
 
   /**
@@ -152,10 +155,11 @@ export class ResearchMintCollection implements ResearchMintCollectionArgs {
    */
   pretty() {
     return {
+      address: this.address.toBase58(),
       readerPubkey: this.readerPubkey.toBase58(),
-      dataMerkleRoot: this.dataMerkleRoot,
+      metaDataMerkleRoot: this.metaDataMerkleRoot,
       bump: this.bump,
-    };
+    }
   }
 }
 
@@ -168,10 +172,11 @@ export const researchMintCollectionBeet = new beet.BeetStruct<
   ResearchMintCollectionArgs
 >(
   [
-    ["readerPubkey", beetSolana.publicKey],
-    ["dataMerkleRoot", beet.uniformFixedSizeArray(beet.u8, 64)],
-    ["bump", beet.u8],
+    ['address', beetSolana.publicKey],
+    ['readerPubkey', beetSolana.publicKey],
+    ['metaDataMerkleRoot', beet.uniformFixedSizeArray(beet.u8, 64)],
+    ['bump', beet.u8],
   ],
   ResearchMintCollection.fromArgs,
-  "ResearchMintCollection"
-);
+  'ResearchMintCollection'
+)

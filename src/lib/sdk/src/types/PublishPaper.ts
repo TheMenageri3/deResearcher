@@ -5,16 +5,16 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
+import * as beet from '@metaplex-foundation/beet'
 export type PublishPaper = {
-  pdaBump: number;
-};
+  pdaBump: number
+}
 
 /**
  * @category userTypes
  * @category generated
  */
 export const publishPaperBeet = new beet.BeetArgsStruct<PublishPaper>(
-  [["pdaBump", beet.u8]],
-  "PublishPaper"
-);
+  [['pdaBump', beet.u8]],
+  'PublishPaper'
+)
