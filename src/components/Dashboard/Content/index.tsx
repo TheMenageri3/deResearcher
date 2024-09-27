@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useUserStore } from "@/app/store/userStore";
 import DashboardCard from "@/components/Dashboard/Card";
 import H3 from "@/components/H3";
@@ -19,14 +19,29 @@ interface DashboardContentProps {
 export default function DashboardContent({
   initialAuthState,
 }: DashboardContentProps) {
-  const { isAuthenticated, wallet, checkAuth } = useUserStore();
+  const { isAuthenticated, wallet, checkAuth, isLoading } = useUserStore();
+  const [localAuthState, setLocalAuthState] = useState(initialAuthState);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
-  useEffect(() => {
+  const performAuthCheck = useCallback(async () => {
     if (!hasCheckedAuth) {
-      checkAuth().then(() => setHasCheckedAuth(true));
+      await checkAuth();
+      setHasCheckedAuth(true);
     }
   }, [checkAuth, hasCheckedAuth]);
+
+  useEffect(() => {
+    performAuthCheck();
+  }, [performAuthCheck]);
+
+  useEffect(() => {
+    if (hasCheckedAuth) {
+      console.log("Updating local auth state", { isAuthenticated, wallet });
+      setLocalAuthState({ isAuthenticated, wallet });
+    }
+  }, [isAuthenticated, wallet, hasCheckedAuth]);
+
+  console.log("Current state:", { isLoading, hasCheckedAuth, localAuthState });
 
   const latestPeerReviewingPapers = papers
     .filter((paper) => paper.status === PAPER_STATUS.PEER_REVIEWING)
