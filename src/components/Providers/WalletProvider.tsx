@@ -17,20 +17,22 @@ import { useUserStore } from "@/app/store/userStore";
 require("@solana/wallet-adapter-react-ui/styles.css");
 
 const WalletConnection = ({ children }: { children: React.ReactNode }) => {
-  const { wallet, connected, disconnect } = useWallet();
-  const { isAuthenticated, login, logout, checkAuth } = useUserStore();
+  const { wallet, connected } = useWallet();
+  const { isAuthenticated, login, logout } = useUserStore();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  useEffect(() => {
+    console.log("WalletConnection effect triggered", {
+      connected,
+      isAuthenticated,
+    });
     if (connected && wallet) {
       const publicKey = wallet.adapter.publicKey?.toString();
       if (publicKey && !isAuthenticated) {
+        console.log("Attempting login");
         login(publicKey);
       }
     } else if (!connected && isAuthenticated) {
+      console.log("Attempting logout");
       logout();
     }
   }, [connected, wallet, isAuthenticated, login, logout]);
