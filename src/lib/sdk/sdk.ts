@@ -216,6 +216,187 @@ export class SDK {
       console.error(e);
     }
   }
+
+  async fetchResearcherProfileByPubkey(researcherPda: solana.PublicKey) {
+    try {
+      return await sdk.ResearcherProfile.fromAccountAddress(
+        this.connection,
+        researcherPda
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async fetchAllResearcherProfiles() {
+    try {
+      const gpaBuilder = sdk.ResearcherProfile.gpaBuilder(sdk.PROGRAM_ID);
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+
+      const researcherProfiles: sdk.ResearcherProfile[] = [];
+
+      for (const account of accountsWithPubkeys) {
+        const [researcherProfile, _index] =
+          sdk.ResearcherProfile.fromAccountInfo(account.account);
+
+        researcherProfiles.push(researcherProfile);
+      }
+
+      return researcherProfiles;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  async fetchResearchPaperByPubkey(paperPda: solana.PublicKey) {
+    try {
+      return await sdk.ResearchPaper.fromAccountAddress(
+        this.connection,
+        paperPda
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async fetchAllResearchPapers() {
+    try {
+      const gpaBuilder = sdk.ResearchPaper.gpaBuilder(sdk.PROGRAM_ID);
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+
+      const researchPapers: sdk.ResearchPaper[] = [];
+
+      for (const account of accountsWithPubkeys) {
+        const [researchPaper, _index] = sdk.ResearchPaper.fromAccountInfo(
+          account.account
+        );
+
+        researchPapers.push(researchPaper);
+      }
+
+      return researchPapers;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  async fetchPeerReviewByPubkey(peerReviewPda: solana.PublicKey) {
+    try {
+      return await sdk.PeerReview.fromAccountAddress(
+        this.connection,
+        peerReviewPda
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async fetchAllPeerReviews() {
+    try {
+      const gpaBuilder = sdk.PeerReview.gpaBuilder(sdk.PROGRAM_ID);
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+
+      const peerReviews: sdk.PeerReview[] = [];
+
+      for (const account of accountsWithPubkeys) {
+        const [peerReview, _index] = sdk.PeerReview.fromAccountInfo(
+          account.account
+        );
+
+        peerReviews.push(peerReview);
+      }
+
+      return peerReviews;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  async fetchResearchMintCollectionByPubkey(
+    mintCollectionPda: solana.PublicKey
+  ) {
+    try {
+      return await sdk.ResearchMintCollection.fromAccountAddress(
+        this.connection,
+        mintCollectionPda
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async fetchResearchMintCollectionByResearcherPubkey(
+    researcherAcc: solana.PublicKey
+  ) {
+    try {
+      const gpaBuilder = sdk.ResearchMintCollection.gpaBuilder(sdk.PROGRAM_ID);
+      gpaBuilder.addInnerFilter("readerPubkey", researcherAcc.toBase58());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+
+      const mintCollections: sdk.ResearchMintCollection[] = [];
+
+      for (const account of accountsWithPubkeys) {
+        const [mintCollection, _index] =
+          sdk.ResearchMintCollection.fromAccountInfo(account.account);
+
+        mintCollections.push(mintCollection);
+      }
+
+      return mintCollections;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  async fetchResearchPapersByResearcherPubkey(researcherAcc: solana.PublicKey) {
+    try {
+      const gpaBuilder = sdk.ResearchPaper.gpaBuilder(sdk.PROGRAM_ID);
+      gpaBuilder.addInnerFilter("creatorPubkey", researcherAcc.toBase58());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+
+      const researchPapers: sdk.ResearchPaper[] = [];
+
+      for (const account of accountsWithPubkeys) {
+        const [researchPaper, _index] = sdk.ResearchPaper.fromAccountInfo(
+          account.account
+        );
+
+        researchPapers.push(researchPaper);
+      }
+
+      return researchPapers;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  async fetchPeerReviewsByResearcherPubkey(researcherAcc: solana.PublicKey) {
+    try {
+      const gpaBuilder = sdk.PeerReview.gpaBuilder(sdk.PROGRAM_ID);
+      gpaBuilder.addInnerFilter("reviewerPubkey", researcherAcc.toBase58());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+
+      const peerReviews: sdk.PeerReview[] = [];
+
+      for (const account of accountsWithPubkeys) {
+        const [peerReview, _index] = sdk.PeerReview.fromAccountInfo(
+          account.account
+        );
+
+        peerReviews.push(peerReview);
+      }
+
+      return peerReviews;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
 }
 
 function deriveResearcherProfilePdaPubkeyAndBump(
