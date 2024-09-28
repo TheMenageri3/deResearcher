@@ -15,7 +15,13 @@ export const PAPER_STATUS = {
 export const COLUMNS: ColumnDefinition[] = [
   { key: "title", header: "Paper Title" },
   { key: "authors", header: "Authors" },
-  { key: "createdDate", header: "Created Date", sortable: true },
+  { key: "createdDate", header: "Created", sortable: true },
   { key: "domains", header: "Domains" },
   { key: "status", header: "Status", sortable: true },
+];
+
+export const PROFILE_COLUMNS: ColumnDefinition[] = [
+  { key: "title", header: "Paper Title" },
+  { key: "authors", header: "Authors" },
+  { key: "domains", header: "Domains", sortable: true },
 ];

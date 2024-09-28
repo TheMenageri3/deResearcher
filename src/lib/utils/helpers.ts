@@ -1,5 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Globe, Twitter, Github, Linkedin, Facebook } from "lucide-react";
+import { Paper } from "../validation";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -66,9 +68,38 @@ export const formatTimeAgo = (dateString: string): string => {
   return "just now";
 };
 
+// Format paper
+export const formatPaper = (paper: Paper) => ({
+  id: paper.id,
+  title: paper.title,
+  authors: paper.authors.join(", "),
+  createdDate: new Date(paper.created_at).toISOString().split("T")[0],
+  domains: paper.domains.join(", "),
+  status: paper.status,
+});
+
 // Get score color
 export const getScoreColorClass = (score: number): string => {
   if (score >= 4) return "bg-primary";
   if (score >= 3) return "bg-yellow-500";
   return "bg-rose-500/80";
+};
+
+// Get link icon
+export const getLinkIcon = (url: string) => {
+  if (!url) return null;
+
+  const domain = new URL(url).hostname.toLowerCase();
+
+  if (domain.includes("twitter.com") || domain.includes("x.com")) {
+    return Twitter;
+  } else if (domain.includes("github.com")) {
+    return Github;
+  } else if (domain.includes("linkedin.com")) {
+    return Linkedin;
+  } else if (domain.includes("facebook.com")) {
+    return Facebook;
+  } else {
+    return Globe;
+  }
 };
