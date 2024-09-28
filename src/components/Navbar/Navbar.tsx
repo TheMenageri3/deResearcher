@@ -38,12 +38,12 @@ export const Navbar = () => {
         <Link href="/" className="mr-4">
           <Logo />
         </Link>
-        <button className="hidden sm:block flex-1">
+        <button className="hidden lg:block flex-1">
           <span className="sr-only">Search</span>
           <SearchBar placeholder="Search the universe" />
         </button>
       </div>
-      <div className="hidden sm:flex flex-row justify-between gap-[20px]">
+      <div className="hidden lg:flex flex-row justify-between gap-[20px]">
         {NavLinks.filter((link) => !link.protected || isAuthenticated).map(
           (link) => (
             <div

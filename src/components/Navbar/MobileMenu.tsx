@@ -26,7 +26,7 @@ export const MobileMenu = ({ pathname }: MobileMenuProps) => {
   );
 
   return (
-    <div className="sm:hidden flex items-center z-50">
+    <div className="lg:hidden flex items-center z-50">
       <button className="p-2 mr-2 hover:bg-zinc-100 rounded-md transition-colors duration-200">
         <Search className="h-5 w-5 text-zinc-600" />
       </button>

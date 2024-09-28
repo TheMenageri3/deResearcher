@@ -27,7 +27,7 @@ export const Wallet = () => {
   const { connected, publicKey, disconnect, wallet } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
   const screenSize = useScreen();
-  const isMobile = screenSize === "sm" || screenSize === "md";
+  const useSimplifiedInterface = ["sm", "md", "lg"].includes(screenSize);
 
   const handleConnect = () => {
     setVisible(true);
@@ -50,7 +50,7 @@ export const Wallet = () => {
     );
   }
 
-  if (isMobile) {
+  if (useSimplifiedInterface) {
     return (
       <Button
         onClick={handleDisconnect}
@@ -73,7 +73,7 @@ export const Wallet = () => {
   return (
     <DropdownMenu onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2 bg-white hover:bg-zinc-50">
           {wallet && (
             <Image
               alt={wallet.adapter.name}
@@ -82,13 +82,13 @@ export const Wallet = () => {
               height={20}
             />
           )}
-          <span className="font-bold">
+          <span className="font-bold text-zinc-800">
             {publicKey && minimizePubkey(publicKey.toBase58())}
           </span>
           {isOpen ? (
-            <ChevronUp className="h-4 w-4 text-white" />
+            <ChevronUp className="h-4 w-4 text-primary" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-white" />
+            <ChevronDown className="h-4 w-4 text-primary" />
           )}
         </Button>
       </DropdownMenuTrigger>
