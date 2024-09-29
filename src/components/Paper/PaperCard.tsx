@@ -6,8 +6,8 @@ import { Avatar } from "../Avatar";
 import { SolanaLogo } from "../SolanaLogo";
 import H4 from "../H4";
 import P from "../P";
-import { PAPER_STATUS } from "@/lib/utils/constants";
-import { getGradientForPaper } from "@/lib/utils/helpers";
+import { PAPER_STATUS } from "@/lib/constants";
+import { getGradientForPaper } from "@/lib/helpers";
 
 interface PaperCardProps {
   id: string;

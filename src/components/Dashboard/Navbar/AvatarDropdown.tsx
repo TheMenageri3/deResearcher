@@ -18,24 +18,30 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { minimizePubkey } from "@/lib/utils/helpers";
+import { minimizePubkey } from "@/lib/helpers";
 import { Avatar } from "@/components/Avatar";
+import { useUserStore } from "@/app/store/userStore";
 
 export const AvatarDropdown = () => {
   const { setVisible } = useWalletModal();
   const { connected, publicKey, disconnect, wallet } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
   const { userRole, userName } = dummyUserData;
+  const { logout } = useUserStore();
 
   const handleConnect = () => {
     setVisible(true);
   };
 
   const handleDisconnect = useCallback(async () => {
-    await disconnect();
-    // Force a hard refresh of the page
-    window.location.href = "/";
-  }, [disconnect]);
+    try {
+      await disconnect();
+      await logout(); // Call the logout function from useUserStore
+      window.location.href = "/"; // Redirect to home page
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  }, [disconnect, logout]);
 
   const getDropdownLabel = () => {
     if (userRole && userName) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Arbutus, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { UIProvider } from "@/components/Providers/UIProvider";
+import { LoadingProvider } from "@/context/loadingContext";
 
 const inter = Inter({ subsets: ["latin"] });
 const arbutus = Arbutus({
@@ -31,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${arbutus.variable} ${atkinson.variable}`}>
       <body className={`${inter.className} min-w-[350px]`}>
-        <UIProvider>{children}</UIProvider>
+        <LoadingProvider>
+          <UIProvider>{children}</UIProvider>
+        </LoadingProvider>
       </body>
     </html>
   );

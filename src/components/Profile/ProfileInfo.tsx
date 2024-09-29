@@ -1,4 +1,4 @@
-import { formatNumber } from "@/lib/utils/helpers";
+import { formatNumber } from "@/lib/helpers";
 import { Copy } from "lucide-react";
 import P from "../P";
 import H3 from "../H3";

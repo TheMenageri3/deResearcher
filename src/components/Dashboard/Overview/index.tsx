@@ -3,7 +3,7 @@ import Table from "../Table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import users from "../../../dummyData/dummyUser.json";
-import { COLUMNS } from "@/lib/utils/constants";
+import { COLUMNS } from "@/lib/constants";
 import H4 from "@/components/H4";
 
 export default function OverviewComponent() {

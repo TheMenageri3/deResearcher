@@ -4,11 +4,10 @@
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useRouter } from "next/navigation";
-
-import CustomFormItem from "../CustomForm";
 import { PaperFormData } from "@/lib/validation";
+import { usePaperStore } from "@/app/store/paperStore";
+import CustomFormItem from "../CustomForm";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, Upload } from "lucide-react";
+import { z } from "zod";
 
 type PaperFormDataType = z.infer<typeof PaperFormData>;
 
@@ -26,14 +26,16 @@ export default function CreatePaperForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { addPaper, isLoading, error, setError } = usePaperStore();
 
   const form = useForm<PaperFormDataType>({
     resolver: zodResolver(PaperFormData),
     defaultValues: {
-      title: "",
-      authors: "",
-      domains: "",
-      description: "",
+      title: "PAPER TEST 1",
+      authors: "Johnathan Doe",
+      domains: "Solana, SVM",
+      description:
+        "This is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paper",
       paperImage: "",
       paperFile: undefined,
     },
@@ -56,11 +58,20 @@ export default function CreatePaperForm() {
 
   const handleSubmit = async (values: PaperFormDataType) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Paper created:", values);
+      const result = await addPaper(values);
+      if (result.success) {
+        router.push("/dashboard/papers/overview");
+      } else {
+        setError(result.error || "An unknown error occurred");
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error creating paper:", error);
+      setError("An unexpected error occurred while creating the paper");
     }
+  };
+
+  const handleCancel = () => {
+    router.push("/dashboard/papers/overview");
   };
 
   return (
@@ -196,12 +207,14 @@ export default function CreatePaperForm() {
           />
         </div>
 
+        {error && <p className="text-destructive">{error}</p>}
+
         <div className="flex justify-end gap-4">
           <Button
             type="button"
             className="w-40 bg-transparent text-zinc-800 hover:bg-zinc-100"
             variant="outline"
-            onClick={() => router.push("dashboard/papers/overflow")}
+            onClick={handleCancel}
           >
             Cancel
           </Button>
@@ -209,9 +222,9 @@ export default function CreatePaperForm() {
             type="submit"
             className="w-40 bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
             variant="default"
-            disabled={form.formState.isSubmitting}
+            disabled={isLoading}
           >
-            {form.formState.isSubmitting ? "Submitting..." : "Create Paper"}
+            {isLoading ? "Creating..." : "Create Paper"}
           </Button>
         </div>
       </form>

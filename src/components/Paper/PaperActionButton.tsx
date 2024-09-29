@@ -1,4 +1,4 @@
-import { PAPER_STATUS } from "@/lib/utils/constants";
+import { PAPER_STATUS } from "@/lib/constants";
 import { SolanaLogo } from "@/components/SolanaLogo";
 import { Button } from "@/components/ui/button";
 import { Paper } from "@/lib/validation";
