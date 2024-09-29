@@ -72,3 +72,11 @@ export const getScoreColorClass = (score: number): string => {
   if (score >= 3) return "bg-yellow-500";
   return "bg-rose-500/80";
 };
+
+export function isLimitedByteArray(arr: number[]) {
+  return (
+    Array.isArray(arr) &&
+    arr.length === 64 &&
+    arr.every((num) => num >= 0 && num <= 255)
+  );
+}

@@ -1,5 +1,5 @@
 "use client";
-import { Role } from "@/lib/utils/helpers";
+import { Role } from "@/lib/helpers";
 import { useEffect, useState } from "react";
 import { Dialog, DialogFooter, DialogHeader } from "../ui/dialog";
 import {
@@ -66,7 +66,7 @@ export const UploadPaper = () => {
                 onChange={(e) =>
                   handleProfileDataChange(
                     key.toLowerCase() as keyof PaperData,
-                    e.target.value,
+                    e.target.value
                   )
                 }
               />
