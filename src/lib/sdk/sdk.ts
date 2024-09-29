@@ -3,16 +3,21 @@ import { Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Connection, Cluster } from "@solana/web3.js";
 import * as sdk from "./index";
 import * as solana from "@solana/web3.js";
+import { WebIrys } from "@irys/sdk";
 import {
+  MAX_PDF_UPLOD_SIZE_BYTES,
   RESEARCH_MINT_COLLECTION_PDA_SEED,
   RESEARCH_PAPER_PDA_SEED,
   RESEARCHER_PROFILE_PDA_SEED,
 } from "../constants";
 
+import BigNumber from "bignumber.js";
+
 export class SDK {
   wallet: WalletContextState;
   pubkey: solana.PublicKey;
   connection: Connection;
+
   constructor(wallet: WalletContextState, cluster: Cluster) {
     if (!wallet.publicKey) {
       throw new Error("Wallet does not have a public key");
@@ -67,6 +72,78 @@ export class SDK {
 
     await this.confirmTransaction(txId);
   }
+
+  async getArweveIrys(): Promise<WebIrys> {
+    const rpcUrl = "";
+
+    const irisWallet = {
+      rpcUrl: rpcUrl,
+      name: "solana",
+      provider: this.wallet,
+    };
+    const webIrys = new WebIrys({
+      network: "devnet",
+      token: "solana",
+      wallet: irisWallet,
+    });
+    await webIrys.ready();
+    return webIrys;
+  }
+
+  async arweaveFundNode(amount: number): Promise<void> {
+    const webIrys = await this.getArweveIrys();
+    try {
+      const fundTx = await webIrys.fund(webIrys.utils.toAtomic(amount));
+      console.log(
+        `Successfully funded ${webIrys.utils.fromAtomic(fundTx.quantity)} ${
+          webIrys.token
+        }`
+      );
+    } catch (e) {
+      console.log("Error uploading data ", e);
+    }
+  }
+
+  arweaveGetBalance = async (): Promise<number> => {
+    const webIrys = await this.getArweveIrys();
+    const balance = await webIrys.getBalance(webIrys.address);
+    return balance.toNumber();
+  };
+
+  arweaveUploadFile = async (
+    fileToUpload: File,
+    tags: {
+      name: string;
+      value: string;
+    }[]
+  ): Promise<string> => {
+    if (fileToUpload.type !== "application/pdf") {
+      throw new Error("Invalid file type");
+    }
+
+    if (fileToUpload.size > MAX_PDF_UPLOD_SIZE_BYTES) {
+      throw new Error("File size too large");
+    }
+    const webIrys = await this.getArweveIrys();
+
+    const price = await webIrys.getPrice(fileToUpload.size);
+
+    if (!price) {
+      throw new Error("Error getting price");
+    }
+
+    const balance = await this.arweaveGetBalance();
+
+    const fundingAmount = new BigNumber(price).minus(balance);
+
+    if (fundingAmount.gt(0)) {
+      await this.arweaveFundNode(fundingAmount.toNumber());
+    }
+
+    const receipt = await webIrys.uploadFile(fileToUpload, { tags: tags });
+
+    return "https://gateway.irys.xyz/" + receipt.id;
+  };
 
   async createResearcherProfile(data: sdk.CreateResearcherProfile) {
     try {
