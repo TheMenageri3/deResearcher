@@ -1,6 +1,7 @@
 import ProfileForm from "@/components/Profile/ProfileForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import React from "react";
 
 export default async function UpdateProfilePage() {
   const userData = await getUserData();
@@ -24,8 +25,8 @@ async function getUserData() {
   return {
     firstName: "",
     lastName: "",
-    email: "john.doe@example.com",
-    organization: "Acme Corp",
+    email: "",
+    organization: "",
     website: "",
     socialLink: "",
     bio: "",
