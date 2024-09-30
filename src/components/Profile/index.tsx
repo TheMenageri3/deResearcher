@@ -7,8 +7,8 @@ import { ProfileTabs } from "./ProfileTabs";
 import Table from "@/components/Dashboard/Table";
 
 import { Paper } from "@/lib/validation";
-import { formatPaper, minimizePubkey } from "@/lib/utils/helpers";
-import { PROFILE_COLUMNS } from "@/lib/utils/constants";
+import { formatPaper, minimizePubkey } from "@/lib/helpers";
+import { PROFILE_COLUMNS } from "@/lib/constants";
 
 import { useBackgroundImage } from "@/hooks/useBackgroundImage";
 
