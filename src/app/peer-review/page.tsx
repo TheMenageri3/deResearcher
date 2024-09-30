@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import ResearchLayout from "@/components/ResearchPaper/ResearchPaperLayout";
 import { PAPER_STATUS } from "@/lib/constants";
-import { getPapers } from "../research/page";
+import { getPapers } from "@/dummyData/dummyAPIcall";
 
 export const metadata: Metadata = {
   title: "Peer Review",
