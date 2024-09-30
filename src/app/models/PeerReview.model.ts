@@ -20,7 +20,7 @@ export interface PeerReview extends Document {
   bump: number;
 }
 
-const PeerReviewSchema: Schema = new Schema({
+const PeerReviewSchema: Schema = new Schema<PeerReview>({
   address: {
     type: String,
     required: true,

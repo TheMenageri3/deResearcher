@@ -4,33 +4,20 @@ import { useRouter } from "next/navigation";
 import { useUserStore } from "@/app/store/userStore";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useLoading } from "@/context/loadingContext";
+import React from "react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, checkAuth, login } = useUserStore();
-  const { connected, publicKey } = useWallet();
-  const { setIsLoading } = useLoading();
+  const { isAuthenticated } = useUserStore();
+  const wallet = useWallet();
 
   useEffect(() => {
-    const authenticate = async () => {
-      setIsLoading(true);
-      await checkAuth();
-      if (connected && publicKey && !isAuthenticated) {
-        await login(publicKey.toString());
-      }
-      setIsLoading(false);
-    };
-
-    authenticate();
-  }, [checkAuth, connected, publicKey, isAuthenticated, login, setIsLoading]);
-
-  useEffect(() => {
-    if (!connected || !isAuthenticated) {
+    if (!wallet.connected || !isAuthenticated) {
       router.push("/");
     }
-  }, [connected, isAuthenticated, router]);
+  }, [wallet.connected, isAuthenticated, router]);
 
-  if (!connected || !isAuthenticated) {
+  if (!wallet.connected || !isAuthenticated) {
     return null;
   }
 

@@ -6,12 +6,14 @@ import { getMongoDbUri } from "@/lib/env";
 mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
+type ResearcherProfileStateDB = "AwaitingApproval" | "Approved" | "Rejected";
+
 // Define interface for ResearcherProfileArgs
 export interface ResearcherProfile extends Document {
   address: string; // Storing the PublicKey as a String
   researcherPubkey: string; // Storing the PublicKey as a String
-  name: number[]; // Array of size 64
-  state: sdk.ResearcherProfileState;
+  name: string; // Array of size 64
+  state: ResearcherProfileStateDB; // Using string to represent ResearcherProfileState
   totalPapersPublished: number;
   totalCitations: number;
   totalReviews: number;
@@ -27,7 +29,7 @@ export interface ResearcherProfile extends Document {
 }
 
 // Define the ResearcherProfile schema
-const ResearcherProfileSchema: Schema = new Schema({
+const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>({
   address: {
     type: String,
     required: true,

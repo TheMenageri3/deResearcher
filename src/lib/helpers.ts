@@ -1,7 +1,11 @@
+import { PublicKey } from "@solana/web3.js";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Globe, Twitter, Github, Linkedin, Facebook } from "lucide-react";
 import { Paper } from "./validation";
+import solanaCrypto from "tweetnacl";
+import { LOGIN_MESSAGE } from "./constants";
+import bs58 from "bs58";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -108,5 +112,24 @@ export function isLimitedByteArray(arr: number[]) {
     Array.isArray(arr) &&
     arr.length === 64 &&
     arr.every((num) => num >= 0 && num <= 255)
+  );
+}
+
+export function verifySignature(signature: string, pubkey: PublicKey) {
+  return solanaCrypto.sign.detached.verify(
+    getEncodedLoginMessage(pubkey.toBase58()),
+    bs58.decode(signature),
+    bs58.decode(pubkey.toBase58())
+  );
+}
+
+export function getEncodedLoginMessage(pubkey: string) {
+  return new Uint8Array(
+    JSON.stringify({
+      auth: LOGIN_MESSAGE,
+      pubkey: minimizePubkey(pubkey),
+    })
+      .split("")
+      .map((c) => c.charCodeAt(0))
   );
 }

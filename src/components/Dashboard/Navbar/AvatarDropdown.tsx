@@ -21,6 +21,7 @@ import {
 import { minimizePubkey } from "@/lib/helpers";
 import { Avatar } from "@/components/Avatar";
 import { useUserStore } from "@/app/store/userStore";
+import React from "react";
 
 export const AvatarDropdown = () => {
   const { setVisible } = useWalletModal();
@@ -35,13 +36,14 @@ export const AvatarDropdown = () => {
 
   const handleDisconnect = useCallback(async () => {
     try {
+      if (!publicKey) return;
       await disconnect();
-      await logout(); // Call the logout function from useUserStore
+      await logout(publicKey.toBase58()); // Call the logout function from useUserStore
       window.location.href = "/"; // Redirect to home page
     } catch (error) {
       console.error("Error during logout:", error);
     }
-  }, [disconnect, logout]);
+  }, [disconnect, logout, publicKey]);
 
   const getDropdownLabel = () => {
     if (userRole && userName) {

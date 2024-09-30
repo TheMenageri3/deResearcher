@@ -5,21 +5,22 @@ mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
 export interface Session extends Document {
-  sessionId: string;
-  data: any;
+  walletSignature: string;
+  walletPubkey: string;
   createdAt: Date;
   expiresAt: Date;
 }
 
-const SessionSchema: Schema = new Schema({
-  sessionId: {
+const SessionSchema: Schema = new Schema<Session>({
+  walletSignature: {
     type: String,
     required: true,
     unique: true,
   },
-  data: {
-    type: Schema.Types.Mixed,
+  walletPubkey: {
+    type: String,
     required: true,
+    unique: true,
   },
   createdAt: {
     type: Date,
