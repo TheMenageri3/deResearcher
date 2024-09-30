@@ -24,11 +24,11 @@ export default function DashboardContent({
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   const performAuthCheck = useCallback(async () => {
-    if (!hasCheckedAuth) {
-      await checkAuth();
+    if (!hasCheckedAuth && wallet) {
+      await checkAuth(wallet);
       setHasCheckedAuth(true);
     }
-  }, [checkAuth, hasCheckedAuth]);
+  }, [checkAuth, hasCheckedAuth, wallet]);
 
   useEffect(() => {
     performAuthCheck();
@@ -47,7 +47,7 @@ export default function DashboardContent({
     .filter((paper) => paper.status === PAPER_STATUS.PEER_REVIEWING)
     .sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
     .slice(0, 5)
     .map((paper) => ({

@@ -7,11 +7,19 @@ mongoose.connect(getMongoDbUri());
 
 mongoose.Promise = global.Promise;
 
+type PaperStateDB =
+  | "AwaitingPeerReview"
+  | "InPeerReview"
+  | "ApprovedToPublish"
+  | "RequiresRevision"
+  | "Published"
+  | "Minted";
+
 // Define interface for ResearchPaperArgs
 export interface ResearchPaper extends Document {
   address: string; // Storing the PublicKey as a String
   creatorPubkey: string; // Storing the PublicKey as a String
-  state: sdk.PaperState;
+  state: PaperStateDB; // Using string to represent PaperState
   accessFee: number;
   version: number;
   paperContentHash: number[]; // Array of size 64
@@ -33,7 +41,7 @@ export interface ResearchPaper extends Document {
 }
 
 // Define the ResearchPaper schema
-const ResearchPaperSchema: Schema = new Schema({
+const ResearchPaperSchema: Schema = new Schema<ResearchPaper>({
   address: {
     type: String, // Storing the PublicKey as a String
     required: true,
