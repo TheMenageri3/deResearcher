@@ -3,14 +3,14 @@ import Session from "@/app/models/Session.model";
 
 export async function getUserSession() {
   const cookieStore = cookies();
-  const sessionId = cookieStore.get("sessionId")?.value;
+  const walletSignature = cookieStore.get("walletSignature")?.value;
 
-  if (!sessionId) {
+  if (!walletSignature) {
     return null;
   }
 
   try {
-    const session = await Session.findOne({ sessionId });
+    const session = await Session.findOne({ walletSignature });
     if (session && new Date(session.expiresAt) > new Date()) {
       return session;
     }

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   PhantomWalletAdapter,
@@ -13,32 +13,10 @@ import {
   useWallet,
 } from "@solana/wallet-adapter-react";
 import { useUserStore } from "@/app/store/userStore";
+import React from "react";
+import { useLoading } from "@/context/loadingContext";
 
 require("@solana/wallet-adapter-react-ui/styles.css");
-
-const WalletConnection = ({ children }: { children: React.ReactNode }) => {
-  const { wallet, connected } = useWallet();
-  const { isAuthenticated, login, logout } = useUserStore();
-
-  useEffect(() => {
-    console.log("WalletConnection effect triggered", {
-      connected,
-      isAuthenticated,
-    });
-    if (connected && wallet) {
-      const publicKey = wallet.adapter.publicKey?.toString();
-      if (publicKey && !isAuthenticated) {
-        console.log("Attempting login");
-        login(publicKey);
-      }
-    } else if (!connected && isAuthenticated) {
-      console.log("Attempting logout");
-      logout();
-    }
-  }, [connected, wallet, isAuthenticated, login, logout]);
-
-  return <>{children}</>;
-};
 
 export const WalletProviderUI = ({
   children,
@@ -54,15 +32,13 @@ export const WalletProviderUI = ({
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [network],
+    [network]
   );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <WalletConnection>{children}</WalletConnection>
-        </WalletModalProvider>
+        <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

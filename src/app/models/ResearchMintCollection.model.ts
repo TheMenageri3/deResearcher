@@ -16,30 +16,32 @@ export interface ResearchMintCollection extends Document {
 }
 
 // Define the ResearchMintCollection schema
-const ResearchMintCollectionSchema: Schema = new Schema({
-  readerPubkey: {
-    type: String, // Storing the PublicKey as a String
-    required: true,
-  },
-  dataMerkleRoot: {
-    type: [Number], // Array of size 64
-    validate: [
-      isLimitedByteArray,
-      "MetadataMerkleRoot array must have exactly 64 elements(bytes)",
-    ],
-    required: true,
-  },
-  metadata: {
-    type: {
-      mintedResearchPaperPubkeys: [String],
+const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
+  {
+    readerPubkey: {
+      type: String, // Storing the PublicKey as a String
+      required: true,
     },
-    required: true,
-  },
-  bump: {
-    type: Number,
-    required: true,
-  },
-});
+    dataMerkleRoot: {
+      type: [Number], // Array of size 64
+      validate: [
+        isLimitedByteArray,
+        "MetadataMerkleRoot array must have exactly 64 elements(bytes)",
+      ],
+      required: true,
+    },
+    metadata: {
+      type: {
+        mintedResearchPaperPubkeys: [String],
+      },
+      required: true,
+    },
+    bump: {
+      type: Number,
+      required: true,
+    },
+  }
+);
 
 // Validation function for array size
 function arrayLimit(val: number[]) {

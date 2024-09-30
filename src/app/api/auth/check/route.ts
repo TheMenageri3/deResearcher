@@ -1,26 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { toSuccessResponse, toErrResponse } from "../../helpers";
+import { toSuccessResponse, verifySignature } from "../../helpers";
 import Session from "@/app/models/Session.model";
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  const sessionId = req.cookies.get("sessionId")?.value;
-  if (sessionId) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const walletSignature = req.cookies.get("walletSignature")?.value;
+  const { walletPubkey } = await req.json();
+  if (walletSignature && walletPubkey) {
     try {
-      const session = await Session.findOne({ sessionId });
+      const session = await Session.findOne({
+        walletSignature,
+        walletPubkey,
+      });
       if (session) {
+        const isSigVerified = verifySignature(
+          session.walletSignature,
+          session.walletPubkey
+        );
         const currentTime = new Date();
         const expiresAt = new Date(session.expiresAt);
-        if (expiresAt > currentTime) {
+        if (isSigVerified && expiresAt > currentTime) {
           return toSuccessResponse({
             isAuthenticated: true,
-            wallet: session.data.wallet,
+            walletSignature: session.walletSignature,
+            walletPubkey: session.walletPubkey,
             expiresAt: session.expiresAt,
           });
         }
       }
     } catch (error) {
-      console.error("Error checking session:", error);
+      console.error("Auth check failed:", error);
     }
   }
-  return toSuccessResponse({ isAuthenticated: false, wallet: null });
+  return toSuccessResponse({
+    isAuthenticated: false,
+    walletSignature: null,
+    walletPubkey: null,
+  });
 }
