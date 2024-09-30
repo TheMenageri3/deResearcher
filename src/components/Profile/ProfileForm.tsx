@@ -13,14 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type ProfileFormProps = {
-  initialData: ProfileFormData & { isVerified: boolean };
+  initialData: ProfileFormData & { isVerified: boolean; id: string };
 };
 
 export default function ProfileForm({ initialData }: ProfileFormProps) {
   // const [isEditing, setIsEditing] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof ProfileFormData>>({
     resolver: zodResolver(ProfileFormData),
@@ -41,8 +43,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   const handleSubmit = async (values: ProfileFormData) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Profile updated:", values);
+      console.log("Profile created:", values);
       // setIsEditing(false);
+      router.push(`/profile/${initialData.id}`);
     } catch (error) {
       console.error("An error occurred:", error);
     }

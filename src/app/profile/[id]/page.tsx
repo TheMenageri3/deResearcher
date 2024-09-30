@@ -1,5 +1,5 @@
 import ProfileComponent from "@/components/Profile";
-import MainLayout from "../main-layout";
+import MainLayout from "@/app/main-layout";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
