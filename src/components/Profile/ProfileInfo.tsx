@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 "use client";
 
 import { useState } from "react";
 import { formatNumber } from "@/lib/utils/helpers";
 import { Check, Copy } from "lucide-react";
+=======
+import { formatNumber } from "@/lib/helpers";
+import { Copy } from "lucide-react";
+>>>>>>> dev
 import P from "../P";
 import H3 from "../H3";
 import { getLinkIcon } from "@/lib/utils/helpers";

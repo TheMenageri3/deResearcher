@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Globe, Twitter, Github, Linkedin, Facebook } from "lucide-react";
-import { Paper } from "../validation";
+import { Paper } from "./validation";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -103,3 +103,10 @@ export const getLinkIcon = (url: string) => {
     return Globe;
   }
 };
+export function isLimitedByteArray(arr: number[]) {
+  return (
+    Array.isArray(arr) &&
+    arr.length === 64 &&
+    arr.every((num) => num >= 0 && num <= 255)
+  );
+}

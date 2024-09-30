@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from "@solana/web3.js";
-import * as beet from "@metaplex-foundation/beet";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
-import { PaperState, paperStateBeet } from "../types/PaperState";
+import * as web3 from '@solana/web3.js'
+import * as beet from '@metaplex-foundation/beet'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
+import { PaperState, paperStateBeet } from '../types/PaperState'
 
 /**
  * Arguments used to create {@link ResearchPaper}
@@ -16,18 +16,18 @@ import { PaperState, paperStateBeet } from "../types/PaperState";
  * @category generated
  */
 export type ResearchPaperArgs = {
-  address: web3.PublicKey;
-  creatorPubkey: web3.PublicKey;
-  state: PaperState;
-  accessFee: number;
-  version: number;
-  paperContentHash: number[] /* size: 64 */;
-  totalApprovals: number;
-  totalCitations: beet.bignum;
-  totalMints: beet.bignum;
-  metaDataMerkleRoot: number[] /* size: 64 */;
-  bump: number;
-};
+  address: web3.PublicKey
+  creatorPubkey: web3.PublicKey
+  state: PaperState
+  accessFee: number
+  version: number
+  paperContentHash: number[] /* size: 64 */
+  totalApprovals: number
+  totalCitations: beet.bignum
+  totalMints: beet.bignum
+  metaDataMerkleRoot: number[] /* size: 64 */
+  bump: number
+}
 /**
  * Holds the data for the {@link ResearchPaper} Account and provides de/serialization
  * functionality for that data
@@ -66,7 +66,7 @@ export class ResearchPaper implements ResearchPaperArgs {
       args.totalMints,
       args.metaDataMerkleRoot,
       args.bump
-    );
+    )
   }
 
   /**
@@ -77,7 +77,7 @@ export class ResearchPaper implements ResearchPaperArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [ResearchPaper, number] {
-    return ResearchPaper.deserialize(accountInfo.data, offset);
+    return ResearchPaper.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -94,11 +94,11 @@ export class ResearchPaper implements ResearchPaperArgs {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
-    );
+    )
     if (accountInfo == null) {
-      throw new Error(`Unable to find ResearchPaper account at ${address}`);
+      throw new Error(`Unable to find ResearchPaper account at ${address}`)
     }
-    return ResearchPaper.fromAccountInfo(accountInfo, 0)[0];
+    return ResearchPaper.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -109,10 +109,10 @@ export class ResearchPaper implements ResearchPaperArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "C5M2JxBaxmsW62BgujPXEPytw65igtUjr6mFbD5pmypM"
+      'C5M2JxBaxmsW62BgujPXEPytw65igtUjr6mFbD5pmypM'
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, researchPaperBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, researchPaperBeet)
   }
 
   /**
@@ -120,7 +120,7 @@ export class ResearchPaper implements ResearchPaperArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [ResearchPaper, number] {
-    return researchPaperBeet.deserialize(buf, offset);
+    return researchPaperBeet.deserialize(buf, offset)
   }
 
   /**
@@ -128,7 +128,7 @@ export class ResearchPaper implements ResearchPaperArgs {
    * @returns a tuple of the created Buffer and the offset up to which the buffer was written to store it.
    */
   serialize(): [Buffer, number] {
-    return researchPaperBeet.serialize(this);
+    return researchPaperBeet.serialize(this)
   }
 
   /**
@@ -136,7 +136,7 @@ export class ResearchPaper implements ResearchPaperArgs {
    * {@link ResearchPaper}
    */
   static get byteSize() {
-    return researchPaperBeet.byteSize;
+    return researchPaperBeet.byteSize
   }
 
   /**
@@ -152,7 +152,7 @@ export class ResearchPaper implements ResearchPaperArgs {
     return connection.getMinimumBalanceForRentExemption(
       ResearchPaper.byteSize,
       commitment
-    );
+    )
   }
 
   /**
@@ -160,7 +160,7 @@ export class ResearchPaper implements ResearchPaperArgs {
    * hold {@link ResearchPaper} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === ResearchPaper.byteSize;
+    return buf.byteLength - offset === ResearchPaper.byteSize
   }
 
   /**
@@ -171,36 +171,36 @@ export class ResearchPaper implements ResearchPaperArgs {
     return {
       address: this.address.toBase58(),
       creatorPubkey: this.creatorPubkey.toBase58(),
-      state: "PaperState." + PaperState[this.state],
+      state: 'PaperState.' + PaperState[this.state],
       accessFee: this.accessFee,
       version: this.version,
       paperContentHash: this.paperContentHash,
       totalApprovals: this.totalApprovals,
       totalCitations: (() => {
-        const x = <{ toNumber: () => number }>this.totalCitations;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.totalCitations
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       totalMints: (() => {
-        const x = <{ toNumber: () => number }>this.totalMints;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.totalMints
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       metaDataMerkleRoot: this.metaDataMerkleRoot,
       bump: this.bump,
-    };
+    }
   }
 }
 
@@ -213,18 +213,18 @@ export const researchPaperBeet = new beet.BeetStruct<
   ResearchPaperArgs
 >(
   [
-    ["address", beetSolana.publicKey],
-    ["creatorPubkey", beetSolana.publicKey],
-    ["state", paperStateBeet],
-    ["accessFee", beet.u32],
-    ["version", beet.u8],
-    ["paperContentHash", beet.uniformFixedSizeArray(beet.u8, 64)],
-    ["totalApprovals", beet.u8],
-    ["totalCitations", beet.u64],
-    ["totalMints", beet.u64],
-    ["metaDataMerkleRoot", beet.uniformFixedSizeArray(beet.u8, 64)],
-    ["bump", beet.u8],
+    ['address', beetSolana.publicKey],
+    ['creatorPubkey', beetSolana.publicKey],
+    ['state', paperStateBeet],
+    ['accessFee', beet.u32],
+    ['version', beet.u8],
+    ['paperContentHash', beet.uniformFixedSizeArray(beet.u8, 64)],
+    ['totalApprovals', beet.u8],
+    ['totalCitations', beet.u64],
+    ['totalMints', beet.u64],
+    ['metaDataMerkleRoot', beet.uniformFixedSizeArray(beet.u8, 64)],
+    ['bump', beet.u8],
   ],
   ResearchPaper.fromArgs,
-  "ResearchPaper"
-);
+  'ResearchPaper'
+)

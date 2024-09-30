@@ -8,8 +8,8 @@ import PeerReviewComponent from "../PeerReview";
 import { AvatarWithName } from "../Avatar";
 import { Lock } from "lucide-react";
 import { Paper, Review } from "@/lib/validation";
-import { formatTimeAgo } from "@/lib/utils/helpers";
-import { PAPER_STATUS } from "@/lib/utils/constants";
+import { formatTimeAgo } from "@/lib/helpers";
+import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
 import { pdfjs } from "react-pdf";
 import PeerReviewEditor from "../PeerReview/PeerReviewEditor";
@@ -26,7 +26,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL(
       "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url,
+      import.meta.url
     ).toString();
   }, []);
 

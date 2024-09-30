@@ -2,7 +2,7 @@ import React from "react";
 import H4 from "../H4";
 import P from "../P";
 import { AvatarWithName } from "../Avatar";
-import { getScoreColorClass } from "@/lib/utils/helpers";
+import { getScoreColorClass } from "@/lib/helpers";
 import { Review } from "@/lib/validation";
 
 interface PeerReviewProps {
