@@ -1,29 +1,38 @@
 /* eslint-disable @next/next/no-img-element */
-import { Pen } from "lucide-react";
+import { Pen, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerifyBadge } from "@/components/VerifyBadge";
+import { ProfileBK } from "@/components/ProfileBK";
 
 interface ProfileBannerProps {
-  bannerSrc: string;
   avatarSrc: string;
   onEditClick: () => void;
+  onSaveClick: () => void;
   isVerified?: boolean;
+  backgroundImage: string | null;
+  isNewBackgroundImage: boolean;
 }
 
 export function ProfileBanner({
-  bannerSrc,
   avatarSrc,
   onEditClick,
+  onSaveClick,
   isVerified = false,
+  backgroundImage,
+  isNewBackgroundImage,
 }: ProfileBannerProps) {
   return (
     <div className="relative mb-16">
-      <div className="h-52">
-        <img
-          src={bannerSrc}
-          alt="Profile banner"
-          className="w-full h-full object-cover"
-        />
+      <div className="h-52 overflow-hidden">
+        {backgroundImage ? (
+          <img
+            src={backgroundImage}
+            alt="Profile background"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <ProfileBK className="w-full h-full" />
+        )}
       </div>
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
         <div className="relative w-24 h-24 border-4 border-white rounded-full">
@@ -40,8 +49,8 @@ export function ProfileBanner({
         </div>
       </div>
 
-      {/* Edit Profile Button */}
-      <div className="absolute top-4 right-4">
+      {/* Edit and Save Profile Buttons */}
+      <div className="absolute top-4 right-4 flex gap-2">
         <Button
           variant="secondary"
           size="icon"
@@ -50,6 +59,16 @@ export function ProfileBanner({
         >
           <Pen className="h-4 w-4 text-white" />
         </Button>
+        {isNewBackgroundImage && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="rounded-full bg-green-600 hover:bg-green-700"
+            onClick={onSaveClick}
+          >
+            <Save className="h-4 w-4 text-white" />
+          </Button>
+        )}
       </div>
     </div>
   );
