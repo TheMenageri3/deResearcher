@@ -26,7 +26,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL(
       "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url
+      import.meta.url,
     ).toString();
   }, []);
 
@@ -118,7 +118,8 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
             </div>
           )}
           {(paper.status === PAPER_STATUS.PEER_REVIEWING ||
-            paper.status === PAPER_STATUS.REQUEST_REVISION) && (
+            paper.status === PAPER_STATUS.REQUEST_REVISION ||
+            paper.status === PAPER_STATUS.APPROVED) && (
             <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
               <PDFViewComponent url="/test.pdf" />
             </div>
