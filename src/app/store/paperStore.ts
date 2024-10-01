@@ -1,28 +1,36 @@
 import { create } from "zustand";
-import { PaperFormData } from "@/lib/validation";
+import {
+  PaperMetadata,
+  ResearchPaperType,
+} from "../models/ResearchPaper.model";
+import { useSDKStore } from "./sdkStore";
+import * as sdk from "@/lib/sdk";
 
-interface Paper {
+type CreateResearchePaperInput = {
   title: string;
-  authors: string;
-  description: string;
-  domains: string;
+  abstract: string;
+  authors: string[];
+  domain: string;
+  tags: string[];
+  references: string[];
+  accessFee: number;
   paperFile: File;
-  paperImage?: File;
-}
+  paperImage: File;
+};
 
 interface PaperStore {
-  papers: Paper[];
+  papers: ResearchPaperType[];
   isLoading: boolean;
   error: string | null;
   fetchPapers: () => Promise<void>;
   addPaper: (
-    paper: PaperFormData,
+    paper: CreateResearchePaperInput
   ) => Promise<{ success: boolean; error?: string }>;
   setError: (error: string | null) => void;
 }
 
-export const usePaperStore = create<PaperStore>((set) => ({
-  papers: [] as Paper[],
+export const usePaperStore = create<PaperStore>((set, get) => ({
+  papers: [],
   isLoading: false,
   error: null,
   fetchPapers: async () => {
@@ -40,15 +48,102 @@ export const usePaperStore = create<PaperStore>((set) => ({
   },
   addPaper: async (paper) => {
     set({ isLoading: true, error: null });
-    try {
-      const formData = new FormData();
-      Object.entries(paper).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
 
+    const sdkInstance = useSDKStore.getState().sdk;
+
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized", isLoading: false });
+      return { success: false, error: "SDK not initialized" };
+    }
+
+    try {
+      // On-chain part
+
+      // Upload files to Arweave
+      const [arweaveImageId, arweavePaperId] =
+        await sdkInstance.arweaveUploadFiles(
+          [paper.paperImage, paper.paperFile],
+          [
+            [
+              {
+                name: "Content-Type",
+                value: "image/svg",
+              },
+            ],
+            [
+              {
+                name: "Content-Type",
+                value: "application/pdf",
+              },
+            ],
+          ]
+        );
+
+      // Generate merkle roots for paper content and metadata
+      const [paperContentHash, metaDataMerkleRoot] = await Promise.all([
+        sdk.SDK.compressObjectAndGenerateMerkleRoot({
+          data: paper.paperFile.toString(),
+        }),
+        sdk.SDK.compressObjectAndGenerateMerkleRoot({
+          title: paper.title,
+          abstract: paper.abstract,
+          authors: paper.authors,
+          domain: paper.domain,
+          tags: paper.tags,
+          references: paper.references,
+          paperImageURI: arweaveImageId,
+          decentralizedStorageURI: arweavePaperId,
+          datePublished: new Date().toISOString(),
+        } as PaperMetadata),
+      ]);
+
+      // Create paper on Solana
+      const createResearchPaperInput: Omit<
+        sdk.CreateResearchePaper,
+        "pdaBump"
+      > = {
+        accessFee: paper.accessFee,
+        paperContentHash,
+        metaDataMerkleRoot,
+      };
+
+      // Call the SDK to create the paper
+      const result = await sdkInstance.createResearchPaper(
+        createResearchPaperInput
+      );
+
+      // Off-chain part
+
+      // Create the paper object to store in the database
+      const paperDbData: ResearchPaperType = {
+        address: result.paperPda,
+        creatorPubkey: result.creatorPubkey,
+        state: "AwaitingPeerReview",
+        accessFee: paper.accessFee,
+        version: 0,
+        paperContentHash: Array.from(Buffer.from(paperContentHash)),
+        totalApprovals: 0,
+        totalCitations: 0,
+        totalMints: 0,
+        metaDataMerkleRoot: Array.from(Buffer.from(metaDataMerkleRoot)),
+        metadata: {
+          title: paper.title,
+          abstract: paper.abstract,
+          authors: paper.authors,
+          domain: paper.domain,
+          tags: paper.tags,
+          references: paper.references,
+          paperImageURI: arweaveImageId,
+          decentralizedStorageURI: arweavePaperId,
+          datePublished: new Date().toISOString(),
+        },
+        bump: result.paperPdaBump,
+      };
+
+      // Store the paper in the database
       const response = await fetch("/api/research-paper", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(paperDbData),
       });
 
       if (!response.ok) {
@@ -56,6 +151,7 @@ export const usePaperStore = create<PaperStore>((set) => ({
         throw new Error(errorData.message || "Failed to create paper");
       }
 
+      // Add the paper to the store
       const newPaper = await response.json();
       set((state) => ({
         papers: [...state.papers, newPaper],

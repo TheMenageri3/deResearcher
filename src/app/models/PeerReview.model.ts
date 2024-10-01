@@ -20,6 +20,8 @@ export interface PeerReview extends Document {
   bump: number;
 }
 
+export type PeerReviewType = Omit<PeerReview, keyof Document>;
+
 const PeerReviewSchema: Schema = new Schema<PeerReview>({
   address: {
     type: String,
