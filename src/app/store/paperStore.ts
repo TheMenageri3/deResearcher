@@ -81,10 +81,10 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Generate merkle roots for paper content and metadata
       const [paperContentHash, metaDataMerkleRoot] = await Promise.all([
-        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
+        sdk.SDK.compressObjectAndGenerateMerkleRoot({
           data: paper.paperFile.toString(),
         }),
-        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
+        sdk.SDK.compressObjectAndGenerateMerkleRoot({
           title: paper.title,
           abstract: paper.abstract,
           authors: paper.authors,
