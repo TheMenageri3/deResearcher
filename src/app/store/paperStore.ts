@@ -2,7 +2,6 @@ import { create } from "zustand";
 import {
   PaperMetadata,
   ResearchPaperType,
-  type ResearchPaper,
 } from "../models/ResearchPaper.model";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
@@ -20,7 +19,7 @@ type CreateResearchePaperInput = {
 };
 
 interface PaperStore {
-  papers: ResearchPaper[];
+  papers: ResearchPaperType[];
   isLoading: boolean;
   error: string | null;
   fetchPapers: () => Promise<void>;
