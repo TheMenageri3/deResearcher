@@ -22,7 +22,7 @@ export const MobileMenu = ({ pathname }: MobileMenuProps) => {
   };
 
   const filteredNavLinks = NavLinks.filter(
-    (link) => link.name !== "Dashboard" || (isAuthenticated && connected),
+    (link) => link.name !== "Dashboard" || (isAuthenticated && connected)
   );
 
   return (

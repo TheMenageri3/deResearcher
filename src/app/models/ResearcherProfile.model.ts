@@ -28,6 +28,8 @@ export interface ResearcherProfile extends Document {
   bump: number;
 }
 
+export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
+
 // Define the ResearcherProfile schema
 const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>({
   address: {

@@ -35,9 +35,24 @@ export interface ResearchPaper extends Document {
     domain: string;
     tags: string[];
     references: string[];
+    paperImageURI: string;
     decentralizedStorageURI: string;
   };
   bump: number;
+}
+
+export type ResearchPaperType = Omit<ResearchPaper, keyof Document>;
+
+export interface PaperMetadata {
+  title: string;
+  abstract: string;
+  authors: string[];
+  datePublished: string;
+  domain: string;
+  tags: string[];
+  references: string[];
+  paperImageURI: string;
+  decentralizedStorageURI: string;
 }
 
 // Define the ResearchPaper schema

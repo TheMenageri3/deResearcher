@@ -12,6 +12,7 @@ import {
 } from "../constants";
 
 import BigNumber from "bignumber.js";
+import { TaggedFile } from "@irys/sdk/web/upload";
 
 export class SDK {
   wallet: WalletContextState;
@@ -110,6 +111,22 @@ export class SDK {
     return balance.toNumber();
   };
 
+  arweaveUploadFiles = async (
+    filesToUpload: File[],
+    tags: { name: string; value: string }[][] = []
+  ): Promise<string[]> => {
+    const taggedFiles = filesToUpload.map((f: TaggedFile, i: number) => {
+      f.tags = tags[i];
+      return f;
+    });
+
+    const irysUploader = await this.getArweveIrys();
+
+    const response = await irysUploader.uploadFolder(taggedFiles, {});
+
+    return response.txs.map((tx) => "https://gateway.irys.xyz/" + tx.id);
+  };
+
   arweaveUploadFile = async (
     fileToUpload: File,
     tags: {
@@ -145,14 +162,12 @@ export class SDK {
     return "https://gateway.irys.xyz/" + receipt.id;
   };
 
-  async createResearcherProfile(data: sdk.CreateResearcherProfile) {
+  async createResearcherProfile(
+    data: Omit<sdk.CreateResearcherProfile, "pdaBump">
+  ) {
     try {
       const [researcherProfilePda, bump] =
         deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
-
-      if (bump !== data.pdaBump) {
-        throw new Error("PDA bump does not match");
-      }
 
       const accounts: sdk.CreateResearcherProfileInstructionAccounts = {
         researcherAcc: this.pubkey,
@@ -161,7 +176,10 @@ export class SDK {
       };
 
       const ixData: sdk.CreateResearcherProfileInstructionArgs = {
-        createResearcherProfile: data,
+        createResearcherProfile: {
+          ...data,
+          pdaBump: bump,
+        },
       };
 
       const instruction = sdk.createCreateResearcherProfileInstruction(
@@ -176,50 +194,55 @@ export class SDK {
     }
   }
 
-  async createResearchPaper(data: sdk.CreateResearchePaper) {
-    try {
-      const [paperPda, bump] = deriveResearPaperPdaPubkeyAndBump(
-        this.pubkey,
-        data.paperContentHash
-      );
+  async createResearchPaper(
+    data: Omit<sdk.CreateResearchePaper, "pdaBump">
+  ): Promise<{
+    creatorPubkey: string;
+    paperPda: string;
+    paperPdaBump: number;
+  }> {
+    const [paperPda, bump] = deriveResearPaperPdaPubkeyAndBump(
+      this.pubkey,
+      data.paperContentHash
+    );
 
-      if (bump !== data.pdaBump) {
-        throw new Error("PDA bump does not match");
-      }
+    const accounts: sdk.CreateResearchePaperInstructionAccounts = {
+      publisherAcc: this.pubkey,
+      researcherProfilePdaAcc: this.pubkey,
+      paperPdaAcc: paperPda,
+      systemProgramAcc: solana.SystemProgram.programId,
+    };
 
-      const accounts: sdk.CreateResearchePaperInstructionAccounts = {
-        publisherAcc: this.pubkey,
-        researcherProfilePdaAcc: this.pubkey,
-        paperPdaAcc: paperPda,
-        systemProgramAcc: solana.SystemProgram.programId,
-      };
+    const ixData: sdk.CreateResearchePaperInstructionArgs = {
+      createResearchePaper: {
+        ...data,
+        pdaBump: bump,
+      },
+    };
 
-      const ixData: sdk.CreateResearchePaperInstructionArgs = {
-        createResearchePaper: data,
-      };
+    const instruction = sdk.createCreateResearchePaperInstruction(
+      accounts,
+      ixData,
+      sdk.PROGRAM_ID
+    );
 
-      const instruction = sdk.createCreateResearchePaperInstruction(
-        accounts,
-        ixData,
-        sdk.PROGRAM_ID
-      );
-
-      await this.buildTxSignAndSend([instruction]);
-    } catch (e) {
-      console.error(e);
-    }
+    await this.buildTxSignAndSend([instruction]);
+    return {
+      creatorPubkey: this.pubkey.toBase58(),
+      paperPda: paperPda.toBase58(),
+      paperPdaBump: bump,
+    };
   }
 
-  async addPeerReview(paperPda: solana.PublicKey, data: sdk.AddPeerReview) {
+  async addPeerReview(
+    paperPda: solana.PublicKey,
+    data: Omit<sdk.AddPeerReview, "pdaBump">
+  ) {
     try {
       const [peerReviewPda, bump] = derivePeerReviewPdaPubkeyAndBump(
         this.pubkey,
         paperPda
       );
-
-      if (bump !== data.pdaBump) {
-        throw new Error("PDA bump does not match");
-      }
 
       const [researcherProfilePda, _] = deriveResearcherProfilePdaPubkeyAndBump(
         this.pubkey
@@ -234,7 +257,10 @@ export class SDK {
       };
 
       const ixData: sdk.AddPeerReviewInstructionArgs = {
-        addPeerReview: data,
+        addPeerReview: {
+          ...data,
+          pdaBump: bump,
+        },
       };
 
       const instruction = sdk.createAddPeerReviewInstruction(
@@ -251,15 +277,11 @@ export class SDK {
 
   async mintResearchPaper(
     paperPda: solana.PublicKey,
-    data: sdk.MintResearchPaper
+    data: Omit<sdk.MintResearchPaper, "pdaBump">
   ) {
     try {
       const [mintCollectionPda, bump] =
         deriveResearchMintCollectionPdaPubkeyAndBump(this.pubkey);
-
-      if (bump !== data.pdaBump) {
-        throw new Error("PDA bump does not match");
-      }
 
       const [researcherProfilePda, researcherProfileBump] =
         deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
@@ -279,7 +301,10 @@ export class SDK {
       };
 
       const ixData: sdk.MintResearchPaperInstructionArgs = {
-        mintResearchPaper: data,
+        mintResearchPaper: {
+          ...data,
+          pdaBump: bump,
+        },
       };
 
       const instruction = sdk.createMintResearchPaperInstruction(
@@ -473,6 +498,25 @@ export class SDK {
       console.error(e);
       return [];
     }
+  }
+
+  static async compressObjectAndGenerateMerkleRoot<T extends Object>(
+    obj: T
+  ): Promise<string> {
+    const apiRoute = "/api/generate-merkle-root";
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(obj),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error generating merkle root");
+    }
+
+    const data = await response.json();
+
+    return data.merkleRoot;
   }
 }
 
