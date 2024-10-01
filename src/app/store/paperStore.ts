@@ -66,14 +66,14 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           [
             [
               {
-                name: "paperImage",
-                value: paper.title,
+                name: "Content-Type",
+                value: "image/svg",
               },
             ],
             [
               {
-                name: "paperFile",
-                value: paper.title,
+                name: "Content-Type",
+                value: "application/pdf",
               },
             ],
           ]
