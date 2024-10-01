@@ -11,6 +11,8 @@ export interface Session extends Document {
   expiresAt: Date;
 }
 
+export type SessionType = Omit<Session, keyof Document>;
+
 const SessionSchema: Schema = new Schema<Session>({
   walletSignature: {
     type: String,

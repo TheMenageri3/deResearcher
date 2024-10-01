@@ -58,7 +58,7 @@ export const Navbar = () => {
                 {link.name}
               </Link>
             </div>
-          ),
+          )
         )}
         <Wallet />
       </div>

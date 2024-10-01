@@ -14,6 +14,8 @@ interface UserState {
   lastChecked: number;
 }
 
+export type UserStore = UserState;
+
 const AUTH_CHECK_INTERVAL = 10 * 60 * 1000; // 10 minute
 
 export const useUserStore = create<UserState>((set, get) => ({

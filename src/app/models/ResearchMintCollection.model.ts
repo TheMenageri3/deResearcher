@@ -15,6 +15,11 @@ export interface ResearchMintCollection extends Document {
   bump: number;
 }
 
+export type ResearchMintCollectionType = Omit<
+  ResearchMintCollection,
+  keyof Document
+>;
+
 // Define the ResearchMintCollection schema
 const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
   {

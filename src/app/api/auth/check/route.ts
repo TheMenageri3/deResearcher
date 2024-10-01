@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { toSuccessResponse, verifySignature } from "../../helpers";
-import Session from "@/app/models/Session.model";
+import SessionModel, { Session } from "@/app/models/Session.model";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const walletSignature = req.cookies.get("walletSignature")?.value;
   const { walletPubkey } = await req.json();
   if (walletSignature && walletPubkey) {
     try {
-      const session = await Session.findOne({
+      const session = await SessionModel.findOne<Session>({
         walletSignature,
         walletPubkey,
       });
