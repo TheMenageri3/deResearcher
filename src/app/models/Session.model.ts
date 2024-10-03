@@ -1,7 +1,5 @@
-import { getMongoDbUri } from "@/lib/env";
 import mongoose, { Schema, Document } from "mongoose";
 
-mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
 export interface Session extends Document {

@@ -16,7 +16,7 @@ interface UserState {
 
 export type UserStore = UserState;
 
-const AUTH_CHECK_INTERVAL = 10 * 60 * 1000; // 10 minute
+const AUTH_CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 1 day
 
 export const useUserStore = create<UserState>((set, get) => ({
   isAuthenticated: false,
@@ -57,7 +57,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       const encodedMessage = getEncodedLoginMessage(
-        wallet.publicKey.toBase58()
+        wallet.publicKey.toBase58(),
       );
       const signature = await wallet.signMessage(encodedMessage);
 

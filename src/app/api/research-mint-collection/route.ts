@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { toErrResponse, toSuccessResponse } from "../helpers";
-import ResearchMintCollectionModel, {
+import {
   ResearchMintCollection,
-} from "@/app/models/ResearchMintCollection.model";
+  ResearchMintCollectionModel,
+} from "@/app/models";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {

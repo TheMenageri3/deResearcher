@@ -6,7 +6,7 @@ import {
 } from "../../helpers";
 import Session from "@/app/models/Session.model";
 
-const maxAge = 10 * 60 * 1000; // 10 minutes
+const maxAge = 24 * 60 * 60 * 1000; // 1 day
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
