@@ -18,6 +18,7 @@ initializeModels().catch((error) => {
   console.error("Failed to connect to the database:", error);
 });
 
+
 // Export models for easier imports
 export {
   ResearcherProfileModel,

@@ -1,71 +1,86 @@
 import { NextRequest, NextResponse } from "next/server";
-import { toErrResponse, toSuccessResponse } from "../helpers";
-import ResearcherProfileModel, {
-  ResearcherProfile,
-} from "@/app/models/ResearcherProfile.model";
+import connectToDatabase from "@/lib/mongoServer";
+import {
+  PeerReviewModel,
+  ResearcherProfileModel,
+  ResearchPaperModel,
+} from "@/app/models";
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+// create a new profile
+export async function POST(req: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const researcherPubkey = searchParams.get("researcherPubkey");
-    if (!researcherPubkey) {
-      return toErrResponse("researcherPubkey is required");
-    }
-    const researcherProfile =
-      await ResearcherProfileModel.findOne<ResearcherProfile>({
-        researcherPubkey,
-      });
-    if (!researcherProfile) {
+    await connectToDatabase();
+    const reqBody = await req.json();
+    const profile = await ResearcherProfileModel.create(reqBody);
+    return NextResponse.json(profile, { status: 201 });
+  } catch (error: any) {
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.entries(error.errors).map(
+        ([field, err]: [string, any]) => ({
+          field,
+          message: err.message,
+          value: err.value,
+        }),
+      );
       return NextResponse.json(
-        { error: "Researcher profile not found" },
-        { status: 404 },
+        { error: "Validation Error", details: validationErrors },
+        { status: 400 },
       );
     }
-    return toSuccessResponse(researcherProfile);
-  } catch (err) {
-    return toErrResponse("Error fetching researcher profile");
+    return NextResponse.json(
+      { error: "Internal Server Error", message: error.message },
+      { status: 500 },
+    );
   }
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+// get papers by userId
+export async function GET(req: NextRequest) {
   try {
-    const { publicKey } = await req.json();
-    if (!publicKey) {
-      return toErrResponse("Public key is required");
-    }
-    const existingProfile = await ResearcherProfileModel.findOne({
-      researcherPubkey: publicKey,
-    });
-    if (existingProfile) {
-      return toErrResponse(
-        "A profile with this researcher public key already exists",
+    await connectToDatabase();
+    const userId = req.nextUrl.searchParams.get("id");
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
       );
     }
-    // Create a new researcher profile
-    const newProfile = new ResearcherProfileModel({
-      address: publicKey,
-      researcherPubkey: publicKey,
-      name: "Unnamed Researcher",
-      state: "AwaitingApproval",
-      totalPapersPublished: 0,
-      totalCitations: 0,
-      totalReviews: 0,
-      reputation: 0,
-      metaDataMerkleRoot: new Array(64).fill(0),
-      metadata: {
-        externalResearchProfiles: [],
-        interestedDomains: [],
-        topPublications: [],
-        socialLinks: [],
-      },
-      bump: 0,
-    });
 
-    // await newProfile.save();
-    console.log("newProfile", newProfile);
-    return toSuccessResponse(newProfile);
-  } catch (err) {
-    console.error("Error creating researcher profile:", err);
-    return toErrResponse("Error creating researcher profile");
+    const user = await ResearcherProfileModel.findById(userId)
+      .populate({
+        path: "papers",
+        model: ResearchPaperModel,
+        select:
+          "id state accessFee version minters metadata.title metadata.abstract metadata.authors createdAt tags peerReviews",
+        populate: {
+          path: "peerReviews",
+          model: PeerReviewModel,
+          select:
+            "id reviewerId qualityOfResearch potentialForRealWorldUseCase domainKnowledge practicalityOfResultObtained metadata",
+        },
+      })
+      .populate({
+        path: "peerReviewsAsReviewer",
+        model: PeerReviewModel,
+        select:
+          "id paperId qualityOfResearch potentialForRealWorldUseCase domainKnowledge practicalityOfResultObtained metadata",
+        populate: {
+          path: "paperId",
+          model: ResearchPaperModel,
+          select: "id metadata.title",
+        },
+      });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user, { status: 200 });
+  } catch (error: any) {
+    console.error("Error in GET /api/researcher-profiles:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", message: error.message },
+      { status: 500 },
+    );
   }
 }
