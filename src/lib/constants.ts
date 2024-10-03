@@ -35,3 +35,12 @@ export const RESEARCHER_PROFILE_PDA_SEED: string = "deres_researcher_profile";
 export const MAX_PDF_UPLOD_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export const LOGIN_MESSAGE = "Login to deresearcher";
+
+export const PLACEHOLDER = `Providing a Quality Peer Review:
+  
+- Overview: Summarize the paper's main goals and contributions.
+- Introduction: Check if the research question is clear and well-supported.
+- Methods: Assess if the methods are appropriate and well-explained.
+- Results: Evaluate if the results are clear and well-supported by data.
+- Discussion: Review if the findings are interpreted well and their significance is clear.
+`;

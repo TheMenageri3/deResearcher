@@ -101,72 +101,55 @@ export const PaperFormData = z.object({
 });
 
 export const ReviewSchema = z.object({
-  id: z.string().optional(),
-  address: z.string(),
-  reviewerPubkey: z.string(),
-  paperPubkey: z.string(),
-  // mapping frontend score to working with backend 1-10 scale
-  qualityOfResearch: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  potentialForRealWorldUseCase: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  domainKnowledge: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  practicalityOfResultObtained: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  metaDataMerkleRoot: z.array(z.number()).length(64).optional(),
+  _id: z.string(),
+  reviewerId: z.object({
+    _id: z.string(),
+    researcherPubkey: z.string(),
+    name: z.string(),
+  }),
+  qualityOfResearch: z.number(),
+  potentialForRealWorldUseCase: z.number(),
+  domainKnowledge: z.number(),
+  practicalityOfResultObtained: z.number(),
   metadata: z.object({
+    title: z.string(),
     reviewComments: z.string(),
   }),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  bump: z.number().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const PaperSchema = z.object({
-  id: z.string(),
-  address: z.string().optional(), // TODO: Will remove optional when production
+  _id: z.string(), // Change from `id` to `_id` or map it later
   creatorPubkey: z.string(),
-  state: PaperState.default("InPeerReview"),
-  accessFee: z.number().nullable().default(0),
-  references: z.array(z.string()).optional(),
+  state: z.string(),
+  accessFee: z.number(),
+  version: z.number(),
   paperContentHash: z.array(z.number()),
+
   totalApprovals: z.number().default(0),
   totalCitations: z.number().default(0),
   totalMints: z.number().default(0),
   metaDataMerkleRoot: z.array(z.number()).optional(),
-  version: z.number().default(1),
+
   metadata: z.object({
-    title: z.string().trim().min(5, "Title must be at least 5 characters"),
-    abstract: z.string().trim(), // TODO: Will change back when production
-    // abstract: z
-    //   .string()
-    //   .trim()
-    //   .min(250, "Description must be at least 250 words"),
+    title: z.string(),
+    abstract: z.string(),
     authors: z.array(z.string()),
+    datePublished: z.string(),
     domain: z.string(),
     tags: z.array(z.string()),
     references: z.array(z.string()),
     paperImageURI: z.string(),
     decentralizedStorageURI: z.string(),
-    datePublished: z.union([z.string(), z.date()]),
   }),
-  bump: z.number().optional(),
-  createdAt: z.union([z.string(), z.date()]),
-  updatedAt: z.union([z.string(), z.date()]),
+
+  bump: z.number(),
+
   peerReviews: z.array(ReviewSchema).optional(),
+
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 // TypeScript types

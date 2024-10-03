@@ -22,7 +22,7 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
 }) => {
   const getButtonContent = () => {
     switch (paper.state) {
-      case PAPER_STATUS.IN_PEER_REVIEW || PAPER_STATUS.AWAITING_PEER_REVIEW:
+      case PAPER_STATUS.AWAITING_PEER_REVIEW || PAPER_STATUS.IN_PEER_REVIEW:
         return {
           text: "Write Review",
           action: onToggleReview,

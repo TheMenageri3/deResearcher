@@ -58,9 +58,10 @@ export default function PaperCard({
             {status === PAPER_STATUS.PUBLISHED && (
               <MintedInfo count={minted ?? 0} />
             )}
-            {status === PAPER_STATUS.IN_PEER_REVIEW && (
-              <ReviewersInfo count={reviewers ?? 0} />
-            )}
+            {status === PAPER_STATUS.IN_PEER_REVIEW ||
+              (status === PAPER_STATUS.AWAITING_PEER_REVIEW && (
+                <ReviewersInfo count={reviewers ?? 0} />
+              ))}
           </div>
           <ActionButton
             status={status}
@@ -170,7 +171,10 @@ const ActionButton = ({
       </Button>
     );
   }
-  if (status === PAPER_STATUS.IN_PEER_REVIEW) {
+  if (
+    status === PAPER_STATUS.AWAITING_PEER_REVIEW ||
+    status === PAPER_STATUS.IN_PEER_REVIEW
+  ) {
     return (
       <Button
         className="w-full sm:w-auto text-xs font-semibold flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 relative overflow-hidden group"

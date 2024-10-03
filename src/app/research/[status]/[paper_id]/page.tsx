@@ -10,26 +10,36 @@ export default async function PaperContentPage({
 }) {
   const { paper_id, status } = params;
 
-  // Fetch paper data from the API route
-  const res = await fetch(
-    `http://localhost:3000/api/research/${status}/${paper_id}`,
-  );
-
-  if (!res.ok) {
-    notFound(); // Return 404 if paper not found
-  }
-
-  const paperData = await res.json();
-
-  // Validate the data using PaperSchema
+  let paperData;
   let paper: Paper;
 
   try {
+    // Fetch paper data from the API route
+    const res = await fetch(
+      `http://localhost:3000/api/research/${status}/${paper_id}`,
+      { cache: "no-store" },
+    );
+
+    if (!res.ok) {
+      console.error(`API response not OK: ${res.status} ${res.statusText}`);
+      notFound();
+    }
+
+    paperData = await res.json();
+    console.log("Received paper data:", JSON.stringify(paperData, null, 2));
+  } catch (error) {
+    console.error("Error fetching or parsing paper data:", error);
+    notFound();
+  }
+
+  try {
+    // Validate the data using PaperSchema
     paper = PaperSchema.parse(paperData);
-    console.log(paper);
   } catch (error) {
     console.error("Invalid paper data:", error);
-    notFound(); // If validation fails, return 404
+    console.error("Received data:", JSON.stringify(paperData, null, 2));
+    console.error("PaperSchema:", PaperSchema);
+    notFound();
   }
 
   return (

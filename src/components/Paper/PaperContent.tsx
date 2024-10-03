@@ -38,7 +38,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
     if (paper?.peerReviews && paper.peerReviews.length > 0) {
       setExpandedReviews((prev) => ({
         ...prev,
-        [paper.peerReviews?.[0]?.id ?? "default"]: true,
+        [paper.peerReviews?.[0]?._id ?? "default"]: true,
       }));
     }
   }, [paper?.peerReviews]);
@@ -57,13 +57,13 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
 
     return paper.peerReviews?.map((review: Review) => (
       <PeerReviewComponent
-        key={review.id}
+        key={review._id}
         review={{
           ...review,
-          time: formatTimeAgo(review.createdAt.toISOString()),
+          time: formatTimeAgo(review.createdAt.toString()),
         }}
-        isExpanded={!!expandedReviews[review.id ?? ""]}
-        onToggle={() => toggleReview(review.id ?? "")}
+        isExpanded={!!expandedReviews[review._id]}
+        onToggle={() => toggleReview(review._id)}
       />
     ));
   };
@@ -94,12 +94,12 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
             {paper.metadata.abstract}
           </P>
           <div className="flex items-center space-x-1 mb-4">
-            {paper.metadata.authors.map((author, index) => (
+            {paper.metadata.authors.map((author: string, index) => (
               <AvatarWithName key={index} name={author} />
             ))}
             <span className="text-sm text-zinc-500">
               {paper.metadata.authors.join(", ")} •{" "}
-              {formatTimeAgo(paper.createdAt.toString())}
+              {formatTimeAgo(paper.createdAt)}
             </span>
           </div>
 
@@ -126,6 +126,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
             </div>
           )}
           {(paper.state === PAPER_STATUS.IN_PEER_REVIEW ||
+            paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
             paper.state === PAPER_STATUS.REQUEST_REVISION ||
             paper.state === PAPER_STATUS.APPROVED) && (
             <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">

@@ -1,5 +1,7 @@
+import connectToDatabase from "@/lib/mongoServer";
 import mongoose, { Schema, Document } from "mongoose";
 
+connectToDatabase();
 mongoose.Promise = global.Promise;
 
 export interface Session extends Document {
