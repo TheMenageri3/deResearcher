@@ -5,14 +5,13 @@ import {
 } from "../models/ResearchPaper.model";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
-import { Paper, PaperFormData } from "@/lib/validation";
+import { Paper } from "@/lib/validation";
 
 type CreateResearchePaperInput = {
   title: string;
   abstract: string;
   authors: string[];
-  domain: string;
-  tags: string[];
+  domains: string[];
   references: string[];
   accessFee: number;
   paperFile: File;
@@ -27,9 +26,12 @@ interface PaperStore {
   fetchPapersByState: (state: string) => Promise<void>;
   fetchPaperById: (state: string, paperId: string) => Promise<void>; // Fix here
   fetchFromApi: (url: string, singlePaper: boolean) => Promise<void>;
-  addPaper: (
-    paper: PaperFormData, // Form types
+  createResearchPaper: (
+    paper: CreateResearchePaperInput
   ) => Promise<{ success: boolean; error?: string }>;
+  publishResearchPaper: () => Promise<void>;
+  addPeerReview: () => Promise<void>;
+  mintResearchPaper: () => Promise<void>;
   setError: (error: string | null) => void;
 }
 
@@ -77,10 +79,10 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   fetchPaperById: async (state: string, paperId: string) => {
     await get().fetchFromApi(`/api/research/${state}/${paperId}`, true);
   },
-  addPaper: async (paper) => {
+  createResearchPaper: async (paper) => {
     set({ isLoading: true, error: null });
 
-    const sdkInstance = useSDKStore.getState().sdk;
+    const { sdk: sdkInstance } = useSDKStore.getState();
 
     if (!sdkInstance) {
       set({ error: "SDK not initialized", isLoading: false });
@@ -120,7 +122,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
                 value: "application/pdf",
               },
             ],
-          ],
+          ]
         );
 
       // Generate merkle roots for paper content and metadata
@@ -146,14 +148,14 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         sdk.CreateResearchePaper,
         "pdaBump"
       > = {
-        accessFee: paper.price,
+        accessFee: paper.accessFee,
         paperContentHash,
         metaDataMerkleRoot,
       };
 
       // Call the SDK to create the paper
       const result = await sdkInstance.createResearchPaper(
-        createResearchPaperInput,
+        createResearchPaperInput
       );
 
       // Off-chain part
@@ -162,8 +164,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       const paperDbData: ResearchPaperType = {
         address: result.paperPda,
         creatorPubkey: result.creatorPubkey,
-        state: "InPeerReview",
-        accessFee: paper.price,
+        state: "AwaitingPeerReview",
+        accessFee: paper.accessFee,
         version: 1, // Default is 1
         paperContentHash: Array.from(Buffer.from(paperContentHash)),
         totalApprovals: 0,
@@ -209,5 +211,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return { success: false, error: error.message };
     }
   },
+  publishResearchPaper: async () => {},
+  addPeerReview: async () => {},
+  mintResearchPaper: async () => {},
   setError: (error) => set({ error }),
 }));

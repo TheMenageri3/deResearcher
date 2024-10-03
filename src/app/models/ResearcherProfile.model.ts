@@ -36,6 +36,31 @@ export interface ResearcherProfile extends Document {
 
 export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
+export type ResearcherProfileMetadata = {
+  email: string;
+  organization?: string;
+  bio?: string;
+  profileImageURI?: string;
+  backgroundImageURI?: string;
+  externalResearchProfiles?: string[];
+  interestedDomains?: string[];
+  topPublications?: string[];
+  socialLinks?: string[];
+};
+
+export type CreateResearcherProfile = {
+  name: string;
+  email: string;
+  organization?: string;
+  bio?: string;
+  profileImageURI?: string;
+  backgroundImageURI?: string;
+  externalResearchProfiles?: string[];
+  interestedDomains?: string[];
+  topPublications?: string[];
+  socialLinks?: string[];
+};
+
 // Define the ResearcherProfile schema
 const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
   {
@@ -119,7 +144,7 @@ const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
         delete ret._id;
       },
     },
-  },
+  }
 );
 
 // Virtual to map _id to id
@@ -135,5 +160,5 @@ ResearcherProfileSchema.set("toJSON", { virtuals: true });
 export default mongoose.models.ResearcherProfile ||
   mongoose.model<ResearcherProfile>(
     "ResearcherProfile",
-    ResearcherProfileSchema,
+    ResearcherProfileSchema
   );

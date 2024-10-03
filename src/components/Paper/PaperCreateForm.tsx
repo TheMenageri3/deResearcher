@@ -26,7 +26,7 @@ export default function CreatePaperForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { addPaper, isLoading, error, setError } = usePaperStore();
+  const { createResearchPaper, isLoading, error, setError } = usePaperStore();
 
   const form = useForm<PaperFormDataType>({
     resolver: zodResolver(PaperFormData),
@@ -55,7 +55,7 @@ export default function CreatePaperForm() {
 
   const handleSubmit = async (values: PaperFormDataType) => {
     try {
-      let result = await addPaper(values);
+      let result = await createResearchPaper(values);
 
       if (result.success) {
         router.push("/dashboard/papers/overview");

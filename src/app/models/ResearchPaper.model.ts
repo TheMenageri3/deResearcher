@@ -55,6 +55,16 @@ export interface PaperMetadata {
   decentralizedStorageURI: string;
 }
 
+export type CreateResearchPaper = {
+  address: string;
+  creatorPubkey: string;
+  accessFee: number;
+  paperContentHash: number[];
+  metaDataMerkleRoot: number[];
+  metadata: PaperMetadata;
+  bump: number;
+};
+
 // Define the ResearchPaper schema
 const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
   {
@@ -148,7 +158,7 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
         delete ret._id;
       },
     },
-  },
+  }
 );
 
 // Virtual to map _id to id
@@ -169,7 +179,7 @@ ResearchPaperSchema.post("save", async function (doc) {
     await ResearcherProfile.findByIdAndUpdate(
       doc.userId,
       { $addToSet: { papers: doc._id } },
-      { new: true },
+      { new: true }
     );
   } catch (error) {
     console.error("Error updating ResearcherProfile:", error);
@@ -183,7 +193,7 @@ ResearchPaperSchema.pre("findOneAndDelete", async function (next) {
     await ResearcherProfile.findByIdAndUpdate(
       docToDelete.userId,
       { $pull: { papers: docToDelete._id } },
-      { new: true },
+      { new: true }
     );
   }
   next();
