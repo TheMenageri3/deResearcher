@@ -1,93 +1,96 @@
 import { NextRequest, NextResponse } from "next/server";
 import { toErrResponse, toSuccessResponse } from "../helpers";
-import { PaperFormData } from "@/lib/validation";
-import ResearchPaperModel, {
-  ResearchPaper,
-} from "@/app/models/ResearchPaper.model";
+import {
+  ResearchPaperModel,
+  ResearcherProfileModel,
+  PeerReviewModel,
+} from "@/app/models"; // Import models from index
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const searchParams = req.nextUrl.searchParams;
 
+    const paperId = searchParams.get("id");
+    const userId = searchParams.get("userId");
+    const state = searchParams.get("state");
     const paperPubkey = searchParams.get("paperPubkey");
-
     const creatorPubkey = searchParams.get("creatorPubkey");
 
-    let findFilters = {};
+    let query: any = {};
+    if (paperId) query._id = paperId;
+    if (userId) query.userId = userId;
+    if (state) query.state = state;
+    if (paperPubkey) query.address = paperPubkey;
+    if (creatorPubkey) query.creatorPubkey = creatorPubkey;
 
-    if (paperPubkey) {
-      findFilters = { ...findFilters, paperPubkey };
+    console.log(query);
+
+    const papers = await ResearchPaperModel.find(query)
+      .populate({
+        path: "userId",
+        model: ResearcherProfileModel,
+        select: "id name researcherPubkey",
+      })
+      .populate({
+        path: "peerReviews",
+        model: PeerReviewModel,
+        select:
+          "id reviewerId qualityOfResearch potentialForRealWorldUseCase domainKnowledge practicalityOfResultObtained metadata",
+        populate: {
+          path: "reviewerId",
+          model: ResearcherProfileModel,
+          select: "id name researcherPubkey",
+        },
+      })
+      .exec();
+
+    if (!papers || papers.length === 0) {
+      return toErrResponse("No papers found");
     }
 
-    if (creatorPubkey) {
-      findFilters = { ...findFilters, creatorPubkey };
-    }
-
-    const researchPapers = await ResearchPaperModel.find<ResearchPaper>(
-      findFilters,
-    );
-
-    return toSuccessResponse(researchPapers);
-  } catch (err) {
-    return toErrResponse("Error fetching research papers");
+    return toSuccessResponse(papers);
+  } catch (error: any) {
+    console.error("Error in GET /api/research-papers:", error);
+    return toErrResponse("Internal Server Error");
   }
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
+    const reqBody = await req.json();
 
-    const paperData = PaperFormData.parse({
-      title: formData.get("title"),
-      authors: formData.get("authors"),
-      description: formData.get("description"),
-      domains: formData.get("domains"),
-      paperImage: formData.get("paperImage"),
-      paperFile: formData.get("paperFile"),
-    });
+    const user = await ResearcherProfileModel.findById(reqBody.userId); // Import from index
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-    // Handle file uploads
-    const paperFile = formData.get("paperFile") as File;
-    const paperImage = formData.get("paperImage") as File;
+    // Create the paper object to store in the database
+    const newPaper = await ResearchPaperModel.create(reqBody);
 
-    const placeholderHash = Array(64).fill(0);
-    const currentDate = new Date().toISOString();
+    // Manually update the user's papers array (also atomic)
+    await ResearcherProfileModel.findByIdAndUpdate(
+      reqBody.userId,
+      { $addToSet: { papers: newPaper._id } },
+      { new: true },
+    );
 
-    const newPaper = new ResearchPaperModel({
-      address: "placeholder_address",
-      paperPubkey: "placeholder_pubkey",
-      creatorPubkey: "placeholder_creator_pubkey",
-      state: "AwaitingPeerReview",
-      accessFee: 0,
-      version: 1,
-      paperContentHash: placeholderHash,
-      totalApprovals: 0,
-      totalCitations: 0,
-      totalMints: 0,
-      metaDataMerkleRoot: placeholderHash,
-      metadata: {
-        title: paperData.title,
-        abstract: paperData.description,
-        authors: paperData.authors.split(",").map((author) => author.trim()),
-        datePublished: currentDate,
-        domain: paperData.domains.split(",")[0].trim(),
-        tags: paperData.domains.split(",").map((domain) => domain.trim()),
-        references: [],
-        // TODO:Paper PDF & Image link aws s3 or arweave
-        decentralizedStorageURI: "https://irys.xyz/paper.pdf",
-        paperImageURI: "https://irys.xyz/paper.png",
-      },
-      bump: 0,
-    });
-
-    await newPaper.save();
-
-    console.log("Paper created successfully:", newPaper);
-    console.log("Paper file:", paperFile);
-    console.log("Paper image:", paperImage);
-    return toSuccessResponse(newPaper);
-  } catch (err: any) {
-    console.error("Error in POST handler:", err);
-    return toErrResponse(`Error creating research paper: ${err.message}`);
+    console.log(newPaper);
+    return NextResponse.json(newPaper, { status: 201 });
+  } catch (error: any) {
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.entries(error.errors).map(
+        ([field, err]: [string, any]) => ({
+          field,
+          message: err.message,
+          value: err.value,
+        }),
+      );
+      return NextResponse.json(
+        { error: "Validation Error", details: validationErrors },
+        { status: 400 },
+      );
+    }
+    console.error("Error creating paper:", error);
+    return toErrResponse("Error fetching research papers");
   }
 }

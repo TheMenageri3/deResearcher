@@ -1,4 +1,4 @@
-import PeerReviewModel, { PeerReview } from "@/app/models/PeerReview.model";
+import { PeerReviewModel, PeerReview } from "@/app/models"; // Import from centralized models index
 import { NextRequest, NextResponse } from "next/server";
 import { toErrResponse, toSuccessResponse } from "../helpers";
 

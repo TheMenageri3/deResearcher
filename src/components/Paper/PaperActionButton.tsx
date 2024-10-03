@@ -21,8 +21,8 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
   size = "lg",
 }) => {
   const getButtonContent = () => {
-    switch (paper.status) {
-      case PAPER_STATUS.PEER_REVIEWING:
+    switch (paper.state) {
+      case PAPER_STATUS.IN_PEER_REVIEW || PAPER_STATUS.AWAITING_PEER_REVIEW:
         return {
           text: "Write Review",
           action: onToggleReview,
@@ -43,7 +43,10 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
       case PAPER_STATUS.PUBLISHED:
       case PAPER_STATUS.MINTED:
         return {
-          text: paper.price !== null ? `${paper.price} SOL` : "Price not set",
+          text:
+            paper.accessFee !== null
+              ? `${paper.accessFee} SOL`
+              : "Price not set",
           action: onBuyPaper,
           icon: <SolanaLogo className="mr-2 w-5 h-5 md:w-3 md:h-3" />,
           buy: "BUY",

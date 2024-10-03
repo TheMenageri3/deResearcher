@@ -75,7 +75,8 @@ export class SDK {
   }
 
   async getArweveIrys(): Promise<WebIrys> {
-    const rpcUrl = "";
+    // TODO: SETUP RPC_URL ENV VAR
+    const rpcUrl = process.env.RPC_URL;
 
     const irisWallet = {
       rpcUrl: rpcUrl,
@@ -98,7 +99,7 @@ export class SDK {
       console.log(
         `Successfully funded ${webIrys.utils.fromAtomic(fundTx.quantity)} ${
           webIrys.token
-        }`
+        }`,
       );
     } catch (e) {
       console.log("Error uploading data ", e);
@@ -113,7 +114,7 @@ export class SDK {
 
   arweaveUploadFiles = async (
     filesToUpload: File[],
-    tags: { name: string; value: string }[][] = []
+    tags: { name: string; value: string }[][] = [],
   ): Promise<string[]> => {
     const taggedFiles = filesToUpload.map((f: TaggedFile, i: number) => {
       f.tags = tags[i];
@@ -132,7 +133,7 @@ export class SDK {
     tags: {
       name: string;
       value: string;
-    }[]
+    }[],
   ): Promise<string> => {
     if (fileToUpload.type !== "application/pdf") {
       throw new Error("Invalid file type");
@@ -163,7 +164,7 @@ export class SDK {
   };
 
   async createResearcherProfile(
-    data: Omit<sdk.CreateResearcherProfile, "pdaBump">
+    data: Omit<sdk.CreateResearcherProfile, "pdaBump">,
   ) {
     try {
       const [researcherProfilePda, bump] =
@@ -185,7 +186,7 @@ export class SDK {
       const instruction = sdk.createCreateResearcherProfileInstruction(
         accounts,
         ixData,
-        sdk.PROGRAM_ID
+        sdk.PROGRAM_ID,
       );
 
       await this.buildTxSignAndSend([instruction]);
@@ -195,7 +196,7 @@ export class SDK {
   }
 
   async createResearchPaper(
-    data: Omit<sdk.CreateResearchePaper, "pdaBump">
+    data: Omit<sdk.CreateResearchePaper, "pdaBump">,
   ): Promise<{
     creatorPubkey: string;
     paperPda: string;
@@ -203,7 +204,7 @@ export class SDK {
   }> {
     const [paperPda, bump] = deriveResearPaperPdaPubkeyAndBump(
       this.pubkey,
-      data.paperContentHash
+      data.paperContentHash,
     );
 
     const accounts: sdk.CreateResearchePaperInstructionAccounts = {
@@ -223,7 +224,7 @@ export class SDK {
     const instruction = sdk.createCreateResearchePaperInstruction(
       accounts,
       ixData,
-      sdk.PROGRAM_ID
+      sdk.PROGRAM_ID,
     );
 
     await this.buildTxSignAndSend([instruction]);
@@ -236,16 +237,16 @@ export class SDK {
 
   async addPeerReview(
     paperPda: solana.PublicKey,
-    data: Omit<sdk.AddPeerReview, "pdaBump">
+    data: Omit<sdk.AddPeerReview, "pdaBump">,
   ) {
     try {
       const [peerReviewPda, bump] = derivePeerReviewPdaPubkeyAndBump(
         this.pubkey,
-        paperPda
+        paperPda,
       );
 
       const [researcherProfilePda, _] = deriveResearcherProfilePdaPubkeyAndBump(
-        this.pubkey
+        this.pubkey,
       );
 
       const accounts: sdk.AddPeerReviewInstructionAccounts = {
@@ -266,7 +267,7 @@ export class SDK {
       const instruction = sdk.createAddPeerReviewInstruction(
         accounts,
         ixData,
-        sdk.PROGRAM_ID
+        sdk.PROGRAM_ID,
       );
 
       await this.buildTxSignAndSend([instruction]);
@@ -277,7 +278,7 @@ export class SDK {
 
   async mintResearchPaper(
     paperPda: solana.PublicKey,
-    data: Omit<sdk.MintResearchPaper, "pdaBump">
+    data: Omit<sdk.MintResearchPaper, "pdaBump">,
   ) {
     try {
       const [mintCollectionPda, bump] =
@@ -288,7 +289,7 @@ export class SDK {
 
       const paper = await sdk.ResearchPaper.fromAccountAddress(
         this.connection,
-        paperPda
+        paperPda,
       );
 
       const accounts: sdk.MintResearchPaperInstructionAccounts = {
@@ -310,7 +311,7 @@ export class SDK {
       const instruction = sdk.createMintResearchPaperInstruction(
         accounts,
         ixData,
-        sdk.PROGRAM_ID
+        sdk.PROGRAM_ID,
       );
 
       await this.buildTxSignAndSend([instruction]);
@@ -323,7 +324,7 @@ export class SDK {
     try {
       return await sdk.ResearcherProfile.fromAccountAddress(
         this.connection,
-        researcherPda
+        researcherPda,
       );
     } catch (e) {
       console.error(e);
@@ -355,7 +356,7 @@ export class SDK {
     try {
       return await sdk.ResearchPaper.fromAccountAddress(
         this.connection,
-        paperPda
+        paperPda,
       );
     } catch (e) {
       console.error(e);
@@ -371,7 +372,7 @@ export class SDK {
 
       for (const account of accountsWithPubkeys) {
         const [researchPaper, _index] = sdk.ResearchPaper.fromAccountInfo(
-          account.account
+          account.account,
         );
 
         researchPapers.push(researchPaper);
@@ -388,7 +389,7 @@ export class SDK {
     try {
       return await sdk.PeerReview.fromAccountAddress(
         this.connection,
-        peerReviewPda
+        peerReviewPda,
       );
     } catch (e) {
       console.error(e);
@@ -404,7 +405,7 @@ export class SDK {
 
       for (const account of accountsWithPubkeys) {
         const [peerReview, _index] = sdk.PeerReview.fromAccountInfo(
-          account.account
+          account.account,
         );
 
         peerReviews.push(peerReview);
@@ -418,12 +419,12 @@ export class SDK {
   }
 
   async fetchResearchMintCollectionByPubkey(
-    mintCollectionPda: solana.PublicKey
+    mintCollectionPda: solana.PublicKey,
   ) {
     try {
       return await sdk.ResearchMintCollection.fromAccountAddress(
         this.connection,
-        mintCollectionPda
+        mintCollectionPda,
       );
     } catch (e) {
       console.error(e);
@@ -431,7 +432,7 @@ export class SDK {
   }
 
   async fetchResearchMintCollectionByResearcherPubkey(
-    researcherAcc: solana.PublicKey
+    researcherAcc: solana.PublicKey,
   ) {
     try {
       const gpaBuilder = sdk.ResearchMintCollection.gpaBuilder(sdk.PROGRAM_ID);
@@ -464,7 +465,7 @@ export class SDK {
 
       for (const account of accountsWithPubkeys) {
         const [researchPaper, _index] = sdk.ResearchPaper.fromAccountInfo(
-          account.account
+          account.account,
         );
 
         researchPapers.push(researchPaper);
@@ -487,7 +488,7 @@ export class SDK {
 
       for (const account of accountsWithPubkeys) {
         const [peerReview, _index] = sdk.PeerReview.fromAccountInfo(
-          account.account
+          account.account,
         );
 
         peerReviews.push(peerReview);
@@ -501,7 +502,7 @@ export class SDK {
   }
 
   static async compressObjectAndGenerateMerkleRoot<T extends Object>(
-    obj: T
+    obj: T,
   ): Promise<string> {
     const apiRoute = "/api/generate-merkle-root";
     const response = await fetch(apiRoute, {
@@ -521,7 +522,7 @@ export class SDK {
 }
 
 function deriveResearcherProfilePdaPubkeyAndBump(
-  researcherAccount: solana.PublicKey
+  researcherAccount: solana.PublicKey,
 ): [solana.PublicKey, number] {
   const seeds = [
     Buffer.from(RESEARCHER_PROFILE_PDA_SEED),
@@ -530,7 +531,7 @@ function deriveResearcherProfilePdaPubkeyAndBump(
 
   const [researcherProfilePda, bump] = solana.PublicKey.findProgramAddressSync(
     seeds,
-    sdk.PROGRAM_ID
+    sdk.PROGRAM_ID,
   );
 
   return [researcherProfilePda, bump];
@@ -538,7 +539,7 @@ function deriveResearcherProfilePdaPubkeyAndBump(
 
 function deriveResearPaperPdaPubkeyAndBump(
   researcherAccount: solana.PublicKey,
-  paperContentHash: string
+  paperContentHash: string,
 ): [solana.PublicKey, number] {
   const seeds = [
     Buffer.from(RESEARCH_PAPER_PDA_SEED),
@@ -548,7 +549,7 @@ function deriveResearPaperPdaPubkeyAndBump(
 
   const [paperPda, bump] = solana.PublicKey.findProgramAddressSync(
     seeds,
-    sdk.PROGRAM_ID
+    sdk.PROGRAM_ID,
   );
 
   return [paperPda, bump];
@@ -556,7 +557,7 @@ function deriveResearPaperPdaPubkeyAndBump(
 
 function derivePeerReviewPdaPubkeyAndBump(
   researcherAcc: solana.PublicKey,
-  paperPda: solana.PublicKey
+  paperPda: solana.PublicKey,
 ): [solana.PublicKey, number] {
   const seeds = [
     Buffer.from("deres_peer_review"),
@@ -566,14 +567,14 @@ function derivePeerReviewPdaPubkeyAndBump(
 
   const [peerReviewPda, bump] = solana.PublicKey.findProgramAddressSync(
     seeds,
-    sdk.PROGRAM_ID
+    sdk.PROGRAM_ID,
   );
 
   return [peerReviewPda, bump];
 }
 
 function deriveResearchMintCollectionPdaPubkeyAndBump(
-  researcherAcc: solana.PublicKey
+  researcherAcc: solana.PublicKey,
 ): [solana.PublicKey, number] {
   const seeds = [
     Buffer.from(RESEARCH_MINT_COLLECTION_PDA_SEED),
@@ -582,7 +583,7 @@ function deriveResearchMintCollectionPdaPubkeyAndBump(
 
   const [mintCollectionPda, bump] = solana.PublicKey.findProgramAddressSync(
     seeds,
-    sdk.PROGRAM_ID
+    sdk.PROGRAM_ID,
   );
 
   return [mintCollectionPda, bump];

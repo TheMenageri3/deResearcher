@@ -8,12 +8,14 @@ import H4 from "../H4";
 import P from "../P";
 import { PAPER_STATUS } from "@/lib/constants";
 import { getGradientForPaper } from "@/lib/helpers";
+import React from "react";
 
 interface PaperCardProps {
   id: string;
   title: string;
   authors: string[];
   domain: string;
+  tags: string[];
   minted?: number; // Optional - only for published papers
   price: number;
   status: string;
@@ -23,6 +25,7 @@ interface PaperCardProps {
 export default function PaperCard({
   id,
   title,
+  tags,
   authors,
   domain,
   minted,
@@ -31,8 +34,7 @@ export default function PaperCard({
   reviewers,
 }: PaperCardProps) {
   const router = useRouter();
-  const handleClick = () =>
-    router.push(`/research/${status.toLowerCase()}/${id}`);
+  const handleClick = () => router.push(`/research/${status}/${id}`);
 
   const gradient = getGradientForPaper(id);
 
@@ -56,7 +58,7 @@ export default function PaperCard({
             {status === PAPER_STATUS.PUBLISHED && (
               <MintedInfo count={minted ?? 0} />
             )}
-            {status === PAPER_STATUS.PEER_REVIEWING && (
+            {status === PAPER_STATUS.IN_PEER_REVIEW && (
               <ReviewersInfo count={reviewers ?? 0} />
             )}
           </div>
@@ -168,7 +170,7 @@ const ActionButton = ({
       </Button>
     );
   }
-  if (status === PAPER_STATUS.PEER_REVIEWING) {
+  if (status === PAPER_STATUS.IN_PEER_REVIEW) {
     return (
       <Button
         className="w-full sm:w-auto text-xs font-semibold flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 relative overflow-hidden group"

@@ -5,11 +5,12 @@ interface ColumnDefinition {
 }
 
 export const PAPER_STATUS = {
-  PEER_REVIEWING: "peer_reviewing",
-  APPROVED: "approved",
-  PUBLISHED: "published",
-  REQUEST_REVISION: "request_revision",
-  MINTED: "minted",
+  AWAITING_PEER_REVIEW: "AwaitingPeerReview", // initial paper state
+  IN_PEER_REVIEW: "InPeerReview", // paper has a first review
+  APPROVED: "ApprovedToPublish", // paper is approved to publish
+  PUBLISHED: "Published",
+  REQUEST_REVISION: "RequiresRevision",
+  MINTED: "Minted",
 };
 
 export const COLUMNS: ColumnDefinition[] = [

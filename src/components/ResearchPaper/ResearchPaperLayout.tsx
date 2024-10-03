@@ -2,18 +2,13 @@ import MainLayout from "@/app/main-layout";
 import { Input } from "@/components/ui/input";
 import H3 from "@/components/H3";
 import { ChevronDown } from "lucide-react";
-import PaperCard from "@/components/Paper/PaperCard";
-import { Paper } from "@/lib/validation";
+import PaperList from "../Paper/PaperList";
 
 interface ResearchLayoutProps {
   title: string;
-  papers: Paper[];
 }
 
-export default function ResearchPaperLayout({
-  title,
-  papers,
-}: ResearchLayoutProps) {
+export default function ResearchPaperLayout({ title }: ResearchLayoutProps) {
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
@@ -41,21 +36,7 @@ export default function ResearchPaperLayout({
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {papers.map((paper) => (
-            <PaperCard
-              key={paper.id}
-              title={paper.title}
-              authors={paper.authors}
-              /** TODO: FOR DEMO ONLY SHOW FIRST DOMAIN */
-              domain={paper.domains[0]}
-              /** TODO: FOR DEMO ONLY SHOW MINTED LENGTH */
-              minted={paper.minted.length * 123}
-              price={paper.price ?? 0}
-              status={paper.status}
-              id={paper.id}
-              reviewers={paper.peer_reviews.length}
-            />
-          ))}
+          <PaperList />
         </div>
       </div>
     </MainLayout>

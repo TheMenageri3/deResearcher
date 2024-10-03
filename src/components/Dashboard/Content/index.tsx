@@ -44,19 +44,19 @@ export default function DashboardContent({
   console.log("Current state:", { isLoading, hasCheckedAuth, localAuthState });
 
   const latestPeerReviewingPapers = papers
-    .filter((paper) => paper.status === PAPER_STATUS.PEER_REVIEWING)
+    .filter((paper) => paper.state === PAPER_STATUS.IN_PEER_REVIEW)
     .sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
     .slice(0, 5)
     .map((paper) => ({
       id: paper.id,
       title: paper.title,
-      authors: paper.authors.join(", "),
-      createdDate: new Date(paper.created_at).toISOString().split("T")[0],
-      domains: paper.domains.join(", "),
-      status: paper.status,
+      authors: paper.authors,
+      createdDate: new Date(paper.createdAt).toISOString().split("T")[0],
+      domains: paper.domains,
+      status: paper.state,
     }));
 
   return (

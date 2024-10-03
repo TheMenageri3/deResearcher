@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PeerReviewPage() {
-  const papers = await getPapers(PAPER_STATUS.PEER_REVIEWING);
+  const papers = await getPapers(PAPER_STATUS.IN_PEER_REVIEW);
 
   return <ResearchLayout title="Peer-Reviewing Research" papers={papers} />;
 }

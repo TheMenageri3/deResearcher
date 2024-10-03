@@ -35,13 +35,13 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
   >({});
 
   useEffect(() => {
-    if (paper.peer_reviews.length > 0) {
+    if (paper?.peerReviews && paper.peerReviews.length > 0) {
       setExpandedReviews((prev) => ({
         ...prev,
-        [paper.peer_reviews[0].id]: true,
+        [paper.peerReviews?.[0]?.id ?? "default"]: true,
       }));
     }
-  }, [paper.peer_reviews]);
+  }, [paper?.peerReviews]);
 
   const toggleReview = (reviewId: string) => {
     setExpandedReviews((prev) => ({
@@ -51,19 +51,19 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
   };
 
   const renderReviews = () => {
-    if (paper.peer_reviews.length === 0) {
+    if (paper.peerReviews?.length === 0) {
       return <P className="text-zinc-500">No reviews yet.</P>;
     }
 
-    return paper.peer_reviews.map((review: Review) => (
+    return paper.peerReviews?.map((review: Review) => (
       <PeerReviewComponent
         key={review.id}
         review={{
           ...review,
-          time: formatTimeAgo(review.created_at),
+          time: formatTimeAgo(review.createdAt.toISOString()),
         }}
-        isExpanded={!!expandedReviews[review.id]}
-        onToggle={() => toggleReview(review.id)}
+        isExpanded={!!expandedReviews[review.id ?? ""]}
+        onToggle={() => toggleReview(review.id ?? "")}
       />
     ));
   };
@@ -72,26 +72,34 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
     <div className="mx-auto px-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
-          <div className="mb-4 flex flex-wrap gap-2">
-            {paper.domains.map((domain, index) => (
-              <span
-                key={index}
-                className="bg-violet-100 text-violet-800 text-xs font-medium px-2.5 py-0.5 rounded"
-              >
-                {domain}
-              </span>
-            ))}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              {paper.metadata.tags.map((domain, index) => (
+                <span
+                  key={index}
+                  className="bg-violet-100 text-violet-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                >
+                  {domain}
+                </span>
+              ))}
+            </div>
+            <span className="bg-violet-100 text-violet-800 text-xs font-medium px-2.5 py-0.5 rounded">
+              v{paper.version}
+            </span>
           </div>
           <H2 className="mb-4 text-pretty font-semibold text-zinc-700">
-            {paper.title}
+            {paper.metadata.title}
           </H2>
-          <P className="mb-4 text-pretty font-light">{paper.description}</P>
+          <P className="mb-4 text-pretty font-light">
+            {paper.metadata.abstract}
+          </P>
           <div className="flex items-center space-x-1 mb-4">
-            {paper.authors.map((author, index) => (
+            {paper.metadata.authors.map((author, index) => (
               <AvatarWithName key={index} name={author} />
             ))}
             <span className="text-sm text-zinc-500">
-              {paper.authors.join(", ")} • {formatTimeAgo(paper.created_at)}
+              {paper.metadata.authors.join(", ")} •{" "}
+              {formatTimeAgo(paper.createdAt.toString())}
             </span>
           </div>
 
@@ -109,7 +117,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
           )}
 
           {/* TODO: NEED TO CHECK PAPER STATUS + USER ROLE + MINTED ID TO SHOW PDF*/}
-          {paper.status === PAPER_STATUS.PUBLISHED && (
+          {paper.state === PAPER_STATUS.PUBLISHED && (
             <div className="mt-6 bg-zinc-100 p-4 flex items-center">
               <Lock className="w-4 h-4 mr-2" />
               <P className="text-pretty text-sm text-zinc-900">
@@ -117,9 +125,9 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
               </P>
             </div>
           )}
-          {(paper.status === PAPER_STATUS.PEER_REVIEWING ||
-            paper.status === PAPER_STATUS.REQUEST_REVISION ||
-            paper.status === PAPER_STATUS.APPROVED) && (
+          {(paper.state === PAPER_STATUS.IN_PEER_REVIEW ||
+            paper.state === PAPER_STATUS.REQUEST_REVISION ||
+            paper.state === PAPER_STATUS.APPROVED) && (
             <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
               <PDFViewComponent url="/test.pdf" />
             </div>
