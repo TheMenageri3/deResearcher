@@ -1,29 +1,35 @@
 import mongoose, { Schema, Document } from "mongoose";
 import * as sdk from "@/lib/sdk";
 import { isLimitedByteArray } from "@/lib/helpers";
-import { getMongoDbUri } from "@/lib/env";
 
-mongoose.connect(getMongoDbUri());
 mongoose.Promise = global.Promise;
 
 type ResearcherProfileStateDB = "AwaitingApproval" | "Approved" | "Rejected";
 
 // Define interface for ResearcherProfileArgs
 export interface ResearcherProfile extends Document {
+  id?: string; // Aliased from _id
   address: string; // Storing the PublicKey as a String
   researcherPubkey: string; // Storing the PublicKey as a String
-  name: string; // Array of size 64
+  name: string; // Firstname + Lastname
   state: ResearcherProfileStateDB; // Using string to represent ResearcherProfileState
-  totalPapersPublished: number;
-  totalCitations: number;
-  totalReviews: number;
-  reputation: number;
-  metaDataMerkleRoot: number[]; // Array of size 64
+  totalPapersPublished?: number;
+  totalCitations?: number;
+  totalReviews?: number;
+  reputation?: number;
+  metaDataMerkleRoot?: number[]; // Array of size 64
+  peerReviewsAsReviewer: mongoose.Types.ObjectId[]; // Array of PeerReviews where researcher is the reviewer
+  papers: mongoose.Types.ObjectId[]; // Array of ResearchPaper IDs authored by the researcher
   metadata: {
-    externalResearchProfiles: string[];
-    interestedDomains: string[];
-    topPublications: string[];
-    socialLinks: string[];
+    email: string;
+    organization?: string;
+    bio?: string;
+    profileImageURI?: string;
+    backgroundImageURI?: string;
+    externalResearchProfiles?: string[];
+    interestedDomains?: string[];
+    topPublications?: string[];
+    socialLinks?: string[];
   };
   bump: number;
 }
@@ -31,64 +37,103 @@ export interface ResearcherProfile extends Document {
 export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
 // Define the ResearcherProfile schema
-const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>({
-  address: {
-    type: String,
-    required: true,
-  },
-  researcherPubkey: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String, // Array of size 64
-    required: true,
-  },
-  state: {
-    type: String, // Using string to represent ResearcherProfileState
-    enum: Object.values(sdk.ResearcherProfileState), // Ensuring only valid states can be stored
-    required: true,
-  },
-  totalPapersPublished: {
-    type: Number, // Assuming bignum can be represented as Decimal128
-    required: true,
-  },
-  totalCitations: {
-    type: Number,
-    required: true,
-  },
-  totalReviews: {
-    type: Number,
-    required: true,
-  },
-  reputation: {
-    type: Number,
-    required: true,
-  },
-  metaDataMerkleRoot: {
-    type: [Number], // Array of size 64
-    validate: [
-      isLimitedByteArray,
-      "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
-    ],
-  },
-  metadata: {
-    type: {
-      externalResearchProfiles: [String],
-      interestedDomains: [String],
-      topPublications: [String],
-      socialLinks: [String],
+const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
+  {
+    address: {
+      type: String,
+      required: true,
     },
-    required: true,
+    researcherPubkey: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      enum: Object.values(sdk.ResearcherProfileState), // Ensuring only valid states can be stored
+      required: true,
+    },
+    totalPapersPublished: {
+      type: Number,
+      default: 0,
+    },
+    totalCitations: {
+      type: Number,
+      default: 0,
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+    },
+    reputation: {
+      type: Number,
+      default: 0,
+    },
+    metaDataMerkleRoot: {
+      type: [Number],
+      validate: [
+        isLimitedByteArray,
+        "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
+      ],
+    },
+    peerReviewsAsReviewer: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PeerReview",
+      },
+    ],
+    papers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ResearchPaper",
+      },
+    ],
+    metadata: {
+      type: {
+        email: { type: String, required: true },
+        organization: { type: String },
+        bio: { type: String },
+        profileImageURI: { type: String },
+        backgroundImageURI: { type: String },
+        externalResearchProfiles: { type: [String] },
+        interestedDomains: { type: [String] },
+        topPublications: { type: [String] },
+        socialLinks: { type: [String] },
+      },
+      required: true,
+    },
+    bump: {
+      type: Number,
+      required: true,
+    },
   },
-  bump: {
-    type: Number,
-    required: true,
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (doc, ret) => {
+        delete ret._id;
+      },
+    },
   },
+);
+
+// Virtual to map _id to id
+ResearcherProfileSchema.virtual("id").get(function (this: {
+  _id: mongoose.Types.ObjectId;
+}) {
+  return this._id.toHexString();
 });
+
+// Ensure virtual fields like `id` are included when converting to JSON
+ResearcherProfileSchema.set("toJSON", { virtuals: true });
 
 export default mongoose.models.ResearcherProfile ||
   mongoose.model<ResearcherProfile>(
     "ResearcherProfile",
-    ResearcherProfileSchema
+    ResearcherProfileSchema,
   );

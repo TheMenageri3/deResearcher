@@ -31,23 +31,20 @@ export default function CreatePaperForm() {
   const form = useForm<PaperFormDataType>({
     resolver: zodResolver(PaperFormData),
     defaultValues: {
-      title: "PAPER TEST 1",
-      authors: "Johnathan Doe",
-      domains: "Solana, SVM",
-      description:
-        "This is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paperThis is a test paper",
-      paperImage: "",
+      title: "",
+      authors: [],
+      domains: [],
+      abstract: "",
+      paperImage: undefined,
       paperFile: undefined,
+      price: 0,
     },
   });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () =>
-        form.setValue("paperImage", reader.result as string);
-      reader.readAsDataURL(file);
+      form.setValue("paperImage", file);
     }
   };
 
@@ -58,8 +55,8 @@ export default function CreatePaperForm() {
 
   const handleSubmit = async (values: PaperFormDataType) => {
     try {
-      // const result = await addPaper(values);
-      let result = { success: true, error: null };
+      let result = await addPaper(values);
+
       if (result.success) {
         router.push("/dashboard/papers/overview");
       } else {
@@ -106,28 +103,47 @@ export default function CreatePaperForm() {
             )}
             required
           />
-          <FormField
-            control={form.control}
-            name="domains"
-            render={({ field }) => (
-              <CustomFormItem
-                label="Domains (comma-separated)"
-                field={field}
-                placeholder="Cryptography, Blockchain"
-              />
-            )}
-            required
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="domains"
+              render={({ field }) => (
+                <CustomFormItem
+                  label="Domains (comma-separated)"
+                  field={field}
+                  placeholder="Cryptography, Blockchain"
+                />
+              )}
+              required
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <CustomFormItem
+                  label="Price"
+                  field={field}
+                  placeholder="Enter price (SOL)"
+                  inputProps={{
+                    type: "number",
+                    step: "0.01",
+                    min: "0",
+                  }}
+                />
+              )}
+              required
+            />
+          </div>
         </div>
 
         <FormField
           control={form.control}
-          name="description"
+          name="abstract"
           render={({ field }) => (
             <CustomFormItem
               label="Abstract / Description"
               field={field}
-              placeholder="Enter abstract"
+              placeholder="Enter paper abstract"
               InputComponent={Textarea}
               inputProps={{ rows: 10 }}
             />
@@ -151,7 +167,11 @@ export default function CreatePaperForm() {
             >
               {form.watch("paperImage") ? (
                 <img
-                  src={form.watch("paperImage")}
+                  src={
+                    form.watch("paperImage") instanceof File
+                      ? URL.createObjectURL(form.watch("paperImage") as File)
+                      : undefined
+                  }
                   alt="Paper"
                   className="h-full w-full object-cover rounded-md"
                 />
@@ -163,7 +183,7 @@ export default function CreatePaperForm() {
               type="file"
               ref={fileInputRef}
               onChange={handleImageUpload}
-              accept="image/*"
+              accept="image/png"
               className="hidden"
             />
           </div>

@@ -1,50 +1,183 @@
-import PeerReviewModel, { PeerReview } from "@/app/models/PeerReview.model";
 import { NextRequest, NextResponse } from "next/server";
-import { toErrResponse, toSuccessResponse } from "../helpers";
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+import connectToDatabase from "@/lib/mongoServer";
+import {
+  PeerReviewModel,
+  ResearcherProfileModel,
+  ResearchPaperModel,
+} from "@/app/models";
+
+export async function POST(req: NextRequest) {
+  await connectToDatabase();
+
   try {
-    const searchParams = req.nextUrl.searchParams;
+    const reqBody = await req.json();
 
-    const address = searchParams.get("address");
-    const reviewerPubkey = searchParams.get("reviewerPubkey");
-    const paperPubkey = searchParams.get("paperPubkey");
+    // Extract data from request body
+    const {
+      reviewerId,
+      paperId,
+      address,
+      reviewerPubkey,
+      paperPubkey,
+      qualityOfResearch,
+      potentialForRealWorldUseCase,
+      domainKnowledge,
+      practicalityOfResultObtained,
+      metaDataMerkleRoot,
+      metadata,
+      bump,
+    } = reqBody;
 
-    let findFilters = {};
-    if (address) {
-      findFilters = { ...findFilters, address };
+    // Validate required fields
+    if (
+      !reviewerId ||
+      !paperId ||
+      !address ||
+      !reviewerPubkey ||
+      !paperPubkey ||
+      !qualityOfResearch ||
+      !potentialForRealWorldUseCase ||
+      !domainKnowledge ||
+      !practicalityOfResultObtained ||
+      !metaDataMerkleRoot ||
+      !metadata ||
+      !bump
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
-    if (reviewerPubkey) {
-      findFilters = { ...findFilters, reviewerPubkey };
-    }
-    if (paperPubkey) {
-      findFilters = { ...findFilters, paperPubkey };
+
+    // Validate that the reviewer exists
+    const reviewer = await ResearcherProfileModel.findById(reviewerId);
+    if (!reviewer) {
+      return NextResponse.json(
+        { error: "Reviewer not found" },
+        { status: 404 },
+      );
     }
 
-    const peerReviews = await PeerReviewModel.find<PeerReview>(findFilters);
+    // Validate that the paper exists
+    const paper = await ResearchPaperModel.findById(paperId);
+    if (!paper) {
+      return NextResponse.json({ error: "Paper not found" }, { status: 404 });
+    }
 
-    return toSuccessResponse(peerReviews);
-  } catch (err) {
-    return toErrResponse("Error fetching peer reviews");
+    // Create the new PeerReview document
+    const newPeerReview = await PeerReviewModel.create({
+      reviewerId,
+      paperId,
+      address,
+      reviewerPubkey,
+      paperPubkey,
+      qualityOfResearch,
+      potentialForRealWorldUseCase,
+      domainKnowledge,
+      practicalityOfResultObtained,
+      metaDataMerkleRoot,
+      metadata,
+      bump,
+    });
+
+    // Update the ResearchPaper document
+    await ResearchPaperModel.findByIdAndUpdate(
+      paperId,
+      { $addToSet: { peerReviews: newPeerReview._id } },
+      { new: true },
+    );
+
+    // Update the ResearcherProfile document
+    await ResearcherProfileModel.findByIdAndUpdate(
+      reviewerId,
+      { $addToSet: { peerReviewsAsReviewer: newPeerReview._id } },
+      { new: true },
+    );
+
+    return NextResponse.json(newPeerReview, { status: 201 });
+  } catch (error: any) {
+    console.error("Error in POST /api/peer-reviews:", error);
+
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.entries(error.errors).map(
+        ([field, err]: [string, any]) => ({
+          field,
+          message: err.message,
+          value: err.value,
+        }),
+      );
+      return NextResponse.json(
+        { error: "Validation Error", details: validationErrors },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Internal Server Error", message: error.message },
+      { status: 500 },
+    );
   }
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+// get peer reviews by paperId/reviewerId
+export async function GET(req: NextRequest) {
+  await connectToDatabase();
+
   try {
-    const data: PeerReview = await req.json();
+    // Extract query parameters
+    const paperId = req.nextUrl.searchParams.get("paperId");
+    const reviewerId = req.nextUrl.searchParams.get("reviewerId");
 
-    const existingPeerReview = await PeerReviewModel.findOne({
-      address: data.address,
-    });
+    // Build query object
+    let query: any = {};
 
-    if (existingPeerReview) {
-      return toErrResponse("Peer review already exists");
+    if (paperId) {
+      query.paperId = paperId;
     }
 
-    const peerReview = await PeerReviewModel.create(data);
+    if (reviewerId) {
+      query.reviewerId = reviewerId;
+    }
 
-    return toSuccessResponse(peerReview);
-  } catch (err) {
-    return toErrResponse("Error creating peer review");
+    // If no parameters are provided, return an error or all peer reviews
+    if (Object.keys(query).length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Please provide at least one query parameter (paperId or reviewerId)",
+        },
+        { status: 400 },
+      );
+    }
+
+    // Fetch peer reviews based on the query
+    const peerReviews = await PeerReviewModel.find(query)
+      .populate({
+        path: "reviewerId",
+        model: ResearcherProfileModel,
+        select: "id name researcherPubkey",
+      })
+      .populate({
+        path: "paperId",
+        model: ResearchPaperModel,
+        select: "id title",
+      })
+      .exec();
+
+    if (!peerReviews || peerReviews.length === 0) {
+      return NextResponse.json(
+        { error: "No peer reviews found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(peerReviews, { status: 200 });
+  } catch (error: any) {
+    console.error("Error in GET /api/peer-reviews:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", message: error.message },
+      { status: 500 },
+    );
   }
 }

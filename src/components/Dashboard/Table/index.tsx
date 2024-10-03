@@ -48,7 +48,7 @@ const TableHeader: React.FC<{
           key={column.key}
           scope="col"
           className={`px-6 py-3 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider ${getColumnVisibility(
-            column.key
+            column.key,
           )} ${column.sortable ? "cursor-pointer select-none" : ""}`}
           onClick={() => column.sortable && onSort(column.key)}
         >
@@ -87,7 +87,7 @@ const TableRow: React.FC<{
       <td
         key={column.key}
         className={`px-6 py-4 whitespace-nowrap ${getColumnVisibility(
-          column.key
+          column.key,
         )}`}
       >
         {column.key === "status" ? (
@@ -95,7 +95,7 @@ const TableRow: React.FC<{
             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
               item.status === PAPER_STATUS.APPROVED
                 ? "bg-secondary-foreground text-secondary"
-                : item.status === PAPER_STATUS.PEER_REVIEWING
+                : item.status === PAPER_STATUS.IN_PEER_REVIEW
                 ? "bg-primary-foreground text-primary"
                 : item.status === PAPER_STATUS.PUBLISHED
                 ? "bg-accent text-accent-foreground"
