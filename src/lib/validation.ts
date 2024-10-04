@@ -100,6 +100,32 @@ export const PaperFormData = z.object({
     ),
 });
 
+export const RatingSchema = z.object({
+  qualityOfResearch: z.number().min(1).max(5),
+  potentialForRealWorldUseCase: z.number().min(1).max(5),
+  domainKnowledge: z.number().min(1).max(5),
+  practicalityOfResultObtained: z.number().min(1).max(5),
+});
+
+export type Rating = z.infer<typeof RatingSchema>;
+
+export const ratingToReview = (
+  rating: Rating,
+  title: string,
+  reviewComments: string,
+) => {
+  return {
+    qualityOfResearch: rating.qualityOfResearch * 2,
+    potentialForRealWorldUseCase: rating.potentialForRealWorldUseCase * 2,
+    domainKnowledge: rating.domainKnowledge * 2,
+    practicalityOfResultObtained: rating.practicalityOfResultObtained * 2,
+    metadata: {
+      title,
+      reviewComments,
+    },
+  };
+};
+
 export const ReviewSchema = z.object({
   _id: z.string(),
   reviewerId: z.object({

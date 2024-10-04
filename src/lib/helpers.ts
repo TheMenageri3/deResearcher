@@ -74,7 +74,7 @@ export const formatTimeAgo = (dateString: string): string => {
 
 // Format paper
 export const formatPaper = (paper: Paper) => ({
-  id: paper.id,
+  id: paper._id,
   title: paper.metadata.title,
   authors: paper.metadata.authors,
   createdDate: new Date(paper.createdAt).toISOString().split("T")[0],
@@ -133,5 +133,3 @@ export function getEncodedLoginMessage(pubkey: string) {
       .map((c) => c.charCodeAt(0)),
   );
 }
-
-

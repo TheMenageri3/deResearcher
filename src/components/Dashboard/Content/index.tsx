@@ -47,13 +47,13 @@ export default function DashboardContent({
     .filter((paper) => paper.state === PAPER_STATUS.IN_PEER_REVIEW)
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 5)
     .map((paper) => ({
       id: paper.id,
-      title: paper.title,
-      authors: paper.authors,
+      title: paper.metadata.title,
+      authors: paper.metadata.authors,
       createdDate: new Date(paper.createdAt).toISOString().split("T")[0],
       domains: paper.domains,
       status: paper.state,
@@ -86,7 +86,6 @@ export default function DashboardContent({
   );
 }
 
-// Fake data
 const CardContent = [
   {
     title: "Complete your profile ⚡",

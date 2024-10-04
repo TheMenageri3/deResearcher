@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     // Convert string IDs to ObjectIds
     const paperObjectIds = mintedResearchPaperIds.map(
-      (id) => new mongoose.Types.ObjectId(id),
+      (id: string) => new mongoose.Types.ObjectId(id),
     );
 
     // Validate that all research papers exist
@@ -131,7 +131,9 @@ export async function POST(request: NextRequest) {
         const alreadyMintedIds =
           mintCollection.metadata.mintedResearchPaperIds.filter(
             (id: mongoose.Types.ObjectId) =>
-              paperObjectIds.some((paperId) => paperId.equals(id)),
+              paperObjectIds.some((paperId: mongoose.Types.ObjectId) =>
+                paperId.equals(id),
+              ),
           );
 
         if (alreadyMintedIds.length > 0) {
@@ -165,11 +167,11 @@ export async function POST(request: NextRequest) {
     } finally {
       session.endSession();
     }
-  } catch (error) {
-    console.error("Error in mint route:", error.stack || error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
+  } catch (error: unknown) {
+    console.error(
+      "Error in mint route:",
+      error instanceof Error ? error.stack : error,
     );
+    return NextResponse.json({ error: "Internal server error" });
   }
 }
