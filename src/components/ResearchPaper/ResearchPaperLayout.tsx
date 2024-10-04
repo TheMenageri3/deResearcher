@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import H3 from "@/components/H3";
 import { ChevronDown } from "lucide-react";
 import { usePaperStore } from "@/app/store/paperStore";
+import Spinner from "../Spinner";
 
 interface ResearchLayoutProps {
   title: string;
@@ -17,7 +18,7 @@ export default function ResearchPaperLayout({
   title,
   state,
 }: ResearchLayoutProps) {
-  const { fetchPapersByState, papers } = usePaperStore();
+  const { fetchPapersByState, papers, isLoading } = usePaperStore();
 
   useEffect(() => {
     fetchPapersByState(state);
@@ -49,9 +50,13 @@ export default function ResearchPaperLayout({
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <PaperList papers={papers} />
-        </div>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <PaperList papers={papers} />
+          </div>
+        )}
       </div>
     </MainLayout>
   );

@@ -1,3 +1,5 @@
+import { Rating } from "./validation";
+
 interface ColumnDefinition {
   key: string;
   header: string;
@@ -44,3 +46,24 @@ export const PLACEHOLDER = `Providing a Quality Peer Review:
 - Results: Evaluate if the results are clear and well-supported by data.
 - Discussion: Review if the findings are interpreted well and their significance is clear.
 `;
+
+export const RATINGCATEGORIES: (keyof Rating)[] = [
+  "qualityOfResearch",
+  "potentialForRealWorldUseCase",
+  "domainKnowledge",
+  "practicalityOfResultObtained",
+];
+
+export const RATINGCATEGORYLABELS: Record<keyof Rating, string> = {
+  qualityOfResearch: "Quality of Research",
+  potentialForRealWorldUseCase: "Potential for Real-World Use Case",
+  domainKnowledge: "Domain Knowledge",
+  practicalityOfResultObtained: "Practicality of Results Obtained",
+};
+
+export const INITIALRATING: Rating = {
+  qualityOfResearch: 0,
+  potentialForRealWorldUseCase: 0,
+  domainKnowledge: 0,
+  practicalityOfResultObtained: 0,
+};
