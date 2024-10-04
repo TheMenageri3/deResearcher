@@ -37,7 +37,7 @@ export default function CreatePaperForm() {
       abstract: "",
       paperImage: undefined,
       paperFile: undefined,
-      price: 0,
+      accessFee: 0,
     },
   });
 
@@ -118,7 +118,7 @@ export default function CreatePaperForm() {
             />
             <FormField
               control={form.control}
-              name="price"
+              name="accessFee"
               render={({ field }) => (
                 <CustomFormItem
                   label="Price"
