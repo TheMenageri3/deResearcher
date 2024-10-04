@@ -26,6 +26,7 @@
     "@solana/wallet-adapter-wallets": "^0.19.26",
     "@solana/web3.js": "^1.89.1",
     "@tanstack/react-query": "^5.56.2",
+    "@tiptap/extension-placeholder": "^2.8.0",
     "@tiptap/pm": "^2.7.2",
     "@tiptap/react": "^2.7.2",
     "@tiptap/starter-kit": "^2.7.2",

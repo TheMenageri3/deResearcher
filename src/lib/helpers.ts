@@ -133,3 +133,5 @@ export function getEncodedLoginMessage(pubkey: string) {
       .map((c) => c.charCodeAt(0)),
   );
 }
+
+

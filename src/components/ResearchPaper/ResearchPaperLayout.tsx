@@ -1,14 +1,28 @@
+"use client";
+
 import MainLayout from "@/app/main-layout";
+import React, { useEffect } from "react";
+import PaperList from "../Paper/PaperList";
 import { Input } from "@/components/ui/input";
 import H3 from "@/components/H3";
 import { ChevronDown } from "lucide-react";
-import PaperList from "../Paper/PaperList";
+import { usePaperStore } from "@/app/store/paperStore";
 
 interface ResearchLayoutProps {
   title: string;
+  state: string;
 }
 
-export default function ResearchPaperLayout({ title }: ResearchLayoutProps) {
+export default function ResearchPaperLayout({
+  title,
+  state,
+}: ResearchLayoutProps) {
+  const { fetchPapersByState, papers } = usePaperStore();
+
+  useEffect(() => {
+    fetchPapersByState(state);
+  }, [fetchPapersByState, state]);
+
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
@@ -36,7 +50,7 @@ export default function ResearchPaperLayout({ title }: ResearchLayoutProps) {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <PaperList />
+          <PaperList papers={papers} />
         </div>
       </div>
     </MainLayout>

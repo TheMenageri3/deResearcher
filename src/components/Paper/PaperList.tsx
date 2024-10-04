@@ -1,35 +1,28 @@
-"use client";
-
-import { usePaperStore } from "@/app/store/paperStore";
-import { PAPER_STATUS } from "@/lib/constants";
 import React from "react";
 import PaperCard from "./PaperCard";
+import { Paper } from "@/lib/validation";
 
-export default function PaperList() {
-  const { fetchPapersByState, papers } = usePaperStore();
+interface PaperListProps {
+  papers: Paper[];
+}
 
-  React.useEffect(() => {
-    fetchPapersByState(PAPER_STATUS.PUBLISHED);
-  }, [fetchPapersByState]);
-
+export default function PaperList({ papers }: PaperListProps) {
   return (
     <>
-      {papers.map((paper) => {
-        return (
-          <PaperCard
-            key={paper.id}
-            title={paper.metadata.title}
-            authors={paper.metadata.authors}
-            domain={paper.metadata.domain}
-            tags={paper.metadata.tags}
-            minted={paper.totalMints}
-            price={paper.accessFee ?? 0}
-            status={paper.state}
-            id={paper.id}
-            reviewers={paper.peerReviews?.length}
-          />
-        );
-      })}
+      {papers.map((paper) => (
+        <PaperCard
+          key={paper._id}
+          title={paper.metadata.title}
+          authors={paper.metadata.authors}
+          domain={paper.metadata.domain}
+          tags={paper.metadata.tags}
+          minted={paper.totalMints}
+          price={paper.accessFee ?? 0}
+          status={paper.state}
+          id={paper._id}
+          reviewers={paper.peerReviews?.length}
+        />
+      ))}
     </>
   );
 }
