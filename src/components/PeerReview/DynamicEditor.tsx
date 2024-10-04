@@ -1,10 +1,12 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AvatarWithName } from "../Avatar";
+import Placeholder from "@tiptap/extension-placeholder";
+import { PLACEHOLDER } from "@/lib/constants";
 
 export default function DynamicEditor({
   onClose,
@@ -16,15 +18,17 @@ export default function DynamicEditor({
   const [title, setTitle] = useState(""); // State for the title
 
   const editor = useEditor({
-    extensions: [StarterKit],
-    content: "",
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: PLACEHOLDER,
+      }),
+    ],
     editorProps: {
       attributes: {
-        class: "prose prose-sm focus:outline-none max-w-none",
-        placeholder: "Write your review here...",
+        class: "prose prose-sm focus:outline-none max-w-none is-editor-empty",
       },
     },
-    autofocus: true,
     immediatelyRender: false,
   });
 
@@ -56,7 +60,7 @@ export default function DynamicEditor({
       <div className="flex items-center space-x-3 mb-4">
         <AvatarWithName name="Kim C" />
         <div className="flex-grow">
-          <p className="font-semibold">Kim C</p>
+          <p className="font-semibold text-zinc-300">Kim C</p>
         </div>
 
         {/* <div className="flex space-x-2">
@@ -91,6 +95,14 @@ export default function DynamicEditor({
         .ProseMirror p:last-child {
           margin-bottom: 0;
         }
+        .tiptap p.is-editor-empty:first-child::before {
+          color: #adb5bd;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+          font-size: 1rem;
+        }
       `}</style>
 
       <div className="flex flex-col mb-4">
@@ -99,13 +111,13 @@ export default function DynamicEditor({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter Title"
-          className="w-full mb-1 p-2 pl-4 border-b border-zinc-300 text-zinc-600 text-lg font-semibold bg-zinc-200"
+          placeholder="Review Title"
+          className="w-full mb-1 p-2 pl-4 border-b border-zinc-300 text-zinc-600 text-lg font-semibold bg-zinc-50"
         />
       </div>
       <EditorContent
         editor={editor}
-        className="w-full min-h-[100px] h-[200px] md:h-[520px] overflow-auto focus:outline-none text-zinc-600 text-base"
+        className="w-full min-h-[100px] h-[200px] md:h-[520px] overflow-auto focus:outline-none text-zinc-600 text-base bg-zinc-50 p-2"
       />
       <div className="flex items-center justify-end mt-4 space-x-4">
         <Button

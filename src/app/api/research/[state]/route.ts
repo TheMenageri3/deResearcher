@@ -43,7 +43,7 @@ export async function GET(
         { status: 404 },
       );
     }
-
+    console.log(papers[0]);
     return NextResponse.json(papers, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching papers:", error);

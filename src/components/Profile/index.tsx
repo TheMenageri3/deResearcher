@@ -32,7 +32,7 @@ export default function ProfileComponent() {
   // TODO: Implement API calls to get data
   const data = useMemo(() => {
     const filterAndFormatPapers = (papers: Paper[], paperIds: string[]) =>
-      papers.filter((paper) => paperIds.includes(paper.id)).map(formatPaper);
+      papers.filter((paper) => paperIds.includes(paper._id)).map(formatPaper);
 
     switch (activeTab) {
       case "contributions":

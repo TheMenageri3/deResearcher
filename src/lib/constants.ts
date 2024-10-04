@@ -1,3 +1,5 @@
+import { Rating } from "./validation";
+
 interface ColumnDefinition {
   key: string;
   header: string;
@@ -35,3 +37,33 @@ export const RESEARCHER_PROFILE_PDA_SEED: string = "deres_researcher_profile";
 export const MAX_PDF_UPLOD_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export const LOGIN_MESSAGE = "Login to deresearcher";
+
+export const PLACEHOLDER = `Providing a Quality Peer Review:
+  
+- Overview: Summarize the paper's main goals and contributions.
+- Introduction: Check if the research question is clear and well-supported.
+- Methods: Assess if the methods are appropriate and well-explained.
+- Results: Evaluate if the results are clear and well-supported by data.
+- Discussion: Review if the findings are interpreted well and their significance is clear.
+`;
+
+export const RATINGCATEGORIES: (keyof Rating)[] = [
+  "qualityOfResearch",
+  "potentialForRealWorldUseCase",
+  "domainKnowledge",
+  "practicalityOfResultObtained",
+];
+
+export const RATINGCATEGORYLABELS: Record<keyof Rating, string> = {
+  qualityOfResearch: "Quality of Research",
+  potentialForRealWorldUseCase: "Potential for Real-World Use Case",
+  domainKnowledge: "Domain Knowledge",
+  practicalityOfResultObtained: "Practicality of Results Obtained",
+};
+
+export const INITIALRATING: Rating = {
+  qualityOfResearch: 0,
+  potentialForRealWorldUseCase: 0,
+  domainKnowledge: 0,
+  practicalityOfResultObtained: 0,
+};
