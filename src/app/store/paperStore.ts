@@ -1,25 +1,17 @@
 import { create } from "zustand";
 import {
-  PaperMetadata,
+  AddPeerReviewType,
+  CreateResearchPaper,
+  ResearchPaperMetadata,
   ResearchPaperType,
-} from "../models/ResearchPaper.model";
+} from "@/lib/types";
+import { PaperFormData } from "@/lib/validation";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
-import { Paper } from "@/lib/validation";
-
-type CreateResearchePaperInput = {
-  title: string;
-  abstract: string;
-  authors: string[];
-  domains: string[];
-  references: string[];
-  accessFee: number;
-  paperFile: File;
-  paperImage: File;
-};
+import { PeerReviewFormData } from "@/lib/validation";
 
 interface PaperStore {
-  papers: Paper[];
+  papers: ResearchPaperType[];
   isLoading: boolean;
   error: string | null;
   fetchPapers: () => Promise<void>;
@@ -27,11 +19,14 @@ interface PaperStore {
   fetchPaperById: (state: string, paperId: string) => Promise<void>; // Fix here
   fetchFromApi: (url: string, singlePaper: boolean) => Promise<void>;
   createResearchPaper: (
-    paper: CreateResearchePaperInput
+    paper: PaperFormData
   ) => Promise<{ success: boolean; error?: string }>;
-  publishResearchPaper: () => Promise<void>;
-  addPeerReview: () => Promise<void>;
-  mintResearchPaper: () => Promise<void>;
+  publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
+  addPeerReview: (
+    paper: ResearchPaperType,
+    data: PeerReviewFormData
+  ) => Promise<void>;
+  mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
 }
 
@@ -99,9 +94,6 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     const paperFile = formData.get("paperFile") as File;
     const paperImage = formData.get("paperImage") as File;
 
-    console.log(paperFile);
-    console.log(paperImage);
-
     try {
       // On-chain part
 
@@ -140,7 +132,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           paperImageURI: arweaveImageId,
           decentralizedStorageURI: arweavePaperId,
           datePublished: new Date().toISOString(),
-        } as PaperMetadata),
+        } as ResearchPaperMetadata),
       ]);
 
       // Create paper on Solana
@@ -161,17 +153,12 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // Off-chain part
 
       // Create the paper object to store in the database
-      const paperDbData: ResearchPaperType = {
+      const paperDbData: CreateResearchPaper = {
         address: result.paperPda,
         creatorPubkey: result.creatorPubkey,
-        state: "AwaitingPeerReview",
         accessFee: paper.accessFee,
-        version: 1, // Default is 1
-        paperContentHash: Array.from(Buffer.from(paperContentHash)),
-        totalApprovals: 0,
-        totalCitations: 0,
-        totalMints: 0,
-        metaDataMerkleRoot: Array.from(Buffer.from(metaDataMerkleRoot)),
+        paperContentHash,
+        metaDataMerkleRoot,
         metadata: {
           title: paper.title,
           abstract: paper.abstract,
@@ -181,11 +168,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           references: [],
           paperImageURI: arweaveImageId,
           decentralizedStorageURI: arweavePaperId,
-          datePublished: new Date(),
+          datePublished: new Date().toISOString(),
         },
         bump: result.paperPdaBump,
-        peerReviews: [],
-        // userId: new ObjectId //TODO: After finishing profile creation, this needs to be uncommented
       };
 
       // Store the paper in the database
@@ -211,8 +196,109 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return { success: false, error: error.message };
     }
   },
-  publishResearchPaper: async () => {},
-  addPeerReview: async () => {},
-  mintResearchPaper: async () => {},
+  publishResearchPaper: async (paper) => {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      await sdkInstance.publishResearchPaper(paper.address, paper.bump);
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ error: "Failed to publish paper", isLoading: false });
+    }
+  },
+  addPeerReview: async (paper, data) => {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      // on-chain part
+
+      const metaDataMerkleRoot =
+        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
+          ...data,
+        });
+
+      const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
+        qualityOfResearch: data.qualityOfResearch,
+        practicalityOfResultObtained: data.practicalityOfResultObtained,
+        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+        metaDataMerkleRoot: metaDataMerkleRoot,
+        domainKnowledge: data.domainKnowledge,
+      };
+
+      const { peerReviewPda, peerReviewPdaBump } =
+        await sdkInstance.addPeerReview(paper.address, addPeerReviewData);
+
+      // off-chain part
+
+      const addPeerReviewDbData: AddPeerReviewType = {
+        reviewerPubkey: sdkInstance.pubkey.toBase58(),
+        address: peerReviewPda,
+        paperPubkey: paper.address,
+        qualityOfResearch: data.qualityOfResearch,
+        practicalityOfResultObtained: data.practicalityOfResultObtained,
+        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+        metaDataMerkleRoot,
+        domainKnowledge: data.domainKnowledge,
+        metadata: {
+          title: paper.metadata.title,
+          reviewComments: data.reviewComments,
+        },
+        bump: peerReviewPdaBump,
+      };
+
+      const response = await fetch("/api/peer-review", {
+        method: "POST",
+        body: JSON.stringify(addPeerReviewDbData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create paper");
+      }
+
+      // Add the peer review to the store
+
+      const newPeerReview = await response.json();
+
+      set((state) => ({
+        papers: state.papers.map((p) =>
+          p.address === paper.address
+            ? { ...p, peerReviews: [...p.peerReviews, newPeerReview.id] }
+            : p
+        ),
+        isLoading: false,
+      }));
+    } catch (error: any) {
+      set({ error: "Failed to add peer review", isLoading: false });
+    }
+  },
+  mintResearchPaper: async (paper) => {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      // on-chain part
+      await sdkInstance.mintResearchPaper(paper.address, {
+        metaDataMerkleRoot: "",
+      });
+
+      // off-chain part
+
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ error: "Failed to mint paper", isLoading: false });
+    }
+  },
   setError: (error) => set({ error }),
 }));

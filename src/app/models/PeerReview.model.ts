@@ -103,12 +103,12 @@ export const PeerReviewSchema: Schema = new Schema<PeerReview>(
         delete ret._id;
       },
     },
-  },
+  }
 );
 
 // Virtual to map _id to id
 PeerReviewSchema.virtual("id").get(function (
-  this: PeerReview & { _id: mongoose.Types.ObjectId },
+  this: PeerReview & { _id: mongoose.Types.ObjectId }
 ) {
   return this._id.toHexString();
 });
@@ -123,12 +123,12 @@ PeerReviewSchema.pre("findOneAndDelete", async function (next) {
     await ResearchPaper.findByIdAndUpdate(
       docToDelete.paperId,
       { $pull: { peerReviews: docToDelete._id } },
-      { new: true },
+      { new: true }
     );
     await ResearcherProfile.findByIdAndUpdate(
       docToDelete.reviewerId,
       { $pull: { peerReviewsAsReviewer: docToDelete._id } },
-      { new: true },
+      { new: true }
     );
   }
   next();

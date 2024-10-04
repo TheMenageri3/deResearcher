@@ -5,26 +5,16 @@ import { getEncodedLoginMessage } from "@/lib/helpers";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
 import {
+  CreateResearcherProfile,
   ResearcherProfileMetadata,
-  ResearcherProfileType,
-} from "../models/ResearcherProfile.model";
-
-type CreateResearcherProfileInputs = {
-  name: string;
-  email: string;
-  organization?: string;
-  bio?: string;
-  profileImage?: File;
-  backgroundImage?: File;
-  externalResearchProfiles?: string[];
-  interestedDomains?: string[];
-  topPublications?: string[];
-  socialLinks?: string[];
-};
+} from "@/lib/types";
+import { ProfileFormData } from "@/lib/validation";
+import { ResearcherProfileType } from "../api/types";
 
 interface UserState {
   isAuthenticated: boolean;
   walletSignature: string | null;
+  researcherProfile: ResearcherProfileType | null;
   wallet: string | null;
   isLoading: boolean;
   lastChecked: number;
@@ -32,9 +22,7 @@ interface UserState {
   checkAuth: (walletPubkey: string) => Promise<void>;
   checkAuthAndTryLogin: (wallet: WalletContextState) => Promise<void>;
   logout: (walletPubkey: string) => Promise<void>;
-  createResearcherProfile: (
-    data: CreateResearcherProfileInputs
-  ) => Promise<void>;
+  createResearcherProfile: (data: ProfileFormData) => Promise<void>;
   requestToAssignRepuation: () => Promise<void>;
   setError: (error: string | null) => void;
 }
@@ -49,6 +37,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   wallet: null,
   isLoading: false,
   lastChecked: 0,
+  researcherProfile: null,
   error: null,
   checkAuthAndTryLogin: async (wallet: WalletContextState) => {
     if (!wallet.publicKey) {
@@ -159,7 +148,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ isLoading: false });
     }
   },
-  async createResearcherProfile(data: CreateResearcherProfileInputs) {
+  async createResearcherProfile(data) {
     const { sdk: sdkInstance } = useSDKStore.getState();
 
     if (!sdkInstance) {
@@ -241,28 +230,34 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       // off-chain part
 
-      const researcherProfileDbData: ResearcherProfileType = {
+      const researcherProfileDbData: CreateResearcherProfile = {
         address: researcherProfilePda,
         researcherPubkey,
         name: data.name,
-        state: "AwaitingApproval",
-        totalPapersPublished: 0,
-        totalCitations: 0,
-        totalReviews: 0,
-        reputation: 0,
-        metaDataMerkleRoot: Array.from(Buffer.from(metadataMerkleRoot)),
+        metaDataMerkleRoot: metadataMerkleRoot,
         bump: researcherProfilePdaBump,
         metadata: researcherProfileMetadata,
-        papers: [],
-        peerReviewsAsReviewer: [],
       };
 
       // Save the researcher profile to the database
 
-      await fetch("/api/researcher-profile", {
+      const response = await fetch("/api/researcher-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(researcherProfileDbData),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to create researcher profile: ${response.statusText}`
+        );
+      }
+
+      const newResearcherProfile = await response.json();
+
+      set({
+        researcherProfile: newResearcherProfile,
+        isLoading: false,
       });
     } catch (error) {
       set({

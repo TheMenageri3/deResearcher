@@ -237,40 +237,18 @@ export class SDK {
     };
   }
 
-  async addPeerReview(
-    paperPda: solana.PublicKey,
-    data: Omit<sdk.AddPeerReview, "pdaBump">
-  ) {
+  async publishResearchPaper(paperPda: string, pdaBump: number) {
     try {
-      const [peerReviewPda, bump] = derivePeerReviewPdaPubkeyAndBump(
-        this.pubkey,
-        paperPda
-      );
-
-      const [researcherProfilePda, _] = deriveResearcherProfilePdaPubkeyAndBump(
-        this.pubkey
-      );
-
-      const accounts: sdk.AddPeerReviewInstructionAccounts = {
-        reviewerAcc: this.pubkey,
-        researcherProfilePdaAcc: researcherProfilePda,
-        paperPdaAcc: paperPda,
-        peerReviewPdaAcc: peerReviewPda,
-        systemProgramAcc: solana.SystemProgram.programId,
+      const accounts: sdk.PublishPaperInstructionAccounts = {
+        publisherAcc: this.pubkey,
+        paperPdaAcc: new solana.PublicKey(paperPda),
       };
 
-      const ixData: sdk.AddPeerReviewInstructionArgs = {
-        addPeerReview: {
-          ...data,
-          pdaBump: bump,
+      const instruction = sdk.createPublishPaperInstruction(accounts, {
+        publishPaper: {
+          pdaBump,
         },
-      };
-
-      const instruction = sdk.createAddPeerReviewInstruction(
-        accounts,
-        ixData,
-        sdk.PROGRAM_ID
-      );
+      });
 
       await this.buildTxSignAndSend([instruction]);
     } catch (e) {
@@ -278,8 +256,50 @@ export class SDK {
     }
   }
 
+  async addPeerReview(
+    paperPda: string,
+    data: Omit<sdk.AddPeerReview, "pdaBump">
+  ) {
+    const [peerReviewPda, bump] = derivePeerReviewPdaPubkeyAndBump(
+      this.pubkey,
+      new solana.PublicKey(paperPda)
+    );
+
+    const [researcherProfilePda, _] = deriveResearcherProfilePdaPubkeyAndBump(
+      this.pubkey
+    );
+
+    const accounts: sdk.AddPeerReviewInstructionAccounts = {
+      reviewerAcc: this.pubkey,
+      researcherProfilePdaAcc: researcherProfilePda,
+      paperPdaAcc: new solana.PublicKey(paperPda),
+      peerReviewPdaAcc: peerReviewPda,
+      systemProgramAcc: solana.SystemProgram.programId,
+    };
+
+    const ixData: sdk.AddPeerReviewInstructionArgs = {
+      addPeerReview: {
+        ...data,
+        pdaBump: bump,
+      },
+    };
+
+    const instruction = sdk.createAddPeerReviewInstruction(
+      accounts,
+      ixData,
+      sdk.PROGRAM_ID
+    );
+
+    await this.buildTxSignAndSend([instruction]);
+
+    return {
+      peerReviewPda: peerReviewPda.toBase58(),
+      peerReviewPdaBump: bump,
+    };
+  }
+
   async mintResearchPaper(
-    paperPda: solana.PublicKey,
+    paperPda: string,
     data: Omit<sdk.MintResearchPaper, "pdaBump">
   ) {
     try {
@@ -291,12 +311,12 @@ export class SDK {
 
       const paper = await sdk.ResearchPaper.fromAccountAddress(
         this.connection,
-        paperPda
+        new solana.PublicKey(paperPda)
       );
 
       const accounts: sdk.MintResearchPaperInstructionAccounts = {
         readerAcc: this.pubkey,
-        paperPdaAcc: paperPda,
+        paperPdaAcc: new solana.PublicKey(paperPda),
         researcherProfilePdaAcc: researcherProfilePda,
         researchMintCollectionPdaAcc: mintCollectionPda,
         feeReceiverAcc: paper.creatorPubkey,
