@@ -9,6 +9,12 @@ export const PaperState = z.enum([
   "Minted",
 ]);
 
+const ResearcherProfileState = z.enum([
+  "AwaitingApproval",
+  "Approved",
+  "Rejected",
+]);
+
 export const ProfileFormData = z.object({
   firstName: z
     .string()
@@ -107,8 +113,6 @@ export const RatingSchema = z.object({
   practicalityOfResultObtained: z.number().min(1).max(5),
 });
 
-export type Rating = z.infer<typeof RatingSchema>;
-
 export const ratingToReview = (
   rating: Rating,
   title: string,
@@ -146,7 +150,7 @@ export const ReviewSchema = z.object({
 });
 
 export const PaperSchema = z.object({
-  _id: z.string(), // Change from `id` to `_id` or map it later
+  _id: z.string(),
   creatorPubkey: z.string(),
   state: z.string(),
   accessFee: z.number(),
@@ -178,8 +182,37 @@ export const PaperSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const ResearcherProfileSchema = z.object({
+  _id: z.string().optional(),
+  address: z.string(),
+  researcherPubkey: z.string(),
+  name: z.string(),
+  state: ResearcherProfileState,
+  totalPapersPublished: z.number().nonnegative().optional(),
+  totalCitations: z.number().nonnegative().optional(),
+  totalReviews: z.number().nonnegative().optional(),
+  reputation: z.number().nonnegative().optional(),
+  metaDataMerkleRoot: z.string(),
+  peerReviewsAsReviewer: z.array(z.string()),
+  papers: z.array(z.string()),
+  metadata: z.object({
+    email: z.string().email(),
+    organization: z.string().optional(),
+    bio: z.string().optional(),
+    profileImageURI: z.string().url().optional(),
+    backgroundImageURI: z.string().url().optional(),
+    externalResearchProfiles: z.array(z.string().url()).optional(),
+    interestedDomains: z.array(z.string()).optional(),
+    topPublications: z.array(z.string()).optional(),
+    socialLinks: z.array(z.string().url()).optional(),
+  }),
+  bump: z.number().int().nonnegative(),
+});
+
 // TypeScript types
 export type ProfileFormData = z.infer<typeof ProfileFormData>;
 export type PaperFormData = z.infer<typeof PaperFormData>;
 export type Review = z.infer<typeof ReviewSchema>;
 export type Paper = z.infer<typeof PaperSchema>;
+export type Rating = z.infer<typeof RatingSchema>;
+export type ResearcherProfile = z.infer<typeof ResearcherProfileSchema>;
