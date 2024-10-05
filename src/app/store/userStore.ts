@@ -1,17 +1,30 @@
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { create } from "zustand";
 import bs58 from "bs58";
-import { getEncodedLoginMessage, verifySignature } from "@/lib/helpers";
+import { getEncodedLoginMessage } from "@/lib/helpers";
+import { useSDKStore } from "./sdkStore";
+import * as sdk from "@/lib/sdk";
+import {
+  CreateResearcherProfile,
+  ResearcherProfileMetadata,
+} from "@/lib/types";
+import { ProfileFormData } from "@/lib/validation";
+import { ResearcherProfileType } from "../api/types";
 
 interface UserState {
   isAuthenticated: boolean;
   walletSignature: string | null;
+  researcherProfile: ResearcherProfileType | null;
   wallet: string | null;
+  isLoading: boolean;
+  lastChecked: number;
+  error: string | null;
   checkAuth: (walletPubkey: string) => Promise<void>;
   checkAuthAndTryLogin: (wallet: WalletContextState) => Promise<void>;
   logout: (walletPubkey: string) => Promise<void>;
-  isLoading: boolean;
-  lastChecked: number;
+  createResearcherProfile: (data: ProfileFormData) => Promise<void>;
+  requestToAssignRepuation: () => Promise<void>;
+  setError: (error: string | null) => void;
 }
 
 export type UserStore = UserState;
@@ -24,6 +37,8 @@ export const useUserStore = create<UserState>((set, get) => ({
   wallet: null,
   isLoading: false,
   lastChecked: 0,
+  researcherProfile: null,
+  error: null,
   checkAuthAndTryLogin: async (wallet: WalletContextState) => {
     if (!wallet.publicKey) {
       return;
@@ -57,7 +72,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       const encodedMessage = getEncodedLoginMessage(
-        wallet.publicKey.toBase58(),
+        wallet.publicKey.toBase58()
       );
       const signature = await wallet.signMessage(encodedMessage);
 
@@ -133,4 +148,125 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ isLoading: false });
     }
   },
+  async createResearcherProfile(data) {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+
+    set({ isLoading: true });
+
+    try {
+      // on-chain part
+
+      // arweave part
+
+      const filesToUpload: File[] = [];
+      const tags = [];
+      if (data.profileImage) {
+        filesToUpload.push(data.profileImage);
+        tags.push([
+          {
+            name: "Content-Type",
+            value: "image/png",
+          },
+        ]);
+      }
+      if (data.backgroundImage) {
+        filesToUpload.push(data.backgroundImage);
+        tags.push([
+          {
+            name: "Content-Type",
+            value: "image/png",
+          },
+        ]);
+      }
+
+      let arweaveUploadedIds: string[] | undefined[] = [];
+      if (filesToUpload.length > 0) {
+        arweaveUploadedIds = await sdkInstance.arweaveUploadFiles(
+          filesToUpload,
+          tags
+        );
+      }
+
+      if (arweaveUploadedIds.length !== 2) {
+        arweaveUploadedIds = [undefined, undefined];
+      }
+
+      const researcherProfileMetadata: ResearcherProfileMetadata = {
+        email: data.email,
+        organization: data.organization,
+        bio: data.bio,
+        profileImageURI: arweaveUploadedIds[0],
+        backgroundImageURI: arweaveUploadedIds[1],
+        externalResearchProfiles: data.externalResearchProfiles,
+        interestedDomains: data.interestedDomains,
+        topPublications: data.topPublications,
+        socialLinks: data.socialLinks,
+      };
+
+      const metadataMerkleRoot =
+        await sdk.SDK.compressObjectAndGenerateMerkleRoot(
+          researcherProfileMetadata
+        );
+
+      const createResearcherProfileInput: Omit<
+        sdk.CreateResearcherProfile,
+        "pdaBump"
+      > = {
+        name: data.name,
+        metaDataMerkleRoot: metadataMerkleRoot,
+      };
+      const {
+        researcherProfilePdaBump,
+        researcherProfilePda,
+        researcherPubkey,
+      } = await sdkInstance.createResearcherProfile(
+        createResearcherProfileInput
+      );
+
+      // off-chain part
+
+      const researcherProfileDbData: CreateResearcherProfile = {
+        address: researcherProfilePda,
+        researcherPubkey,
+        name: data.name,
+        metaDataMerkleRoot: metadataMerkleRoot,
+        bump: researcherProfilePdaBump,
+        metadata: researcherProfileMetadata,
+      };
+
+      // Save the researcher profile to the database
+
+      const response = await fetch("/api/researcher-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(researcherProfileDbData),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to create researcher profile: ${response.statusText}`
+        );
+      }
+
+      const newResearcherProfile = await response.json();
+
+      set({
+        researcherProfile: newResearcherProfile,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: `Failed to create researcher profile: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+    }
+  },
+  async requestToAssignRepuation() {},
+  setError: (error) => set({ error }),
 }));

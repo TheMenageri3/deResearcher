@@ -19,13 +19,10 @@ interface SDKActions {
   initializeSDK: (wallet: WalletContextState, cluster: Cluster) => void;
   createResearcherProfile: (data: sdk.CreateResearcherProfile) => Promise<void>;
   createResearchPaper: (data: sdk.CreateResearchePaper) => Promise<void>;
-  addPeerReview: (
-    paperPda: PublicKey,
-    data: sdk.AddPeerReview,
-  ) => Promise<void>;
+  addPeerReview: (paperPda: string, data: sdk.AddPeerReview) => Promise<void>;
   mintResearchPaper: (
-    paperPda: PublicKey,
-    data: sdk.MintResearchPaper,
+    paperPda: string,
+    data: sdk.MintResearchPaper
   ) => Promise<void>;
   fetchResearcherProfile: () => Promise<void>;
   fetchAllResearchPapers: () => Promise<void>;
@@ -57,7 +54,7 @@ export const useSDKStore = create<SDKStore>()(
 
         initializeSDK: (
           wallet: WalletContextState,
-          cluster: Cluster,
+          cluster: Cluster
         ): boolean => {
           try {
             const endpoint = clusterApiUrl(cluster);
@@ -116,7 +113,7 @@ export const useSDKStore = create<SDKStore>()(
           }
         },
 
-        addPeerReview: async (paperPda: PublicKey, data: sdk.AddPeerReview) => {
+        addPeerReview: async (paperPda: string, data: sdk.AddPeerReview) => {
           const { sdk } = get();
           if (!sdk) {
             set({ error: "SDK not initialized" });
@@ -138,8 +135,8 @@ export const useSDKStore = create<SDKStore>()(
         },
 
         mintResearchPaper: async (
-          paperPda: PublicKey,
-          data: sdk.MintResearchPaper,
+          paperPda: string,
+          data: sdk.MintResearchPaper
         ) => {
           const { sdk } = get();
           if (!sdk) {
@@ -170,7 +167,7 @@ export const useSDKStore = create<SDKStore>()(
           set({ isLoading: true, error: null });
           try {
             const profile = await sdk.fetchResearcherProfileByPubkey(
-              sdk.pubkey,
+              sdk.pubkey
             );
             set({ researcherProfile: profile || null });
           } catch (error) {
@@ -236,7 +233,7 @@ export const useSDKStore = create<SDKStore>()(
           try {
             const collections =
               await sdk.fetchResearchMintCollectionByResearcherPubkey(
-                sdk.pubkey,
+                sdk.pubkey
               );
             set({ mintCollections: collections });
           } catch (error) {
@@ -264,7 +261,7 @@ export const useSDKStore = create<SDKStore>()(
       {
         name: "sdk-storage",
         partialize: (state) => ({ researcherProfile: state.researcherProfile }),
-      },
-    ),
-  ),
+      }
+    )
+  )
 );

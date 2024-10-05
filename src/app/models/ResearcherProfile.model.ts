@@ -17,7 +17,7 @@ export interface ResearcherProfile extends Document {
   totalCitations?: number;
   totalReviews?: number;
   reputation?: number;
-  metaDataMerkleRoot?: number[]; // Array of size 64
+  metaDataMerkleRoot: string; // merkel root of the metadata
   peerReviewsAsReviewer: mongoose.Types.ObjectId[]; // Array of PeerReviews where researcher is the reviewer
   papers: mongoose.Types.ObjectId[]; // Array of ResearchPaper IDs authored by the researcher
   metadata: {
@@ -33,8 +33,6 @@ export interface ResearcherProfile extends Document {
   };
   bump: number;
 }
-
-export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
 // Define the ResearcherProfile schema
 const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
@@ -73,11 +71,12 @@ const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
       default: 0,
     },
     metaDataMerkleRoot: {
-      type: [Number],
+      type: String, // Storing the MetadataMerkleRoot as a String
       validate: [
         isLimitedByteArray,
-        "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
+        "MetadataMerkleRoot string must be 64 characters long",
       ],
+      required: true,
     },
     peerReviewsAsReviewer: [
       {
@@ -119,7 +118,7 @@ const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
         delete ret._id;
       },
     },
-  },
+  }
 );
 
 // Virtual to map _id to id
@@ -135,5 +134,5 @@ ResearcherProfileSchema.set("toJSON", { virtuals: true });
 export default mongoose.models.ResearcherProfile ||
   mongoose.model<ResearcherProfile>(
     "ResearcherProfile",
-    ResearcherProfileSchema,
+    ResearcherProfileSchema
   );

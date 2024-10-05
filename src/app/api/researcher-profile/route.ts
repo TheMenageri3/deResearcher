@@ -5,13 +5,34 @@ import {
   ResearcherProfileModel,
   ResearchPaperModel,
 } from "@/app/models";
+import { ResearcherProfileType, CreateResearcherProfileSchema } from "../types";
 
 // create a new profile
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
-    const reqBody = await req.json();
-    const profile = await ResearcherProfileModel.create(reqBody);
+    let unsafeData = await req.json();
+
+    const data = CreateResearcherProfileSchema.parse(unsafeData);
+
+    const researcherProfile: ResearcherProfileType = {
+      address: data.address,
+      researcherPubkey: data.researcherPubkey,
+      bump: data.bump,
+      name: data.name,
+      state: "AwaitingApproval",
+      totalPapersPublished: 0,
+      totalCitations: 0,
+      totalReviews: 0,
+      reputation: 0,
+      metaDataMerkleRoot: data.metaDataMerkleRoot,
+      papers: [],
+      peerReviewsAsReviewer: [],
+      metadata: data.metadata,
+    };
+
+    const profile = await ResearcherProfileModel.create(researcherProfile);
+
     return NextResponse.json(profile, { status: 201 });
   } catch (error: any) {
     if (error.name === "ValidationError") {
@@ -20,16 +41,16 @@ export async function POST(req: NextRequest) {
           field,
           message: err.message,
           value: err.value,
-        }),
+        })
       );
       return NextResponse.json(
         { error: "Validation Error", details: validationErrors },
-        { status: 400 },
+        { status: 400 }
       );
     }
     return NextResponse.json(
       { error: "Internal Server Error", message: error.message },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -42,7 +63,7 @@ export async function GET(req: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -80,7 +101,7 @@ export async function GET(req: NextRequest) {
     console.error("Error in GET /api/researcher-profiles:", error);
     return NextResponse.json(
       { error: "Internal Server Error", message: error.message },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

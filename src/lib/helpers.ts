@@ -107,19 +107,15 @@ export const getLinkIcon = (url: string) => {
     return Globe;
   }
 };
-export function isLimitedByteArray(arr: number[]) {
-  return (
-    Array.isArray(arr) &&
-    arr.length === 64 &&
-    arr.every((num) => num >= 0 && num <= 255)
-  );
+export function isLimitedByteArray(data: string) {
+  return data.length === 64;
 }
 
 export function verifySignature(signature: string, pubkey: PublicKey) {
   return solanaCrypto.sign.detached.verify(
     getEncodedLoginMessage(pubkey.toBase58()),
     bs58.decode(signature),
-    bs58.decode(pubkey.toBase58()),
+    bs58.decode(pubkey.toBase58())
   );
 }
 
@@ -130,6 +126,6 @@ export function getEncodedLoginMessage(pubkey: string) {
       pubkey: minimizePubkey(pubkey),
     })
       .split("")
-      .map((c) => c.charCodeAt(0)),
+      .map((c) => c.charCodeAt(0))
   );
 }
