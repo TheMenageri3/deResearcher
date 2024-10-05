@@ -7,17 +7,12 @@ mongoose.Promise = global.Promise;
 export interface ResearchMintCollection extends Document {
   id?: string; // Aliased from _id
   readerPubkey: string; // Storing the PublicKey as a String
-  dataMerkleRoot: number[]; // Array of size 64
+  metaDataMerkleRoot: string; // merkel root of the metadata
   metadata: {
     mintedResearchPaperIds: mongoose.Types.ObjectId[]; // Array of ResearchPaper IDs (references)
   };
   bump: number;
 }
-
-export type ResearchMintCollectionType = Omit<
-  ResearchMintCollection,
-  keyof Document
->;
 
 // Define the ResearchMintCollection schema
 const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
@@ -26,11 +21,11 @@ const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
       type: String, // Storing the PublicKey or wallet address as a String
       required: true,
     },
-    dataMerkleRoot: {
-      type: [Number], // Array of size 64
+    metaDataMerkleRoot: {
+      type: String, // Storing the MetadataMerkleRoot as a String
       validate: [
         isLimitedByteArray,
-        "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
+        "MetadataMerkleRoot string must be 64 characters long",
       ],
       required: true,
     },
@@ -59,7 +54,7 @@ const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
         delete ret._id;
       },
     },
-  },
+  }
 );
 
 ResearchMintCollectionSchema.index({
@@ -81,5 +76,5 @@ ResearchMintCollectionSchema.set("toJSON", { virtuals: true });
 export default mongoose.models.ResearchMintCollection ||
   mongoose.model<ResearchMintCollection>(
     "ResearchMintCollection",
-    ResearchMintCollectionSchema,
+    ResearchMintCollectionSchema
   );

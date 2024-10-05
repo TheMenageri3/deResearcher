@@ -9,6 +9,8 @@ import SessionModel from "./Session.model";
 import type { PeerReview } from "./PeerReview.model";
 import type { ResearchMintCollection } from "./ResearchMintCollection.model";
 import type { ResearchPaper } from "./ResearchPaper.model";
+import type { ResearcherProfile } from "./ResearcherProfile.model";
+import type { Session } from "./Session.model";
 
 // Ensure connection is established
 const initializeModels = async () => {
@@ -29,4 +31,10 @@ export {
 };
 
 // Re-export types
-export type { PeerReview, ResearchMintCollection, ResearchPaper };
+export type {
+  PeerReview,
+  ResearchMintCollection,
+  ResearchPaper,
+  ResearcherProfile,
+  Session,
+};

@@ -6,27 +6,47 @@ import {
   ResearcherProfileModel,
   ResearchPaperModel,
 } from "@/app/models";
+import { CreateResearchPaperSchema, ResearchPaperType } from "../types";
 
 // create a new paper
 export async function POST(req: NextRequest) {
   await connectToDatabase();
-  const reqBody = await req.json();
+  let unsafeData = await req.json();
+
+  const data = CreateResearchPaperSchema.parse(unsafeData);
 
   try {
-    // Validate that the user exists
-    const user = await ResearcherProfileModel.findById(reqBody.userId);
-    if (!user) {
+    // Validate that the creator exists
+    const creator = await ResearcherProfileModel.findById(data.creatorPubkey);
+    if (!creator) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    const researchPaper: ResearchPaperType = {
+      address: data.address,
+      creatorPubkey: data.creatorPubkey,
+      creatorId: creator._id,
+      state: "AwaitingPeerReview",
+      totalApprovals: 0,
+      totalCitations: 0,
+      totalMints: 0,
+      peerReviews: [],
+      paperContentHash: data.paperContentHash,
+      accessFee: data.accessFee,
+      version: 0,
+      metaDataMerkleRoot: data.metaDataMerkleRoot,
+      metadata: data.metadata,
+      bump: data.bump,
+    };
+
     // Create the new paper (this is an atomic operation)
-    const paper = await ResearchPaperModel.create(reqBody);
+    const paper = await ResearchPaperModel.create(researchPaper);
 
     // Manually update the user's papers array (also atomic)
     await ResearcherProfileModel.findByIdAndUpdate(
-      reqBody.userId,
+      creator._id,
       { $addToSet: { papers: paper._id } },
-      { new: true },
+      { new: true }
     );
 
     return NextResponse.json(paper, { status: 201 });
@@ -39,17 +59,17 @@ export async function POST(req: NextRequest) {
           field,
           message: err.message,
           value: err.value,
-        }),
+        })
       );
       return NextResponse.json(
         { error: "Validation Error", details: validationErrors },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     return NextResponse.json(
       { error: "Internal Server Error", message: error.message },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -80,7 +100,7 @@ export async function GET(req: NextRequest) {
     console.log(query);
 
     // Fetch papers based on the constructed query
-    const papers = await ResearchPaperModel.find(query)
+    const papers = await ResearchPaperModel.find<ResearchPaperType>(query)
       .populate({
         path: "userId",
         model: ResearcherProfileModel,
@@ -108,7 +128,7 @@ export async function GET(req: NextRequest) {
     console.error("Error in GET /api/research-papers:", error);
     return NextResponse.json(
       { error: "Internal Server Error", message: error.message },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

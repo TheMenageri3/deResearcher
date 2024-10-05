@@ -16,21 +16,21 @@ export type PaperStateDB =
 export interface ResearchPaper extends Document {
   id?: string;
   address: string; // Storing the PublicKey as a String
-  userId?: mongoose.Types.ObjectId; // TODO: Afterc creating profile, this needs to be fixed
+  creatorId: mongoose.Types.ObjectId; // TODO: Afterc creating profile, this needs to be fixed
   creatorPubkey: string; // PublicKey remains as a string
   state: PaperStateDB;
   accessFee: number;
   version: number;
-  paperContentHash: number[];
+  paperContentHash: string;
   totalApprovals: number;
   totalCitations: number;
   totalMints: number;
-  metaDataMerkleRoot: number[];
+  metaDataMerkleRoot: string;
   metadata: {
     title: string;
     abstract: string;
     authors: string[];
-    datePublished: Date;
+    datePublished: string;
     domain: string;
     tags: string[];
     references?: string[];
@@ -41,20 +41,6 @@ export interface ResearchPaper extends Document {
   peerReviews: mongoose.Types.ObjectId[];
 }
 
-export type ResearchPaperType = Omit<ResearchPaper, keyof Document>;
-
-export interface PaperMetadata {
-  title: string;
-  abstract: string;
-  authors: string[];
-  datePublished: string;
-  domain: string;
-  tags: string[];
-  references: string[];
-  paperImageURI: string;
-  decentralizedStorageURI: string;
-}
-
 // Define the ResearchPaper schema
 const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
   {
@@ -62,7 +48,7 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
       type: String,
       required: true,
     },
-    userId: {
+    creatorId: {
       type: mongoose.Schema.Types.ObjectId, // MongoDB ObjectId reference to the user
       ref: "ResearcherProfile", // Assuming ResearcherProfile collection for user reference
       required: true,
@@ -82,14 +68,14 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
     },
     version: {
       type: Number,
-      default: 1,
+      default: 0,
       required: true,
     },
     paperContentHash: {
-      type: [Number],
+      type: String, // Storing the PaperContentHash as a String
       validate: [
         isLimitedByteArray,
-        "PaperContentHash array must have exactly 64 elements (bytes)",
+        "PaperContentHash string must be 64 characters long",
       ],
       required: true,
     },
@@ -109,10 +95,10 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
       required: true,
     },
     metaDataMerkleRoot: {
-      type: [Number],
+      type: String, // Storing the MetadataMerkleRoot as a String
       validate: [
         isLimitedByteArray,
-        "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
+        "MetadataMerkleRoot string must be 64 characters long",
       ],
       required: true,
     },
@@ -120,7 +106,7 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
       title: { type: String, required: true },
       abstract: { type: String, required: true },
       authors: { type: [String], required: true },
-      datePublished: { type: Date, required: true },
+      datePublished: { type: String, required: true },
       domain: { type: String, required: true },
       tags: { type: [String], required: true },
       references: { type: [String], required: false },
@@ -148,7 +134,7 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
         delete ret._id;
       },
     },
-  },
+  }
 );
 
 // Virtual to map _id to id
@@ -169,7 +155,7 @@ ResearchPaperSchema.post("save", async function (doc) {
     await ResearcherProfile.findByIdAndUpdate(
       doc.userId,
       { $addToSet: { papers: doc._id } },
-      { new: true },
+      { new: true }
     );
   } catch (error) {
     console.error("Error updating ResearcherProfile:", error);
@@ -183,7 +169,7 @@ ResearchPaperSchema.pre("findOneAndDelete", async function (next) {
     await ResearcherProfile.findByIdAndUpdate(
       docToDelete.userId,
       { $pull: { papers: docToDelete._id } },
-      { new: true },
+      { new: true }
     );
   }
   next();
