@@ -4,27 +4,23 @@ import { Connection, PublicKey, Cluster } from "@solana/web3.js";
 import { SDK } from "@/lib/sdk";
 
 import { CreateResearchePaper } from "@/lib/sdk";
-import {
-  Paper,
-  PaperSchema,
-  ResearcherProfile,
-  ResearcherProfileSchema,
-} from "@/lib/validation";
+
+import { ResearcherProfileType, ResearchPaperType } from "@/lib/types";
 
 interface AppContextType {
   connection: Connection;
   sdk: SDK | null;
-  papers: Paper[];
-  researcherProfile: ResearcherProfile | null;
+  papers: ResearchPaperType[];
+  researcherProfile: ResearcherProfileType | null;
   isLoading: boolean;
   error: string | null;
-  selectedPaper: Paper | null;
+  selectedPaper: ResearchPaperType | null;
   userId: string | null;
-  setSelectedPaper: (paper: Paper | null) => void;
+  setSelectedPaper: (paper: ResearchPaperType | null) => void;
   fetchPapers: () => Promise<void>;
   fetchProfile: () => Promise<void>;
   createNewPaper: (
-    paperData: Omit<CreateResearchePaper, "pdaBump">,
+    paperData: Omit<CreateResearchePaper, "pdaBump">
   ) => Promise<void>;
   setUserId: (id: string) => void;
 }
@@ -46,12 +42,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const { connection } = useConnection();
   const { publicKey, connected } = wallet;
   const [sdk, setSdk] = useState<SDK | null>(null);
-  const [papers, setPapers] = useState<Paper[]>([]);
+  const [papers, setPapers] = useState<ResearchPaperType[]>([]);
   const [researcherProfile, setResearcherProfile] =
-    useState<ResearcherProfile | null>(null);
+    useState<ResearcherProfileType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
+  const [selectedPaper, setSelectedPaper] = useState<ResearchPaperType | null>(
+    null
+  );
   const [userId, setUserId] = useState<string | null>(null);
 
   // Initialize SDK when wallet is connected
@@ -59,7 +57,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (connected && publicKey) {
       const cluster: Cluster = "devnet";
       const newSdk = new SDK(wallet, cluster);
-      setSdk(newSdk);
     } else {
       setSdk(null);
       setPapers([]);
@@ -83,19 +80,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       const fetchedPapers = await response.json();
 
-      const validatedPapers = fetchedPapers
-        .map((paper: unknown) => {
-          const result = PaperSchema.safeParse(paper);
-          if (result.success) {
-            return result.data;
-          } else {
-            console.error("Invalid paper data:", paper, result.error);
-            return null;
-          }
-        })
-        .filter((paper: Paper | null): paper is Paper => paper !== null);
+      // const validatedPapers = fetchedPapers
+      //   .map((paper: unknown) => {
+      //     const result = PaperSchema.safeParse(paper);
+      //     if (result.success) {
+      //       return result.data;
+      //     } else {
+      //       console.error("Invalid paper data:", paper, result.error);
+      //       return null;
+      //     }
+      //   })
+      //   .filter(
+      //     (paper: ResearchPaperType | null): paper is ResearchPaperType =>
+      //       paper !== null
+      //   );
 
-      setPapers(validatedPapers);
+      setPapers(fetchedPapers);
     } catch (err) {
       setError("Failed to fetch research papers");
       console.error(err);
@@ -118,8 +118,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const profile = await response.json();
-      const validatedProfile = ResearcherProfileSchema.parse(profile);
-      setResearcherProfile(validatedProfile);
+      // const validatedProfile = ResearcherProfileSchema.parse(profile);
+      setResearcherProfile(profile);
     } catch (err) {
       setError("Failed to fetch researcher profile");
       console.error(err);
@@ -130,7 +130,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const createNewPaper = async (
-    paperData: Omit<CreateResearchePaper, "pdaBump">,
+    paperData: Omit<CreateResearchePaper, "pdaBump">
   ) => {
     if (!userId) return;
     setIsLoading(true);

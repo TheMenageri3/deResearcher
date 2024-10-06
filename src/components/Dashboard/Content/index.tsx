@@ -36,7 +36,6 @@ export default function DashboardContent({
 
   useEffect(() => {
     if (hasCheckedAuth) {
-      console.log("Updating local auth state", { isAuthenticated, wallet });
       setLocalAuthState({ isAuthenticated, wallet });
     }
   }, [isAuthenticated, wallet, hasCheckedAuth]);
@@ -47,7 +46,7 @@ export default function DashboardContent({
     .filter((paper) => paper.state === PAPER_STATUS.IN_PEER_REVIEW)
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
     .slice(0, 5)
     .map((paper) => ({

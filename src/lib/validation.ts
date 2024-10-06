@@ -14,7 +14,7 @@ export const ProfileFormData = z.object({
   email: z.string().trim().email("Invalid email address"),
   organization: z.string().trim().optional(),
   bio: z.string().trim().max(500, "Bio must be 500 words or less").optional(),
-  socialLinks: z.array(z.string().trim().url("Invalid URL")).optional(),
+  socialLinks: z.array(z.string().url("Invalid URL")).optional(),
   profileImage: z
     .instanceof(File)
     .refine((file) => file.type === "image/png", "Only PNG files are allowed")
@@ -141,12 +141,12 @@ export const PaperSchema = z.object({
   state: z.string(),
   accessFee: z.number(),
   version: z.number(),
-  paperContentHash: z.array(z.number()),
+  paperContentHash: z.string(),
 
   totalApprovals: z.number().default(0),
   totalCitations: z.number().default(0),
   totalMints: z.number().default(0),
-  metaDataMerkleRoot: z.array(z.number()).optional(),
+  metaDataMerkleRoot: z.string(),
 
   metadata: z.object({
     title: z.string(),

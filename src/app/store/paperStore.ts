@@ -102,7 +102,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     try {
       // On-chain part
 
-      // Upload files to Arweave
+      //Upload files to Arweave
       const [arweaveImageId, arweavePaperId] =
         await sdkInstance.arweaveUploadFiles(
           [paperImage, paperFile],
@@ -122,6 +122,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           ]
         );
 
+      // const arweaveImageId = "test";
+      // const arweavePaperId = "test";
       // Generate merkle roots for paper content and metadata
       const [paperContentHash, metaDataMerkleRoot] = await Promise.all([
         sdk.SDK.compressObjectAndGenerateMerkleRoot({
@@ -139,6 +141,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           datePublished: new Date().toISOString(),
         } as ResearchPaperMetadata),
       ]);
+
+      console.log("paperContentHash", paperContentHash);
 
       // Create paper on Solana
       const createResearchPaperInput: Omit<
@@ -200,6 +204,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       return { success: true };
     } catch (error: any) {
+      console.error(error);
       set({ error: error.message, isLoading: false });
       return { success: false, error: error.message };
     }

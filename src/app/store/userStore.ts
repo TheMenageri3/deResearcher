@@ -10,7 +10,6 @@ import {
 } from "@/lib/types";
 import { ProfileFormData } from "@/lib/validation";
 import { ResearcherProfileType } from "../api/types";
-import { UIWallet } from "@/lib/sdk";
 
 interface UserState {
   isAuthenticated: boolean;
@@ -46,11 +45,8 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
 
     const sdk = useSDKStore.getState();
-    console.log("SDK", sdk);
     if (!sdk.sdk) {
-      console.log("Initializing SDK");
-      const uiWallet = new UIWallet(wallet);
-      sdk.initializeSDK(uiWallet, "devnet");
+      sdk.initializeSDK(wallet, "devnet");
     }
     const { isLoading, lastChecked } = get();
     const now = Date.now();
@@ -64,7 +60,6 @@ export const useUserStore = create<UserState>((set, get) => ({
         body: JSON.stringify({ walletPubkey: wallet.publicKey.toString() }),
       });
       const checkAuthResponseData = await checkAuthResponse.json();
-      console.log("Auth check response:", checkAuthResponseData.data);
       const data = checkAuthResponseData.data;
       const { isAuthenticated, walletSignature } = data;
       set({
@@ -124,7 +119,6 @@ export const useUserStore = create<UserState>((set, get) => ({
         body: JSON.stringify({ walletPubkey }),
       });
       const responseData = await response.json();
-      console.log("Auth check response:", responseData.data);
       const data = responseData.data;
       const { isAuthenticated } = data;
       set({
@@ -229,6 +223,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         name: data.name,
         metaDataMerkleRoot: metadataMerkleRoot,
       };
+
       const researcherProfile = await sdkInstance.createResearcherProfile(
         createResearcherProfileInput
       );

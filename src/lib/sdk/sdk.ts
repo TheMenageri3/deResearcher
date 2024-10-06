@@ -10,44 +10,31 @@ import {
   RESEARCH_PAPER_PDA_SEED,
   RESEARCHER_PROFILE_PDA_SEED,
 } from "../constants";
-
-import { getConnection } from "@/lib/helpers";
-
+import {
+  getConnection,
+  getPaperContentHashForSeeds,
+  getRPCUrlFromCluster,
+} from "@/lib/helpers";
+import { WebUploader } from "@irys/web-upload";
+import { WebSolana } from "@irys/web-upload-solana";
 import BigNumber from "bignumber.js";
 import { TaggedFile } from "@irys/sdk/web/upload";
 
-export class UIWallet {
-  publicKey: solana.PublicKey | null;
-  signTransaction: (tx: Transaction) => Promise<Transaction>;
-  signAllTransactions: (txs: Transaction[]) => Promise<Transaction[]>;
-  sendTransaction: (tx: Transaction, connection: Connection) => Promise<string>;
-  signMessage: (message: Uint8Array) => Promise<Uint8Array>;
-
-  constructor(wallet: WalletContextState) {
-    this.publicKey = wallet.publicKey;
-    //@ts-ignore
-    this.signTransaction = wallet.signTransaction;
-    //@ts-ignore
-    this.signAllTransactions = wallet.signAllTransactions;
-    this.sendTransaction = wallet.sendTransaction;
-    //@ts-ignore
-    this.signMessage = wallet.signMessage;
-  }
-}
-
 export class SDK {
-  wallet: UIWallet;
+  wallet: WalletContextState;
   pubkey: solana.PublicKey;
+  connection: Connection;
 
-  constructor(wallet: UIWallet, cluster: Cluster) {
+  constructor(wallet: WalletContextState, cluster: Cluster) {
     if (!wallet.publicKey) {
       throw new Error("Wallet does not have a public key");
     }
     this.wallet = wallet;
     this.pubkey = wallet.publicKey;
+    this.connection = getConnection(cluster);
   }
 
-  async signTransaction(tx: Transaction): Promise<Transaction> {
+  public async signTransaction(tx: Transaction): Promise<Transaction> {
     if (!this.wallet.signTransaction) {
       throw new Error("Wallet does not support transaction signing");
     }
@@ -58,7 +45,7 @@ export class SDK {
     if (!this.wallet.sendTransaction) {
       throw new Error("Wallet does not support transaction sending");
     }
-    return this.wallet.sendTransaction(tx, getConnection());
+    return this.wallet.sendTransaction(tx, this.connection);
   }
 
   async signAllTransactions(txs: Transaction[]): Promise<Transaction[]> {
@@ -76,24 +63,38 @@ export class SDK {
   }
 
   async confirmTransaction(signature: string) {
-    await getConnection().confirmTransaction(signature, "confirmed");
+    await this.connection.confirmTransaction(signature, "confirmed");
   }
 
   async buildTxSignAndSend(instructions: TransactionInstruction[]) {
     const tx = new Transaction();
 
+    const recentBlockhash = await this.connection.getLatestBlockhash();
+
+    tx.recentBlockhash = recentBlockhash.blockhash;
+
+    tx.lastValidBlockHeight = recentBlockhash.lastValidBlockHeight;
+
+    tx.feePayer = this.pubkey;
+
     instructions.forEach((instruction) => tx.add(instruction));
 
     const signedTx = await this.signTransaction(tx);
 
-    const txId = await this.sendTransaction(signedTx);
+    const txId = await this.connection.sendRawTransaction(signedTx.serialize());
+
+    console.log("Transaction sent", txId);
 
     await this.confirmTransaction(txId);
   }
 
-  async getArweveIrys(): Promise<WebIrys> {
-    // TODO: SETUP RPC_URL ENV VAR
-    const rpcUrl = process.env.RPC_URL;
+  async getArweaveIrys() {
+    // const irysUploader = await WebUploader(WebSolana).withProvider(this.wallet);
+
+    // return irysUploader;
+
+    // // TODO: SETUP RPC_URL ENV VAR
+    const rpcUrl = getRPCUrlFromCluster("devnet");
 
     const irisWallet = {
       rpcUrl: rpcUrl,
@@ -109,10 +110,12 @@ export class SDK {
     return webIrys;
   }
 
-  async arweaveFundNode(amount: number): Promise<void> {
-    const webIrys = await this.getArweveIrys();
+  async arweaveFundNode(amount: BigNumber): Promise<void> {
+    const webIrys = await this.getArweaveIrys();
     try {
-      const fundTx = await webIrys.fund(webIrys.utils.toAtomic(amount));
+      const fundTx = await webIrys.fund(
+        webIrys.utils.toAtomic(amount.multipliedBy(2))
+      );
       console.log(
         `Successfully funded ${webIrys.utils.fromAtomic(fundTx.quantity)} ${
           webIrys.token
@@ -123,10 +126,10 @@ export class SDK {
     }
   }
 
-  async arweaveGetBalance(): Promise<number> {
-    const webIrys = await this.getArweveIrys();
-    const balance = await webIrys.getBalance(webIrys.address);
-    return balance.toNumber();
+  async arweaveGetBalance(): Promise<BigNumber> {
+    const webIrys = await this.getArweaveIrys();
+    const balance = await webIrys.getLoadedBalance();
+    return webIrys.utils.fromAtomic(balance);
   }
 
   async arweaveUploadFiles(
@@ -138,11 +141,42 @@ export class SDK {
       return f;
     });
 
-    const irysUploader = await this.getArweveIrys();
+    const irysUploader = await this.getArweaveIrys();
+
+    const totalSize = taggedFiles.reduce((acc, file) => acc + file.size, 0);
+
+    const price = await this.arweaveGetPrice(totalSize);
+
+    if (!price) {
+      throw new Error("Error getting price");
+    }
+
+    const balance = await this.arweaveGetBalance();
+
+    const fundingAmount = price.minus(balance);
+
+    if (fundingAmount.gt(0)) {
+      await this.arweaveFundNode(fundingAmount);
+    }
 
     const response = await irysUploader.uploadFolder(taggedFiles, {});
 
-    return response.txs.map((tx) => "https://gateway.irys.xyz/" + tx.id);
+    const receipts = response.txs.map(
+      (tx) => "https://gateway.irys.xyz/" + tx.id
+    );
+
+    console.log("receipts", receipts);
+
+    return receipts;
+  }
+
+  async arweaveGetPrice(size: number): Promise<BigNumber> {
+    const webIrys = await this.getArweaveIrys();
+    let price = await webIrys.getPrice(size);
+
+    price = webIrys.utils.fromAtomic(price);
+
+    return price;
   }
 
   async arweaveUploadFile(
@@ -159,9 +193,9 @@ export class SDK {
     if (fileToUpload.size > MAX_PDF_UPLOD_SIZE_BYTES) {
       throw new Error("File size too large");
     }
-    const webIrys = await this.getArweveIrys();
+    const webIrys = await this.getArweaveIrys();
 
-    const price = await webIrys.getPrice(fileToUpload.size);
+    const price = await this.arweaveGetPrice(fileToUpload.size);
 
     if (!price) {
       throw new Error("Error getting price");
@@ -169,18 +203,20 @@ export class SDK {
 
     const balance = await this.arweaveGetBalance();
 
-    const fundingAmount = new BigNumber(price).minus(balance);
+    const fundingAmount = price.minus(balance);
 
     if (fundingAmount.gt(0)) {
-      await this.arweaveFundNode(fundingAmount.toNumber());
+      await this.arweaveFundNode(fundingAmount);
     }
 
     const receipt = await webIrys.uploadFile(fileToUpload, { tags: tags });
 
+    console.log("receipt", receipt);
+
     return "https://gateway.irys.xyz/" + receipt.id;
   }
 
-  async createResearcherProfile(
+  public async createResearcherProfile(
     data: Omit<sdk.CreateResearcherProfile, "pdaBump">
   ): Promise<sdk.ResearcherProfile> {
     const [researcherProfilePda, bump] =
@@ -208,7 +244,7 @@ export class SDK {
     await this.buildTxSignAndSend([instruction]);
 
     const researcherProfile = await sdk.ResearcherProfile.fromAccountAddress(
-      getConnection(),
+      this.connection,
       researcherProfilePda
     );
 
@@ -223,9 +259,12 @@ export class SDK {
       data.paperContentHash
     );
 
+    const [researcherProfilePda, _bump] =
+      deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
+
     const accounts: sdk.CreateResearchePaperInstructionAccounts = {
       publisherAcc: this.pubkey,
-      researcherProfilePdaAcc: this.pubkey,
+      researcherProfilePdaAcc: researcherProfilePda,
       paperPdaAcc: paperPda,
       systemProgramAcc: solana.SystemProgram.programId,
     };
@@ -246,7 +285,7 @@ export class SDK {
     await this.buildTxSignAndSend([instruction]);
 
     const paper = await sdk.ResearchPaper.fromAccountAddress(
-      getConnection(),
+      this.connection,
       paperPda
     );
 
@@ -271,7 +310,7 @@ export class SDK {
     await this.buildTxSignAndSend([instruction]);
 
     const paper = await sdk.ResearchPaper.fromAccountAddress(
-      getConnection(),
+      this.connection,
       new solana.PublicKey(paperPda)
     );
 
@@ -315,7 +354,7 @@ export class SDK {
     await this.buildTxSignAndSend([instruction]);
 
     const peerReview = await sdk.PeerReview.fromAccountAddress(
-      getConnection(),
+      this.connection,
       peerReviewPda
     );
 
@@ -333,7 +372,7 @@ export class SDK {
       deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
 
     const paper = await sdk.ResearchPaper.fromAccountAddress(
-      getConnection(),
+      this.connection,
       new solana.PublicKey(paperPda)
     );
 
@@ -362,7 +401,7 @@ export class SDK {
     await this.buildTxSignAndSend([instruction]);
 
     const mintCollection = await sdk.ResearchMintCollection.fromAccountAddress(
-      getConnection(),
+      this.connection,
       mintCollectionPda
     );
 
@@ -372,7 +411,7 @@ export class SDK {
   async fetchResearcherProfileByPubkey(researcherPda: solana.PublicKey) {
     try {
       return await sdk.ResearcherProfile.fromAccountAddress(
-        getConnection(),
+        this.connection,
         researcherPda
       );
     } catch (e) {
@@ -383,7 +422,7 @@ export class SDK {
   async fetchAllResearcherProfiles() {
     try {
       const gpaBuilder = sdk.ResearcherProfile.gpaBuilder(sdk.PROGRAM_ID);
-      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
       const researcherProfiles: sdk.ResearcherProfile[] = [];
 
@@ -404,7 +443,7 @@ export class SDK {
   async fetchResearchPaperByPubkey(paperPda: solana.PublicKey) {
     try {
       return await sdk.ResearchPaper.fromAccountAddress(
-        getConnection(),
+        this.connection,
         paperPda
       );
     } catch (e) {
@@ -415,7 +454,7 @@ export class SDK {
   async fetchAllResearchPapers() {
     try {
       const gpaBuilder = sdk.ResearchPaper.gpaBuilder(sdk.PROGRAM_ID);
-      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
       const researchPapers: sdk.ResearchPaper[] = [];
 
@@ -437,7 +476,7 @@ export class SDK {
   async fetchPeerReviewByPubkey(peerReviewPda: solana.PublicKey) {
     try {
       return await sdk.PeerReview.fromAccountAddress(
-        getConnection(),
+        this.connection,
         peerReviewPda
       );
     } catch (e) {
@@ -448,7 +487,7 @@ export class SDK {
   async fetchAllPeerReviews() {
     try {
       const gpaBuilder = sdk.PeerReview.gpaBuilder(sdk.PROGRAM_ID);
-      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
       const peerReviews: sdk.PeerReview[] = [];
 
@@ -472,7 +511,7 @@ export class SDK {
   ) {
     try {
       return await sdk.ResearchMintCollection.fromAccountAddress(
-        getConnection(),
+        this.connection,
         mintCollectionPda
       );
     } catch (e) {
@@ -486,7 +525,7 @@ export class SDK {
     try {
       const gpaBuilder = sdk.ResearchMintCollection.gpaBuilder(sdk.PROGRAM_ID);
       gpaBuilder.addInnerFilter("readerPubkey", researcherAcc.toBase58());
-      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
       const mintCollections: sdk.ResearchMintCollection[] = [];
 
@@ -508,7 +547,7 @@ export class SDK {
     try {
       const gpaBuilder = sdk.ResearchPaper.gpaBuilder(sdk.PROGRAM_ID);
       gpaBuilder.addInnerFilter("creatorPubkey", researcherAcc.toBase58());
-      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
       const researchPapers: sdk.ResearchPaper[] = [];
 
@@ -531,7 +570,7 @@ export class SDK {
     try {
       const gpaBuilder = sdk.PeerReview.gpaBuilder(sdk.PROGRAM_ID);
       gpaBuilder.addInnerFilter("reviewerPubkey", researcherAcc.toBase58());
-      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
+      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
       const peerReviews: sdk.PeerReview[] = [];
 
@@ -554,6 +593,7 @@ export class SDK {
     obj: T
   ): Promise<string> {
     const apiRoute = "/api/generate-merkle-root";
+
     const response = await fetch(apiRoute, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -566,7 +606,7 @@ export class SDK {
 
     const data = await response.json();
 
-    return data.merkleRoot;
+    return data.data.merkleRoot;
   }
 }
 
@@ -592,7 +632,7 @@ function deriveResearPaperPdaPubkeyAndBump(
 ): [solana.PublicKey, number] {
   const seeds = [
     Buffer.from(RESEARCH_PAPER_PDA_SEED),
-    Buffer.from(paperContentHash),
+    Buffer.from(getPaperContentHashForSeeds(paperContentHash)),
     researcherAccount.toBuffer(),
   ];
 
