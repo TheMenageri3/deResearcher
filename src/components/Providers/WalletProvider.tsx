@@ -12,9 +12,8 @@ import {
   WalletProvider,
   useWallet,
 } from "@solana/wallet-adapter-react";
-import { useUserStore } from "@/app/store/userStore";
 import React from "react";
-import { useLoading } from "@/context/loadingContext";
+
 
 require("@solana/wallet-adapter-react-ui/styles.css");
 
@@ -32,7 +31,7 @@ export const WalletProviderUI = ({
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [network]
+    [network],
   );
 
   return (

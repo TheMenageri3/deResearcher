@@ -1,5 +1,5 @@
 import { useUserStore } from "@/app/store/userStore";
-import { useLoading } from "@/context/loadingContext";
+import { useLoading } from "@/context/LoadingContext";
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { useEffect } from "react";
 

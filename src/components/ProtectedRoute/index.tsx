@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/app/store/userStore";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useLoading } from "@/context/loadingContext";
+import { useLoading } from "@/context/LoadingContext";
 import React from "react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
