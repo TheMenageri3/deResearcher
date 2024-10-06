@@ -7,7 +7,7 @@ const MAX_MERKLE_ROOT_STRING_LENGTH = 64;
 
 function removeHexPrefix(hex: string): string {
   if (hex.startsWith("0x")) {
-    return hex.slice(2);
+    return hex.slice(2, hex.length);
   }
   return hex;
 }
@@ -28,9 +28,9 @@ function generateMerkleRoot(data: Object): string {
         }
         return item;
       });
-      const hashedMerkleRoot = new MerkleTree(merkleLeaves, SHA256)
-        .getHexRoot()
-        .slice(0, MAX_MERKLE_ROOT_STRING_LENGTH);
+      let hashedMerkleRoot = new MerkleTree(merkleLeaves, SHA256).getHexRoot();
+
+      hashedMerkleRoot = removeHexPrefix(hashedMerkleRoot);
 
       merkelLeaves.push(hashedMerkleRoot);
     }
@@ -38,9 +38,7 @@ function generateMerkleRoot(data: Object): string {
     merkelLeaves.push(SHA256(obj.toString()).toString());
   }
 
-  const hashedMerkleRoot = new MerkleTree(merkelLeaves, SHA256)
-    .getHexRoot()
-    .slice(0, MAX_MERKLE_ROOT_STRING_LENGTH);
+  const hashedMerkleRoot = new MerkleTree(merkelLeaves, SHA256).getHexRoot();
 
   return hashedMerkleRoot;
 }

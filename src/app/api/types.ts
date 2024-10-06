@@ -24,16 +24,6 @@ export type ResearchPaperMetadata = {
   decentralizedStorageURI: string;
 };
 
-export type CreateResearchPaper = {
-  address: string;
-  creatorPubkey: string;
-  accessFee: number;
-  paperContentHash: number[];
-  metaDataMerkleRoot: number[];
-  metadata: ResearchPaperMetadata;
-  bump: number;
-};
-
 export const CreateResearchPaperSchema = z.object({
   address: z.string(),
   creatorPubkey: z.string(),
@@ -98,10 +88,9 @@ export const CreateResearcherProfileSchema = z.object({
     bio: z.string().optional(),
     profileImageURI: z.string().optional(),
     backgroundImageURI: z.string().optional(),
-    affiliation: z.string(),
-    interests: z.array(z.string()),
-    topPublications: z.array(z.string()),
-    socialLinks: z.array(z.string()),
+    interests: z.array(z.string()).optional(),
+    topPublications: z.array(z.string()).optional(),
+    socialLinks: z.array(z.string()).optional(),
   }),
 });
 

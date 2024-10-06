@@ -4,30 +4,30 @@ import { WalletContextState } from "@solana/wallet-adapter-react";
 import { Cluster, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { SDK } from "@/lib/sdk";
 import * as sdk from "@/lib/sdk/src";
+import { getRPCUrlFromCluster } from "@/lib/helpers";
 
 interface SDKState {
   sdk: SDK | null;
-  researcherProfile: sdk.ResearcherProfile | null;
-  researchPapers: sdk.ResearchPaper[];
-  peerReviews: sdk.PeerReview[];
-  mintCollections: sdk.ResearchMintCollection[];
   isLoading: boolean;
   error: string | null;
 }
 
 interface SDKActions {
-  initializeSDK: (wallet: WalletContextState, cluster: Cluster) => void;
-  createResearcherProfile: (data: sdk.CreateResearcherProfile) => Promise<void>;
-  createResearchPaper: (data: sdk.CreateResearchePaper) => Promise<void>;
-  addPeerReview: (paperPda: string, data: sdk.AddPeerReview) => Promise<void>;
+  initializeSDK: (wallet: WalletContextState, cluster: Cluster) => boolean;
+  createResearcherProfile: (
+    data: sdk.CreateResearcherProfile
+  ) => Promise<sdk.ResearcherProfile | null>;
+  createResearchPaper: (
+    data: sdk.CreateResearchePaper
+  ) => Promise<sdk.ResearchPaper | null>;
+  addPeerReview: (
+    paperPda: string,
+    data: sdk.AddPeerReview
+  ) => Promise<sdk.PeerReview | null>;
   mintResearchPaper: (
     paperPda: string,
     data: sdk.MintResearchPaper
-  ) => Promise<void>;
-  fetchResearcherProfile: () => Promise<void>;
-  fetchAllResearchPapers: () => Promise<void>;
-  fetchAllPeerReviews: () => Promise<void>;
-  fetchMintCollections: () => Promise<void>;
+  ) => Promise<sdk.ResearchMintCollection | null>;
   clearError: () => void;
   isSDKInitialized: () => boolean;
   reset: () => void;
@@ -38,230 +38,132 @@ export type SDKStore = SDKState & SDKActions;
 // Define initial state
 const initialState: SDKState = {
   sdk: null,
-  researcherProfile: null,
-  researchPapers: [],
-  peerReviews: [],
-  mintCollections: [],
   isLoading: false,
   error: null,
 };
 
-export const useSDKStore = create<SDKStore>()(
-  devtools(
-    persist(
-      (set, get) => ({
-        ...initialState,
+export const useSDKStore = create<SDKStore>()((set, get) => ({
+  ...initialState,
 
-        initializeSDK: (
-          wallet: WalletContextState,
-          cluster: Cluster
-        ): boolean => {
-          try {
-            const endpoint = clusterApiUrl(cluster);
-            const sdk = new SDK(wallet, endpoint as Cluster);
-            set({ sdk, error: null });
-            return true;
-          } catch (error) {
-            set({
-              error: `Failed to initialize SDK: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-            return false;
-          }
-        },
+  initializeSDK: (wallet: WalletContextState, cluster: Cluster): boolean => {
+    try {
+      const sdk = new SDK(wallet, cluster);
+      set({ sdk, error: null });
+      return true;
+    } catch (error) {
+      set({
+        error: `Failed to initialize SDK: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+      return false;
+    }
+  },
 
-        createResearcherProfile: async (data: sdk.CreateResearcherProfile) => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            await sdk.createResearcherProfile(data);
-            await get().fetchResearcherProfile();
-          } catch (error) {
-            set({
-              error: `Failed to create researcher profile: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+  createResearcherProfile: async (data: sdk.CreateResearcherProfile) => {
+    const { sdk } = get();
+    if (!sdk) {
+      set({ error: "SDK not initialized" });
+      return null;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const researcherProfile = await sdk.createResearcherProfile(data);
 
-        createResearchPaper: async (data: sdk.CreateResearchePaper) => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            await sdk.createResearchPaper(data);
-            await get().fetchAllResearchPapers();
-          } catch (error) {
-            set({
-              error: `Failed to create research paper: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+      return researcherProfile;
+    } catch (error) {
+      set({
+        error: `Failed to create researcher profile: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+      return null;
+    } finally {
+      set({ isLoading: false });
+      return null;
+    }
+  },
 
-        addPeerReview: async (paperPda: string, data: sdk.AddPeerReview) => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            await sdk.addPeerReview(paperPda, data);
-            await get().fetchAllPeerReviews();
-          } catch (error) {
-            set({
-              error: `Failed to add peer review: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+  createResearchPaper: async (data: sdk.CreateResearchePaper) => {
+    const { sdk } = get();
+    if (!sdk) {
+      set({ error: "SDK not initialized" });
+      return null;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const researchPaper = await sdk.createResearchPaper(data);
 
-        mintResearchPaper: async (
-          paperPda: string,
-          data: sdk.MintResearchPaper
-        ) => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            await sdk.mintResearchPaper(paperPda, data);
-            await get().fetchMintCollections();
-          } catch (error) {
-            set({
-              error: `Failed to mint research paper: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+      return researchPaper;
+    } catch (error) {
+      set({
+        error: `Failed to create research paper: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+      return null;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-        fetchResearcherProfile: async () => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            const profile = await sdk.fetchResearcherProfileByPubkey(
-              sdk.pubkey
-            );
-            set({ researcherProfile: profile || null });
-          } catch (error) {
-            set({
-              error: `Failed to fetch researcher profile: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+  addPeerReview: async (paperPda: string, data: sdk.AddPeerReview) => {
+    const { sdk } = get();
+    if (!sdk) {
+      set({ error: "SDK not initialized" });
+      return null;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const peerReview = await sdk.addPeerReview(paperPda, data);
+      return peerReview;
+    } catch (error) {
+      set({
+        error: `Failed to add peer review: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+      return null;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-        fetchAllResearchPapers: async () => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            const papers = await sdk.fetchAllResearchPapers();
-            set({ researchPapers: papers });
-          } catch (error) {
-            set({
-              error: `Failed to fetch research papers: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+  mintResearchPaper: async (paperPda: string, data: sdk.MintResearchPaper) => {
+    const { sdk } = get();
+    if (!sdk) {
+      set({ error: "SDK not initialized" });
+      return null;
+    }
+    set({ isLoading: true, error: null });
+    try {
+      const researchMintCollection = await sdk.mintResearchPaper(
+        paperPda,
+        data
+      );
 
-        fetchAllPeerReviews: async () => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            const reviews = await sdk.fetchAllPeerReviews();
-            set({ peerReviews: reviews });
-          } catch (error) {
-            set({
-              error: `Failed to fetch peer reviews: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
+      return researchMintCollection;
+    } catch (error) {
+      set({
+        error: `Failed to mint research paper: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+      return null;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-        fetchMintCollections: async () => {
-          const { sdk } = get();
-          if (!sdk) {
-            set({ error: "SDK not initialized" });
-            return;
-          }
-          set({ isLoading: true, error: null });
-          try {
-            const collections =
-              await sdk.fetchResearchMintCollectionByResearcherPubkey(
-                sdk.pubkey
-              );
-            set({ mintCollections: collections });
-          } catch (error) {
-            set({
-              error: `Failed to fetch mint collections: ${
-                error instanceof Error ? error.message : "Unknown error"
-              }`,
-            });
-          } finally {
-            set({ isLoading: false });
-          }
-        },
-        clearError: () => {
-          set({ error: null });
-        },
+  clearError: () => {
+    set({ error: null });
+  },
 
-        isSDKInitialized: () => {
-          return get().sdk !== null;
-        },
+  isSDKInitialized: () => {
+    return get().sdk !== null;
+  },
 
-        reset: () => {
-          set(initialState);
-        },
-      }),
-      {
-        name: "sdk-storage",
-        partialize: (state) => ({ researcherProfile: state.researcherProfile }),
-      }
-    )
-  )
-);
+  reset: () => {
+    set(initialState);
+  },
+}));

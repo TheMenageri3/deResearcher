@@ -40,8 +40,13 @@ export const useUserStore = create<UserState>((set, get) => ({
   researcherProfile: null,
   error: null,
   checkAuthAndTryLogin: async (wallet: WalletContextState) => {
-    if (!wallet.publicKey) {
+    if (!wallet.connected || !wallet.publicKey) {
       return;
+    }
+
+    const sdk = useSDKStore.getState();
+    if (!sdk.sdk) {
+      sdk.initializeSDK(wallet, "devnet");
     }
     const { isLoading, lastChecked } = get();
     const now = Date.now();
@@ -55,7 +60,6 @@ export const useUserStore = create<UserState>((set, get) => ({
         body: JSON.stringify({ walletPubkey: wallet.publicKey.toString() }),
       });
       const checkAuthResponseData = await checkAuthResponse.json();
-      console.log("Auth check response:", checkAuthResponseData.data);
       const data = checkAuthResponseData.data;
       const { isAuthenticated, walletSignature } = data;
       set({
@@ -115,7 +119,6 @@ export const useUserStore = create<UserState>((set, get) => ({
         body: JSON.stringify({ walletPubkey }),
       });
       const responseData = await response.json();
-      console.log("Auth check response:", responseData.data);
       const data = responseData.data;
       const { isAuthenticated } = data;
       set({
@@ -220,22 +223,19 @@ export const useUserStore = create<UserState>((set, get) => ({
         name: data.name,
         metaDataMerkleRoot: metadataMerkleRoot,
       };
-      const {
-        researcherProfilePdaBump,
-        researcherProfilePda,
-        researcherPubkey,
-      } = await sdkInstance.createResearcherProfile(
+
+      const researcherProfile = await sdkInstance.createResearcherProfile(
         createResearcherProfileInput
       );
 
       // off-chain part
 
       const researcherProfileDbData: CreateResearcherProfile = {
-        address: researcherProfilePda,
-        researcherPubkey,
+        address: researcherProfile.address.toBase58(),
+        researcherPubkey: researcherProfile.researcherPubkey.toBase58(),
         name: data.name,
         metaDataMerkleRoot: metadataMerkleRoot,
-        bump: researcherProfilePdaBump,
+        bump: researcherProfile.bump,
         metadata: researcherProfileMetadata,
       };
 
@@ -253,7 +253,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         );
       }
 
-      const newResearcherProfile = await response.json();
+      const newResearcherProfile: ResearcherProfileType = await response.json();
 
       set({
         researcherProfile: newResearcherProfile,

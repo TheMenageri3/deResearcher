@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(profile, { status: 201 });
   } catch (error: any) {
+    console.log("Error in POST /api/researcher-profiles:", error);
     if (error.name === "ValidationError") {
       const validationErrors = Object.entries(error.errors).map(
         ([field, err]: [string, any]) => ({
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    console.error("Error in POST /api/researcher-profiles:", error);
     return NextResponse.json(
       { error: "Internal Server Error", message: error.message },
       { status: 500 }
