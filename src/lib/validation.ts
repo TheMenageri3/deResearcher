@@ -172,5 +172,5 @@ export const PaperSchema = z.object({
 export type ProfileFormData = z.infer<typeof ProfileFormData>;
 export type PaperFormData = z.infer<typeof PaperFormData>;
 export type PeerReviewFormData = z.infer<typeof PeerReviewFormData>;
-export type PeerReview = z.infer<typeof PeerReviewSchema>;
-export type Paper = z.infer<typeof PaperSchema>;
+export type PeerReviewSchema = z.infer<typeof PeerReviewSchema>;
+export type PaperSchema = z.infer<typeof PaperSchema>;

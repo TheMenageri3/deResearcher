@@ -1,11 +1,14 @@
-import { PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Globe, Twitter, Github, Linkedin, Facebook } from "lucide-react";
-import { Paper } from "./validation";
+import { PaperSchema } from "./validation";
+import * as sdk from "./sdk";
 import solanaCrypto from "tweetnacl";
 import { LOGIN_MESSAGE } from "./constants";
 import bs58 from "bs58";
+import { SDK } from "./sdk";
+import { PaperStateDB } from "@/app/models/ResearchPaper.model";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -73,7 +76,7 @@ export const formatTimeAgo = (dateString: string): string => {
 };
 
 // Format paper
-export const formatPaper = (paper: Paper) => ({
+export const formatPaper = (paper: PaperSchema) => ({
   id: paper._id,
   title: paper.metadata.title,
   authors: paper.metadata.authors,
@@ -129,3 +132,29 @@ export function getEncodedLoginMessage(pubkey: string) {
       .map((c) => c.charCodeAt(0))
   );
 }
+
+export const toPaperDbState = (state: sdk.PaperState): PaperStateDB => {
+  switch (state) {
+    case sdk.PaperState.AwaitingPeerReview:
+      return "AwaitingPeerReview";
+    case sdk.PaperState.InPeerReview:
+      return "InPeerReview";
+    case sdk.PaperState.ApprovedToPublish:
+      return "ApprovedToPublish";
+
+    case sdk.PaperState.RequiresRevision:
+      return "RequiresRevision";
+
+    case sdk.PaperState.Published:
+      return "Published";
+
+    case sdk.PaperState.Minted:
+      return "Minted";
+  }
+};
+
+export const getConnection = () => {
+  return new Connection("devnet", {
+    commitment: "confirmed",
+  });
+};

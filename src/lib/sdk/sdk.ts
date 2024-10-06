@@ -11,22 +11,39 @@ import {
   RESEARCHER_PROFILE_PDA_SEED,
 } from "../constants";
 
+import { getConnection } from "@/lib/helpers";
+
 import BigNumber from "bignumber.js";
 import { TaggedFile } from "@irys/sdk/web/upload";
 
-export class SDK {
-  wallet: WalletContextState;
-  pubkey: solana.PublicKey;
-  connection: Connection;
+export class UIWallet {
+  publicKey: solana.PublicKey | null;
+  signTransaction: (tx: Transaction) => Promise<Transaction>;
+  signAllTransactions: (txs: Transaction[]) => Promise<Transaction[]>;
+  sendTransaction: (tx: Transaction, connection: Connection) => Promise<string>;
+  signMessage: (message: Uint8Array) => Promise<Uint8Array>;
 
-  constructor(wallet: WalletContextState, cluster: Cluster) {
+  constructor(wallet: WalletContextState) {
+    this.publicKey = wallet.publicKey;
+    //@ts-ignore
+    this.signTransaction = wallet.signTransaction;
+    //@ts-ignore
+    this.signAllTransactions = wallet.signAllTransactions;
+    this.sendTransaction = wallet.sendTransaction;
+    //@ts-ignore
+    this.signMessage = wallet.signMessage;
+  }
+}
+
+export class SDK {
+  wallet: UIWallet;
+  pubkey: solana.PublicKey;
+
+  constructor(wallet: UIWallet, cluster: Cluster) {
     if (!wallet.publicKey) {
       throw new Error("Wallet does not have a public key");
     }
     this.wallet = wallet;
-    this.connection = new Connection(cluster, {
-      commitment: "confirmed",
-    });
     this.pubkey = wallet.publicKey;
   }
 
@@ -41,7 +58,7 @@ export class SDK {
     if (!this.wallet.sendTransaction) {
       throw new Error("Wallet does not support transaction sending");
     }
-    return this.wallet.sendTransaction(tx, this.connection);
+    return this.wallet.sendTransaction(tx, getConnection());
   }
 
   async signAllTransactions(txs: Transaction[]): Promise<Transaction[]> {
@@ -59,7 +76,7 @@ export class SDK {
   }
 
   async confirmTransaction(signature: string) {
-    await this.connection.confirmTransaction(signature, "confirmed");
+    await getConnection().confirmTransaction(signature, "confirmed");
   }
 
   async buildTxSignAndSend(instructions: TransactionInstruction[]) {
@@ -106,16 +123,16 @@ export class SDK {
     }
   }
 
-  arweaveGetBalance = async (): Promise<number> => {
+  async arweaveGetBalance(): Promise<number> {
     const webIrys = await this.getArweveIrys();
     const balance = await webIrys.getBalance(webIrys.address);
     return balance.toNumber();
-  };
+  }
 
-  arweaveUploadFiles = async (
+  async arweaveUploadFiles(
     filesToUpload: File[],
     tags: { name: string; value: string }[][] = []
-  ): Promise<string[]> => {
+  ): Promise<string[]> {
     const taggedFiles = filesToUpload.map((f: TaggedFile, i: number) => {
       f.tags = tags[i];
       return f;
@@ -126,15 +143,15 @@ export class SDK {
     const response = await irysUploader.uploadFolder(taggedFiles, {});
 
     return response.txs.map((tx) => "https://gateway.irys.xyz/" + tx.id);
-  };
+  }
 
-  arweaveUploadFile = async (
+  async arweaveUploadFile(
     fileToUpload: File,
     tags: {
       name: string;
       value: string;
     }[]
-  ): Promise<string> => {
+  ): Promise<string> {
     if (fileToUpload.type !== "application/pdf") {
       throw new Error("Invalid file type");
     }
@@ -161,11 +178,11 @@ export class SDK {
     const receipt = await webIrys.uploadFile(fileToUpload, { tags: tags });
 
     return "https://gateway.irys.xyz/" + receipt.id;
-  };
+  }
 
   async createResearcherProfile(
     data: Omit<sdk.CreateResearcherProfile, "pdaBump">
-  ) {
+  ): Promise<sdk.ResearcherProfile> {
     const [researcherProfilePda, bump] =
       deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
 
@@ -190,20 +207,17 @@ export class SDK {
 
     await this.buildTxSignAndSend([instruction]);
 
-    return {
-      researcherProfilePda: researcherProfilePda.toBase58(),
-      researcherPubkey: this.pubkey.toBase58(),
-      researcherProfilePdaBump: bump,
-    };
+    const researcherProfile = await sdk.ResearcherProfile.fromAccountAddress(
+      getConnection(),
+      researcherProfilePda
+    );
+
+    return researcherProfile;
   }
 
   async createResearchPaper(
     data: Omit<sdk.CreateResearchePaper, "pdaBump">
-  ): Promise<{
-    creatorPubkey: string;
-    paperPda: string;
-    paperPdaBump: number;
-  }> {
+  ): Promise<sdk.ResearchPaper> {
     const [paperPda, bump] = deriveResearPaperPdaPubkeyAndBump(
       this.pubkey,
       data.paperContentHash
@@ -230,36 +244,44 @@ export class SDK {
     );
 
     await this.buildTxSignAndSend([instruction]);
-    return {
-      creatorPubkey: this.pubkey.toBase58(),
-      paperPda: paperPda.toBase58(),
-      paperPdaBump: bump,
-    };
+
+    const paper = await sdk.ResearchPaper.fromAccountAddress(
+      getConnection(),
+      paperPda
+    );
+
+    return paper;
   }
 
-  async publishResearchPaper(paperPda: string, pdaBump: number) {
-    try {
-      const accounts: sdk.PublishPaperInstructionAccounts = {
-        publisherAcc: this.pubkey,
-        paperPdaAcc: new solana.PublicKey(paperPda),
-      };
+  async publishResearchPaper(
+    paperPda: string,
+    pdaBump: number
+  ): Promise<sdk.ResearchPaper> {
+    const accounts: sdk.PublishPaperInstructionAccounts = {
+      publisherAcc: this.pubkey,
+      paperPdaAcc: new solana.PublicKey(paperPda),
+    };
 
-      const instruction = sdk.createPublishPaperInstruction(accounts, {
-        publishPaper: {
-          pdaBump,
-        },
-      });
+    const instruction = sdk.createPublishPaperInstruction(accounts, {
+      publishPaper: {
+        pdaBump,
+      },
+    });
 
-      await this.buildTxSignAndSend([instruction]);
-    } catch (e) {
-      console.error(e);
-    }
+    await this.buildTxSignAndSend([instruction]);
+
+    const paper = await sdk.ResearchPaper.fromAccountAddress(
+      getConnection(),
+      new solana.PublicKey(paperPda)
+    );
+
+    return paper;
   }
 
   async addPeerReview(
     paperPda: string,
     data: Omit<sdk.AddPeerReview, "pdaBump">
-  ) {
+  ): Promise<sdk.PeerReview> {
     const [peerReviewPda, bump] = derivePeerReviewPdaPubkeyAndBump(
       this.pubkey,
       new solana.PublicKey(paperPda)
@@ -292,60 +314,65 @@ export class SDK {
 
     await this.buildTxSignAndSend([instruction]);
 
-    return {
-      peerReviewPda: peerReviewPda.toBase58(),
-      peerReviewPdaBump: bump,
-    };
+    const peerReview = await sdk.PeerReview.fromAccountAddress(
+      getConnection(),
+      peerReviewPda
+    );
+
+    return peerReview;
   }
 
   async mintResearchPaper(
     paperPda: string,
     data: Omit<sdk.MintResearchPaper, "pdaBump">
-  ) {
-    try {
-      const [mintCollectionPda, bump] =
-        deriveResearchMintCollectionPdaPubkeyAndBump(this.pubkey);
+  ): Promise<sdk.ResearchMintCollection> {
+    const [mintCollectionPda, bump] =
+      deriveResearchMintCollectionPdaPubkeyAndBump(this.pubkey);
 
-      const [researcherProfilePda, researcherProfileBump] =
-        deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
+    const [researcherProfilePda, researcherProfileBump] =
+      deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
 
-      const paper = await sdk.ResearchPaper.fromAccountAddress(
-        this.connection,
-        new solana.PublicKey(paperPda)
-      );
+    const paper = await sdk.ResearchPaper.fromAccountAddress(
+      getConnection(),
+      new solana.PublicKey(paperPda)
+    );
 
-      const accounts: sdk.MintResearchPaperInstructionAccounts = {
-        readerAcc: this.pubkey,
-        paperPdaAcc: new solana.PublicKey(paperPda),
-        researcherProfilePdaAcc: researcherProfilePda,
-        researchMintCollectionPdaAcc: mintCollectionPda,
-        feeReceiverAcc: paper.creatorPubkey,
-        systemProgramAcc: solana.SystemProgram.programId,
-      };
+    const accounts: sdk.MintResearchPaperInstructionAccounts = {
+      readerAcc: this.pubkey,
+      paperPdaAcc: new solana.PublicKey(paperPda),
+      researcherProfilePdaAcc: researcherProfilePda,
+      researchMintCollectionPdaAcc: mintCollectionPda,
+      feeReceiverAcc: paper.creatorPubkey,
+      systemProgramAcc: solana.SystemProgram.programId,
+    };
 
-      const ixData: sdk.MintResearchPaperInstructionArgs = {
-        mintResearchPaper: {
-          ...data,
-          pdaBump: bump,
-        },
-      };
+    const ixData: sdk.MintResearchPaperInstructionArgs = {
+      mintResearchPaper: {
+        ...data,
+        pdaBump: bump,
+      },
+    };
 
-      const instruction = sdk.createMintResearchPaperInstruction(
-        accounts,
-        ixData,
-        sdk.PROGRAM_ID
-      );
+    const instruction = sdk.createMintResearchPaperInstruction(
+      accounts,
+      ixData,
+      sdk.PROGRAM_ID
+    );
 
-      await this.buildTxSignAndSend([instruction]);
-    } catch (e) {
-      console.error(e);
-    }
+    await this.buildTxSignAndSend([instruction]);
+
+    const mintCollection = await sdk.ResearchMintCollection.fromAccountAddress(
+      getConnection(),
+      mintCollectionPda
+    );
+
+    return mintCollection;
   }
 
   async fetchResearcherProfileByPubkey(researcherPda: solana.PublicKey) {
     try {
       return await sdk.ResearcherProfile.fromAccountAddress(
-        this.connection,
+        getConnection(),
         researcherPda
       );
     } catch (e) {
@@ -356,7 +383,7 @@ export class SDK {
   async fetchAllResearcherProfiles() {
     try {
       const gpaBuilder = sdk.ResearcherProfile.gpaBuilder(sdk.PROGRAM_ID);
-      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
 
       const researcherProfiles: sdk.ResearcherProfile[] = [];
 
@@ -377,7 +404,7 @@ export class SDK {
   async fetchResearchPaperByPubkey(paperPda: solana.PublicKey) {
     try {
       return await sdk.ResearchPaper.fromAccountAddress(
-        this.connection,
+        getConnection(),
         paperPda
       );
     } catch (e) {
@@ -388,7 +415,7 @@ export class SDK {
   async fetchAllResearchPapers() {
     try {
       const gpaBuilder = sdk.ResearchPaper.gpaBuilder(sdk.PROGRAM_ID);
-      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
 
       const researchPapers: sdk.ResearchPaper[] = [];
 
@@ -410,7 +437,7 @@ export class SDK {
   async fetchPeerReviewByPubkey(peerReviewPda: solana.PublicKey) {
     try {
       return await sdk.PeerReview.fromAccountAddress(
-        this.connection,
+        getConnection(),
         peerReviewPda
       );
     } catch (e) {
@@ -421,7 +448,7 @@ export class SDK {
   async fetchAllPeerReviews() {
     try {
       const gpaBuilder = sdk.PeerReview.gpaBuilder(sdk.PROGRAM_ID);
-      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
 
       const peerReviews: sdk.PeerReview[] = [];
 
@@ -445,7 +472,7 @@ export class SDK {
   ) {
     try {
       return await sdk.ResearchMintCollection.fromAccountAddress(
-        this.connection,
+        getConnection(),
         mintCollectionPda
       );
     } catch (e) {
@@ -459,7 +486,7 @@ export class SDK {
     try {
       const gpaBuilder = sdk.ResearchMintCollection.gpaBuilder(sdk.PROGRAM_ID);
       gpaBuilder.addInnerFilter("readerPubkey", researcherAcc.toBase58());
-      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
 
       const mintCollections: sdk.ResearchMintCollection[] = [];
 
@@ -481,7 +508,7 @@ export class SDK {
     try {
       const gpaBuilder = sdk.ResearchPaper.gpaBuilder(sdk.PROGRAM_ID);
       gpaBuilder.addInnerFilter("creatorPubkey", researcherAcc.toBase58());
-      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
 
       const researchPapers: sdk.ResearchPaper[] = [];
 
@@ -504,7 +531,7 @@ export class SDK {
     try {
       const gpaBuilder = sdk.PeerReview.gpaBuilder(sdk.PROGRAM_ID);
       gpaBuilder.addInnerFilter("reviewerPubkey", researcherAcc.toBase58());
-      const accountsWithPubkeys = await gpaBuilder.run(this.connection);
+      const accountsWithPubkeys = await gpaBuilder.run(getConnection());
 
       const peerReviews: sdk.PeerReview[] = [];
 

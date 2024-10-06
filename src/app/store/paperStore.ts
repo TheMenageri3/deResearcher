@@ -9,6 +9,7 @@ import { PaperFormData } from "@/lib/validation";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
 import { PeerReviewFormData } from "@/lib/validation";
+import { toPaperDbState } from "@/lib/helpers";
 
 interface PaperStore {
   papers: ResearchPaperType[];
@@ -28,6 +29,8 @@ interface PaperStore {
   ) => Promise<void>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
+  pushToPapersStore: (paper: ResearchPaperType) => void;
+  updatePaperInStore: (paper: ResearchPaperType) => void;
 }
 
 export const usePaperStore = create<PaperStore>((set, get) => ({
@@ -76,6 +79,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   },
   createResearchPaper: async (paper) => {
     set({ isLoading: true, error: null });
+
+    const { pushToPapersStore } = get();
 
     const { sdk: sdkInstance } = useSDKStore.getState();
 
@@ -146,7 +151,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       // Call the SDK to create the paper
-      const result = await sdkInstance.createResearchPaper(
+      const researchPaper = await sdkInstance.createResearchPaper(
         createResearchPaperInput
       );
 
@@ -154,8 +159,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Create the paper object to store in the database
       const paperDbData: CreateResearchPaper = {
-        address: result.paperPda,
-        creatorPubkey: result.creatorPubkey,
+        address: researchPaper.address.toBase58(),
+        creatorPubkey: sdkInstance.pubkey.toBase58(),
         accessFee: paper.accessFee,
         paperContentHash,
         metaDataMerkleRoot,
@@ -170,11 +175,11 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           decentralizedStorageURI: arweavePaperId,
           datePublished: new Date().toISOString(),
         },
-        bump: result.paperPdaBump,
+        bump: researchPaper.bump,
       };
 
       // Store the paper in the database
-      const response = await fetch("/api/research-paper", {
+      const response = await fetch("/api/research-paper/create", {
         method: "POST",
         body: JSON.stringify(paperDbData),
       });
@@ -185,11 +190,14 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       }
 
       // Add the paper to the store
-      const newPaper = await response.json();
-      set((state) => ({
-        papers: [...state.papers, newPaper],
+      const newPaper: ResearchPaperType = await response.json();
+
+      pushToPapersStore(newPaper);
+
+      set({
         isLoading: false,
-      }));
+      });
+
       return { success: true };
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
@@ -197,6 +205,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
   },
   publishResearchPaper: async (paper) => {
+    const { updatePaperInStore } = get();
     const { sdk: sdkInstance } = useSDKStore.getState();
     if (!sdkInstance) {
       set({ error: "SDK not initialized" });
@@ -204,7 +213,32 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
     set({ isLoading: true });
     try {
-      await sdkInstance.publishResearchPaper(paper.address, paper.bump);
+      // on-chain part
+      const updatedPaper = await sdkInstance.publishResearchPaper(
+        paper.address,
+        paper.bump
+      );
+
+      // off-chain part
+
+      const oldResearchPaperClone = { ...paper };
+
+      oldResearchPaperClone.state = toPaperDbState(updatedPaper.state);
+
+      const response = await fetch("/api/research-paper/update", {
+        method: "PUT",
+        body: JSON.stringify(oldResearchPaperClone),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create paper");
+      }
+
+      const updatedPaperDB: ResearchPaperType = await response.json();
+
+      updatePaperInStore(updatedPaperDB);
+
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: "Failed to publish paper", isLoading: false });
@@ -233,14 +267,16 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         domainKnowledge: data.domainKnowledge,
       };
 
-      const { peerReviewPda, peerReviewPdaBump } =
-        await sdkInstance.addPeerReview(paper.address, addPeerReviewData);
+      const peerReview = await sdkInstance.addPeerReview(
+        paper.address,
+        addPeerReviewData
+      );
 
       // off-chain part
 
       const addPeerReviewDbData: AddPeerReviewType = {
         reviewerPubkey: sdkInstance.pubkey.toBase58(),
-        address: peerReviewPda,
+        address: peerReview.address.toBase58(),
         paperPubkey: paper.address,
         qualityOfResearch: data.qualityOfResearch,
         practicalityOfResultObtained: data.practicalityOfResultObtained,
@@ -251,7 +287,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
           title: paper.metadata.title,
           reviewComments: data.reviewComments,
         },
-        bump: peerReviewPdaBump,
+        bump: peerReview.bump,
       };
 
       const response = await fetch("/api/peer-review", {
@@ -300,5 +336,16 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       set({ error: "Failed to mint paper", isLoading: false });
     }
   },
+  pushToPapersStore: (paper) => {
+    set((state) => ({ papers: [...state.papers, paper] }));
+  },
+  updatePaperInStore: (paper) => {
+    set((state) => ({
+      papers: state.papers.map((p) =>
+        p.address === paper.address ? paper : p
+      ),
+    }));
+  },
+
   setError: (error) => set({ error }),
 }));
