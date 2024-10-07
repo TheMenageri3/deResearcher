@@ -1,177 +1,100 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { ResearchMintCollectionModel, ResearchPaperModel } from "@/app/models";
+import { toErrResponse, toSuccessResponse } from "../helpers";
+import {
+  ResearchMintCollection,
+  ResearchMintCollectionModel,
+  ResearchPaperModel,
+} from "@/app/models";
 
-export async function POST(request: NextRequest) {
+import {
+  PushToResearchMintCollectionSchema,
+  ResearchMintCollectionType,
+  ResearchPaperType,
+} from "../types";
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    // Parse the request body
-    const body = await request.json();
-    const { readerPubkey, metadata, dataMerkleRoot, bump } = body;
+    const searchParams = req.nextUrl.searchParams;
 
-    // Validate presence of all required fields
-    if (
-      !readerPubkey ||
-      !metadata?.mintedResearchPaperIds ||
-      dataMerkleRoot === undefined ||
-      bump === undefined
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Missing required fields: readerPubkey, metadata.mintedResearchPaperIds, dataMerkleRoot, bump",
-        },
-        { status: 400 },
-      );
+    const researcherPubkey = searchParams.get("researcherPubkey");
+
+    if (!researcherPubkey) {
+      return toErrResponse("readerPubkey is required");
     }
 
-    // Validate that readerPubkey is a non-empty string
-    if (typeof readerPubkey !== "string" || readerPubkey.trim() === "") {
-      return NextResponse.json(
-        { error: "Invalid reader public key" },
-        { status: 400 },
-      );
+    const researchMintCollection =
+      await ResearchMintCollectionModel.findOne<ResearchMintCollection>({
+        readerPubkey: researcherPubkey,
+      });
+
+    if (!researchMintCollection) {
+      return toErrResponse("Research Mints Collection not found");
     }
 
-    // Validate dataMerkleRoot is an array of exactly 64 numbers
-    if (
-      !Array.isArray(dataMerkleRoot) ||
-      dataMerkleRoot.length !== 64 ||
-      !dataMerkleRoot.every(
-        (num) => typeof num === "number" && num >= 0 && num <= 255,
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid dataMerkleRoot. It must be an array of exactly 64 bytes (numbers between 0 and 255).",
-        },
-        { status: 400 },
-      );
-    }
+    return toSuccessResponse(researchMintCollection);
+  } catch (err) {
+    return toErrResponse("Error fetching Research Mint Collection");
+  }
+}
 
-    // Validate bump is a number
-    if (typeof bump !== "number") {
-      return NextResponse.json(
-        { error: "Invalid bump value. It must be a number." },
-        { status: 400 },
-      );
-    }
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  try {
+    const unsafeData = await req.json();
 
-    // Ensure mintedResearchPaperIds is an array
-    const mintedResearchPaperIds = Array.isArray(
-      metadata.mintedResearchPaperIds,
-    )
-      ? metadata.mintedResearchPaperIds
-      : [metadata.mintedResearchPaperIds];
+    const data = PushToResearchMintCollectionSchema.parse(unsafeData);
 
-    // Validate each research paper ID
-    for (const id of mintedResearchPaperIds) {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return NextResponse.json(
-          { error: `Invalid research paper ID: ${id}` },
-          { status: 400 },
-        );
-      }
-    }
+    const existing =
+      await ResearchMintCollectionModel.findOne<ResearchMintCollectionType>({
+        readerPubkey: data.readerPubkey,
+        address: data.address,
+      });
 
-    // Convert string IDs to ObjectIds
-    const paperObjectIds = mintedResearchPaperIds.map(
-      (id: string) => new mongoose.Types.ObjectId(id),
+    const researchPaper = await ResearchPaperModel.findById<ResearchPaperType>(
+      data.newMintedResearchPaperPubkey
     );
 
-    // Validate that all research papers exist
-    const researchPapers = await ResearchPaperModel.find({
-      _id: { $in: paperObjectIds },
-    });
-
-    if (researchPapers.length !== paperObjectIds.length) {
-      return NextResponse.json(
-        { error: "One or more research papers not found" },
-        { status: 404 },
-      );
+    if (!researchPaper) {
+      return toErrResponse("Research Paper not found");
     }
 
-    // Fetch the ResearchMintCollection for the reader
-    let mintCollection = await ResearchMintCollectionModel.findOne({
-      readerPubkey,
-    });
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-      if (!mintCollection) {
-        // If no mintCollection exists, create a new one
-        mintCollection = new ResearchMintCollectionModel({
-          readerPubkey,
-          dataMerkleRoot,
-          bump,
-          metadata: {
-            mintedResearchPaperIds: paperObjectIds,
+    if (existing) {
+      ResearchMintCollectionModel.updateOne<ResearchMintCollectionType>(
+        { readerPubkey: data.readerPubkey, address: data.address },
+        {
+          $set: {
+            metaDataMerkleRoot: data.metaDataMerkleRoot,
           },
-        });
-
-        // Save the new mintCollection
-        await mintCollection.save({ session });
-
-        // Increment totalMint for each ResearchPaper
-        await ResearchPaperModel.updateMany(
-          { _id: { $in: paperObjectIds } },
-          { $inc: { totalMints: 1 } },
-          { session },
-        );
-
-        await session.commitTransaction();
-        return NextResponse.json(
-          { message: "Mint collection created and papers minted successfully" },
-          { status: 201 },
-        );
-      } else {
-        // If mintCollection exists, check for already minted papers
-        const alreadyMintedIds =
-          mintCollection.metadata.mintedResearchPaperIds.filter(
-            (id: mongoose.Types.ObjectId) =>
-              paperObjectIds.some((paperId: mongoose.Types.ObjectId) =>
-                paperId.equals(id),
-              ),
-          );
-
-        if (alreadyMintedIds.length > 0) {
-          await session.abortTransaction();
-          return NextResponse.json(
-            { message: "One or more papers already minted by this reader" },
-            { status: 200 },
-          );
+          $addToSet: {
+            "metadata.mintedResearchPaperPubkeys": researchPaper.address,
+          },
         }
+      );
 
-        // Add new paperObjectIds to mintedResearchPaperIds
-        mintCollection.metadata.mintedResearchPaperIds.push(...paperObjectIds);
-        await mintCollection.save({ session });
+      return toSuccessResponse({
+        data: existing,
+        message: "Research Paper added to Research Mint Collection",
+      });
+    } else {
+      let newResearchMintCollection: ResearchMintCollectionType = {
+        readerPubkey: data.readerPubkey,
+        address: data.address,
+        metadata: {
+          mintedResearchPaperPubkeys: [researchPaper.address],
+        },
+        metaDataMerkleRoot: data.metaDataMerkleRoot,
+        bump: data.bump,
+      };
 
-        // Increment totalMint for each ResearchPaper
-        await ResearchPaperModel.updateMany(
-          { _id: { $in: paperObjectIds } },
-          { $inc: { totalMints: 1 } },
-          { session },
-        );
+      newResearchMintCollection = await ResearchMintCollectionModel.create(
+        newResearchMintCollection
+      );
 
-        await session.commitTransaction();
-        return NextResponse.json(
-          { message: "Papers minted successfully" },
-          { status: 200 },
-        );
-      }
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+      return toSuccessResponse({
+        data: newResearchMintCollection,
+        message: "Research Paper added to Research Mint Collection",
+      });
     }
-  } catch (error: unknown) {
-    console.error(
-      "Error in mint route:",
-      error instanceof Error ? error.stack : error,
-    );
-    return NextResponse.json({ error: "Internal server error" });
+  } catch (err) {
+    return toErrResponse("Error creating Research Mint Collection");
   }
 }

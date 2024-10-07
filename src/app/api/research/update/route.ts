@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import connectToDatabase from "@/lib/mongoServer";
-import { ResearchPaper, ResearchPaperModel } from "@/app/models";
+import { ResearchPaperModel } from "@/app/models";
 import { ResearchPaperType } from "../../types";
+import { toErrResponse, toSuccessResponse } from "../../helpers";
 
-// create a new paper
+// update the research paper
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
@@ -15,32 +16,37 @@ export async function POST(req: NextRequest) {
     });
 
     if (!paper) {
-      return NextResponse.json({ error: "Paper not found" }, { status: 404 });
+      return toErrResponse("Research Paper not found");
     }
 
-    const researchPaperClone = { ...paper };
+    const setFields: {
+      [key: string]: any;
+    } = {};
 
-    if (data?.state) {
-      researchPaperClone.state = data.state;
-    }
-    if (data?.totalApprovals) {
-      researchPaperClone.totalApprovals = data.totalApprovals;
-    }
-
-    if (data?.totalCitations) {
-      researchPaperClone.totalCitations = data.totalCitations;
+    if (data.state) {
+      setFields["state"] = data.state;
     }
 
-    if (data?.totalMints) {
-      researchPaperClone.totalMints = data.totalMints;
+    if (data.totalApprovals) {
+      setFields["totalApprovals"] = data.totalApprovals;
+    }
+
+    if (data.totalCitations) {
+      setFields["totalCitations"] = data.totalCitations;
+    }
+
+    if (data.totalMints) {
+      setFields["totalMints"] = data.totalMints;
     }
 
     await ResearchPaperModel.updateOne(
       { address: paper.address },
-      researchPaperClone
+      {
+        $set: setFields,
+      }
     );
 
-    return NextResponse.json(researchPaperClone, { status: 201 });
+    return toSuccessResponse(paper);
   } catch (error: any) {
     console.error("Error in POST /api/research-papers:", error);
 
@@ -52,15 +58,11 @@ export async function POST(req: NextRequest) {
           value: err.value,
         })
       );
-      return NextResponse.json(
-        { error: "Validation Error", details: validationErrors },
-        { status: 400 }
+      return toErrResponse(
+        "Error in validation : " + JSON.stringify(validationErrors)
       );
     }
 
-    return NextResponse.json(
-      { error: "Internal Server Error", message: error.message },
-      { status: 500 }
-    );
+    return toErrResponse("Error updating Research Paper");
   }
 }

@@ -72,7 +72,7 @@ export type PeerReviewMetadata = {
   reviewComments: string;
 };
 
-export type AddPeerReviewType = {
+export type AddPeerReview = {
   address: string;
   reviewerPubkey: string;
   paperPubkey: string;
@@ -83,4 +83,12 @@ export type AddPeerReviewType = {
   metaDataMerkleRoot: string;
   metadata: PeerReviewMetadata;
   bump: number;
+};
+
+export type PushToResearchMintCollection = {
+  address: string;
+  readerPubkey: string;
+  bump: number;
+  newMintedResearchPaperPubkey: string;
+  metaDataMerkleRoot: string;
 };

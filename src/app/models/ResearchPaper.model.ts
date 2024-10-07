@@ -14,9 +14,7 @@ export type PaperStateDB =
 
 // Define interface for ResearchPaperArgs
 export interface ResearchPaper extends Document {
-  id?: string;
   address: string; // Storing the PublicKey as a String
-  creatorId: mongoose.Types.ObjectId; // TODO: Afterc creating profile, this needs to be fixed
   creatorPubkey: string; // PublicKey remains as a string
   state: PaperStateDB;
   accessFee: number;
@@ -38,7 +36,6 @@ export interface ResearchPaper extends Document {
     decentralizedStorageURI: string;
   };
   bump: number;
-  peerReviews: mongoose.Types.ObjectId[];
 }
 
 // Define the ResearchPaper schema
@@ -46,11 +43,6 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
   {
     address: {
       type: String,
-      required: true,
-    },
-    creatorId: {
-      type: mongoose.Schema.Types.ObjectId, // MongoDB ObjectId reference to the user
-      ref: "ResearcherProfile", // Assuming ResearcherProfile collection for user reference
       required: true,
     },
     creatorPubkey: {
@@ -117,63 +109,11 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
       type: Number,
       required: true,
     },
-    peerReviews: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "PeerReview",
-        default: [],
-      },
-    ],
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-      versionKey: false,
-      transform: (doc, ret) => {
-        delete ret._id;
-      },
-    },
   }
 );
-
-// Virtual to map _id to id
-ResearchPaperSchema.virtual("id").get(function (this: {
-  _id: mongoose.Types.ObjectId;
-}) {
-  return this._id.toHexString();
-});
-
-// Ensure virtual fields like `id` are included when converting to JSON
-ResearchPaperSchema.set("toJSON", { virtuals: true });
-
-// Add a post-save middleware
-ResearchPaperSchema.post("save", async function (doc) {
-  // Access ResearcherProfile via mongoose.model()
-  const ResearcherProfile = mongoose.model("ResearcherProfile");
-  try {
-    await ResearcherProfile.findByIdAndUpdate(
-      doc.userId,
-      { $addToSet: { papers: doc._id } },
-      { new: true }
-    );
-  } catch (error) {
-    console.error("Error updating ResearcherProfile:", error);
-  }
-});
-
-ResearchPaperSchema.pre("findOneAndDelete", async function (next) {
-  const docToDelete = await this.model.findOne(this.getFilter());
-  if (docToDelete) {
-    const ResearcherProfile = mongoose.model("ResearcherProfile");
-    await ResearcherProfile.findByIdAndUpdate(
-      docToDelete.userId,
-      { $pull: { papers: docToDelete._id } },
-      { new: true }
-    );
-  }
-  next();
-});
 
 export default mongoose.models.ResearchPaper ||
   mongoose.model<ResearchPaper>("ResearchPaper", ResearchPaperSchema);

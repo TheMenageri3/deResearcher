@@ -6,96 +6,45 @@ import {
   ResearcherProfileModel,
   ResearchPaperModel,
 } from "@/app/models";
+import { toErrResponse, toSuccessResponse } from "../helpers";
+import {
+  AddPeerReviewSchema,
+  PeerReviewType,
+  ResearcherProfileType,
+  ResearchPaperType,
+} from "../types";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   await connectToDatabase();
 
   try {
-    const reqBody = await req.json();
+    const unsafeData = await req.json();
 
-    // Extract data from request body
-    const {
-      reviewerId,
-      paperId,
-      address,
-      reviewerPubkey,
-      paperPubkey,
-      qualityOfResearch,
-      potentialForRealWorldUseCase,
-      domainKnowledge,
-      practicalityOfResultObtained,
-      metaDataMerkleRoot,
-      metadata,
-      bump,
-    } = reqBody;
-
-    // Validate required fields
-    if (
-      !reviewerId ||
-      !paperId ||
-      !address ||
-      !reviewerPubkey ||
-      !paperPubkey ||
-      !qualityOfResearch ||
-      !potentialForRealWorldUseCase ||
-      !domainKnowledge ||
-      !practicalityOfResultObtained ||
-      !metaDataMerkleRoot ||
-      !metadata ||
-      !bump
-    ) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
+    const data = AddPeerReviewSchema.parse(unsafeData);
 
     // Validate that the reviewer exists
-    const reviewer = await ResearcherProfileModel.findById(reviewerId);
+    const reviewer =
+      await ResearcherProfileModel.findOne<ResearcherProfileType>({
+        researcherPubkey: data.reviewerPubkey,
+      });
+
     if (!reviewer) {
-      return NextResponse.json(
-        { error: "Reviewer not found" },
-        { status: 404 },
-      );
+      return toErrResponse("Reviewer not found");
     }
 
     // Validate that the paper exists
-    const paper = await ResearchPaperModel.findById(paperId);
+    const paper = await ResearchPaperModel.findOne<ResearchPaperType>({
+      paperPubkey: data.paperPubkey,
+    });
+
     if (!paper) {
-      return NextResponse.json({ error: "Paper not found" }, { status: 404 });
+      return toErrResponse("Paper not found");
     }
 
     // Create the new PeerReview document
-    const newPeerReview = await PeerReviewModel.create({
-      reviewerId,
-      paperId,
-      address,
-      reviewerPubkey,
-      paperPubkey,
-      qualityOfResearch,
-      potentialForRealWorldUseCase,
-      domainKnowledge,
-      practicalityOfResultObtained,
-      metaDataMerkleRoot,
-      metadata,
-      bump,
-    });
+    const newPeerReview = await PeerReviewModel.create<PeerReviewType>(data);
 
-    // Update the ResearchPaper document
-    await ResearchPaperModel.findByIdAndUpdate(
-      paperId,
-      { $addToSet: { peerReviews: newPeerReview._id } },
-      { new: true },
-    );
-
-    // Update the ResearcherProfile document
-    await ResearcherProfileModel.findByIdAndUpdate(
-      reviewerId,
-      { $addToSet: { peerReviewsAsReviewer: newPeerReview._id } },
-      { new: true },
-    );
-
-    return NextResponse.json(newPeerReview, { status: 201 });
+    return toSuccessResponse(newPeerReview);
   } catch (error: any) {
     console.error("Error in POST /api/peer-reviews:", error);
 
@@ -105,18 +54,14 @@ export async function POST(req: NextRequest) {
           field,
           message: err.message,
           value: err.value,
-        }),
+        })
       );
-      return NextResponse.json(
-        { error: "Validation Error", details: validationErrors },
-        { status: 400 },
+      toErrResponse(
+        "Error in validation : " + JSON.stringify(validationErrors)
       );
     }
 
-    return NextResponse.json(
-      { error: "Internal Server Error", message: error.message },
-      { status: 500 },
-    );
+    return toErrResponse("Error creating Peer Review");
   }
 }
 
@@ -126,58 +71,34 @@ export async function GET(req: NextRequest) {
 
   try {
     // Extract query parameters
-    const paperId = req.nextUrl.searchParams.get("paperId");
-    const reviewerId = req.nextUrl.searchParams.get("reviewerId");
+    const searchParams = req.nextUrl.searchParams;
+    const reviewerPubkey = searchParams.get("reviewerPubkey");
+    const paperPubkey = searchParams.get("paperPubkey");
 
     // Build query object
-    let query: any = {};
+    let query: {
+      [key: string]: string;
+    } = {};
 
-    if (paperId) {
-      query.paperId = paperId;
+    if (paperPubkey) {
+      query.paperPubkey = paperPubkey;
     }
 
-    if (reviewerId) {
-      query.reviewerId = reviewerId;
+    if (reviewerPubkey) {
+      query.reviewerPubkey = reviewerPubkey;
     }
 
     // If no parameters are provided, return an error or all peer reviews
     if (Object.keys(query).length === 0) {
-      return NextResponse.json(
-        {
-          error:
-            "Please provide at least one query parameter (paperId or reviewerId)",
-        },
-        { status: 400 },
-      );
+      toErrResponse("Please provide a paperPubkey or reviewerPubkey");
     }
 
     // Fetch peer reviews based on the query
-    const peerReviews = await PeerReviewModel.find(query)
-      .populate({
-        path: "reviewerId",
-        model: ResearcherProfileModel,
-        select: "id name researcherPubkey",
-      })
-      .populate({
-        path: "paperId",
-        model: ResearchPaperModel,
-        select: "id title",
-      })
-      .exec();
+    const peerReviews = await PeerReviewModel.find<PeerReviewType[]>(query);
 
-    if (!peerReviews || peerReviews.length === 0) {
-      return NextResponse.json(
-        { error: "No peer reviews found" },
-        { status: 404 },
-      );
-    }
-
-    return NextResponse.json(peerReviews, { status: 200 });
+    return toSuccessResponse(peerReviews);
   } catch (error: any) {
-    console.error("Error in GET /api/peer-reviews:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error", message: error.message },
-      { status: 500 },
-    );
+    console.log("Error in GET /api/peer-reviews:", error);
+    toErrResponse("Error fetching peer reviews");
   }
 }

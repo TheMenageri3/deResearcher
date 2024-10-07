@@ -3,9 +3,6 @@ import { isLimitedByteArray } from "@/lib/helpers";
 
 // Define the PeerReview interface
 export interface PeerReview extends Document {
-  id?: string; // Aliased from _id
-  reviewerId: mongoose.Types.ObjectId;
-  paperId: mongoose.Types.ObjectId;
   address: string; // Review public key
   reviewerPubkey: string;
   paperPubkey: string;
@@ -13,7 +10,7 @@ export interface PeerReview extends Document {
   potentialForRealWorldUseCase: number;
   domainKnowledge: number;
   practicalityOfResultObtained: number;
-  metaDataMerkleRoot: number[]; // Array of size 64
+  metaDataMerkleRoot: string;
   metadata: {
     title: string;
     reviewComments: string;
@@ -23,16 +20,6 @@ export interface PeerReview extends Document {
 
 export const PeerReviewSchema: Schema = new Schema<PeerReview>(
   {
-    reviewerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ResearcherProfile",
-      required: true,
-    },
-    paperId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ResearchPaper",
-      required: true,
-    },
     address: {
       type: String,
       required: true,
@@ -70,10 +57,10 @@ export const PeerReviewSchema: Schema = new Schema<PeerReview>(
       max: 10,
     },
     metaDataMerkleRoot: {
-      type: [Number],
+      type: String,
       validate: [
         isLimitedByteArray,
-        "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
+        "MetadataMerkleRoot string must be 64 characters long",
       ],
     },
     metadata: {
@@ -105,34 +92,6 @@ export const PeerReviewSchema: Schema = new Schema<PeerReview>(
     },
   }
 );
-
-// Virtual to map _id to id
-PeerReviewSchema.virtual("id").get(function (
-  this: PeerReview & { _id: mongoose.Types.ObjectId }
-) {
-  return this._id.toHexString();
-});
-
-// Middleware using mongoose.model() to avoid circular dependencies
-PeerReviewSchema.pre("findOneAndDelete", async function (next) {
-  const docToDelete = await this.model.findOne(this.getFilter());
-  if (docToDelete) {
-    const ResearchPaper = mongoose.model("ResearchPaper");
-    const ResearcherProfile = mongoose.model("ResearcherProfile");
-
-    await ResearchPaper.findByIdAndUpdate(
-      docToDelete.paperId,
-      { $pull: { peerReviews: docToDelete._id } },
-      { new: true }
-    );
-    await ResearcherProfile.findByIdAndUpdate(
-      docToDelete.reviewerId,
-      { $pull: { peerReviewsAsReviewer: docToDelete._id } },
-      { new: true }
-    );
-  }
-  next();
-});
 
 // Export the PeerReview model and the PeerReview interface
 export default mongoose.models.PeerReview ||

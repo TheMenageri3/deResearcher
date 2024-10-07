@@ -3,29 +3,30 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongoServer";
 import { ResearcherProfileModel, ResearchPaperModel } from "@/app/models";
 import { CreateResearchPaperSchema, ResearchPaperType } from "../../types";
+import { toErrResponse, toSuccessResponse } from "../../helpers";
 
 // create a new paper
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     await connectToDatabase();
     let unsafeData = await req.json();
 
     const data = CreateResearchPaperSchema.parse(unsafeData);
     // Validate that the creator exists
-    const creator = await ResearcherProfileModel.findById(data.creatorPubkey);
-    if (!creator) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const creatorResearchProfile = await ResearcherProfileModel.findOne({
+      researcherPubkey: data.creatorPubkey,
+    });
+    if (!creatorResearchProfile) {
+      return toErrResponse("ResearcherProfile not found for creator");
     }
 
     const researchPaper: ResearchPaperType = {
       address: data.address,
       creatorPubkey: data.creatorPubkey,
-      creatorId: creator._id,
       state: "AwaitingPeerReview",
       totalApprovals: 0,
       totalCitations: 0,
       totalMints: 0,
-      peerReviews: [],
       paperContentHash: data.paperContentHash,
       accessFee: data.accessFee,
       version: 0,
@@ -37,14 +38,7 @@ export async function POST(req: NextRequest) {
     // Create the new paper (this is an atomic operation)
     const paper = await ResearchPaperModel.create(researchPaper);
 
-    // Manually update the user's papers array (also atomic)
-    await ResearcherProfileModel.findByIdAndUpdate(
-      creator._id,
-      { $addToSet: { papers: paper._id } },
-      { new: true }
-    );
-
-    return NextResponse.json(paper, { status: 201 });
+    return toSuccessResponse(paper);
   } catch (error: any) {
     console.error("Error in POST /api/research-papers:", error);
 
@@ -56,15 +50,11 @@ export async function POST(req: NextRequest) {
           value: err.value,
         })
       );
-      return NextResponse.json(
-        { error: "Validation Error", details: validationErrors },
-        { status: 400 }
+      return toErrResponse(
+        "Error in validation : " + JSON.stringify(validationErrors)
       );
     }
 
-    return NextResponse.json(
-      { error: "Internal Server Error", message: error.message },
-      { status: 500 }
-    );
+    return toErrResponse("Error creating Research Paper");
   }
 }
