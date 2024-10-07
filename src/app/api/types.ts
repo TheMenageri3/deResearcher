@@ -72,7 +72,7 @@ export type CreateResearcherProfile = {
   researcherPubkey: string;
   name: string;
   metadata: ResearcherProfileMetadata;
-  metaDataMerkleRoot: number[];
+  metaDataMerkleRoot: string;
   bump: number;
 };
 
@@ -109,7 +109,7 @@ export type AddPeerReview = {
   potentialForRealWorldUseCase: number;
   domainKnowledge: number;
   practicalityOfResultObtained: number;
-  metaDataMerkleRoot: number[];
+  metaDataMerkleRoot: string;
   metadata: PeerReviewMetadata;
   bump: number;
 };

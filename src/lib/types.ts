@@ -72,7 +72,7 @@ export type PeerReviewMetadata = {
   reviewComments: string;
 };
 
-export type AddPeerReviewType = {
+export type AddPeerReview = {
   address: string;
   reviewerPubkey: string;
   paperPubkey: string;

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import {
-  AddPeerReviewType,
+  AddPeerReview,
   CreateResearchPaper,
   PeerReviewType,
   ResearchPaperMetadata,
@@ -269,7 +269,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // off-chain part
 
-      const addPeerReviewDbData: AddPeerReviewType = {
+      const addPeerReviewDbData: AddPeerReview = {
         reviewerPubkey: sdkInstance.pubkey.toBase58(),
         address: peerReview.address.toBase58(),
         paperPubkey: paper.address,
@@ -397,7 +397,7 @@ async function storePaperOnDB(paper: CreateResearchPaper) {
   return await response.json();
 }
 
-async function storePeerReviewOnDB(peerReview: AddPeerReviewType) {
+async function storePeerReviewOnDB(peerReview: AddPeerReview) {
   const response = await fetch("/api/peer-review", {
     method: "POST",
     body: JSON.stringify(peerReview),
