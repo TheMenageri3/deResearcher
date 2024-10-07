@@ -1,10 +1,11 @@
 import { PAPER_STATUS } from "@/lib/constants";
 import { SolanaLogo } from "@/components/SolanaLogo";
 import { Button } from "@/components/ui/button";
-import { Paper } from "@/lib/validation";
+import { PaperSchema } from "@/lib/validation";
+PaperSchema;
 
 interface PaperActionButtonProps {
-  paper: Paper;
+  paper: PaperSchema;
   size?: string;
   onToggleReview?: () => void;
   onUpdateNewPaper?: () => void; // TODO: Implement later

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import { ProfileInfo } from "./ProfileInfo";
 import { ProfileBanner } from "./ProfileBanner";
 import { ProfileTabs } from "./ProfileTabs";
@@ -11,13 +11,11 @@ import { PROFILE_COLUMNS } from "@/lib/constants";
 
 import { useBackgroundImage } from "@/hooks/useBackgroundImage";
 
-import dummyUser from "@/dummyData/dummyUser.json";
-import dummyPapers from "@/dummyData/dummyPapers.json";
-import { ResearchPaperType } from "@/lib/types";
+import { ResearcherProfileType } from "@/lib/types";
 
-export default function ProfileComponent() {
-  const fullWalletAddress = dummyUser[0].wallets[0];
-  const minimizedWalletAddress = minimizePubkey(fullWalletAddress);
+export default function ProfileComponent({ pubkey }: { pubkey: string }) {
+  const [user, setUser] = useState<ResearcherProfileType | null>(null);
+  const minimizedWalletAddress = minimizePubkey(pubkey);
   const [activeTab, setActiveTab] = useState("contributions");
   const {
     backgroundImage,
@@ -28,6 +26,45 @@ export default function ProfileComponent() {
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const prevActiveTabRef = useRef(activeTab);
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function getProfile(pubkey: string): Promise<any> {
+    try {
+      const response = await fetch(
+        `${process.env.BASE_URL}/api/researcher-profile?researcherPubkey=${pubkey}`,
+        { cache: "no-store" },
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("API response:", result);
+
+      return result;
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        setIsLoading(true);
+        const profile = await getProfile(pubkey);
+        console.log("Fetched profile:", profile);
+        setUser(profile);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProfile();
+  }, [pubkey]);
 
   // TODO: Implement API calls to get data
   // const data = useMemo(() => {
@@ -67,40 +104,66 @@ export default function ProfileComponent() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 mb-20">
-      <ProfileBanner
-        avatarSrc="https://plus.unsplash.com/premium_photo-1689977968861-9c91dbb16049?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        onEditClick={handleEditClick}
-        onSaveClick={handleSaveClick}
-        isVerified={true}
-        backgroundImage={backgroundImage}
-        isNewBackgroundImage={isNewBackgroundImage}
-      />
+      {isLoading ? (
+        <div className="flex justify-center items-start pt-8">
+          <svg
+            className="animate-spin h-8 w-8 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      ) : (
+        <>
+          <ProfileBanner
+            avatarSrc={user?.metadata?.profileImageURI || "/avatar.png"}
+            onEditClick={handleEditClick}
+            onSaveClick={handleSaveClick}
+            isVerified={true}
+            backgroundImage={backgroundImage}
+            isNewBackgroundImage={isNewBackgroundImage}
+          />
 
-      {/* Profile Information */}
-      <ProfileInfo
-        name={dummyUser[0].name}
-        organization="🦒🦖TheMenageri3"
-        walletAddress={minimizedWalletAddress}
-        fullWalletAddress={fullWalletAddress}
-        websiteUrl={dummyUser[0].website_url}
-        socialLink={dummyUser[0].social_link}
-        bio={dummyUser[0].bio}
-        stats={{
-          papers: dummyUser[0].papers.length,
-          reviewedPapers: dummyUser[0].paper_reviews.length,
-          reputation: 274,
-        }}
-      />
+          {/* Profile Information */}
+          <ProfileInfo
+            name={user?.name || ""}
+            organization={user?.metadata?.organization || ""}
+            walletAddress={minimizedWalletAddress}
+            fullWalletAddress={pubkey}
+            socialLink={user?.metadata?.socialLinks?.[0] || ""}
+            bio={user?.metadata?.bio || ""}
+            stats={{
+              papers: user?.totalPapersPublished || 0,
+              reviewedPapers: user?.totalReviews || 0,
+              reputation: user?.reputation || 0,
+            }}
+          />
 
-      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Table Container to avoid jumping */}
-      <div
-        ref={tableContainerRef}
-        className="h-[calc(100vh-400px)] overflow-y-auto"
-      >
-        <Table columns={PROFILE_COLUMNS} data={[]} />
-      </div>
+          {/* Table Container to avoid jumping */}
+          <div
+            ref={tableContainerRef}
+            className="h-[calc(100vh-400px)] overflow-y-auto"
+          >
+            <Table columns={PROFILE_COLUMNS} data={[]} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

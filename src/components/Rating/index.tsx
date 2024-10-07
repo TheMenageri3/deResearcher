@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Paper, Rating } from "@/lib/validation";
+import { PaperSchema, RatingSchema } from "@/lib/validation";
 import {
   INITIALRATING,
   RATINGCATEGORIES,
@@ -22,8 +22,8 @@ import {
 interface RatingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  paper: Paper;
-  onSubmit: (rating: Rating) => void;
+  paper: PaperSchema;
+  onSubmit: (rating: RatingSchema) => void;
 }
 
 export default function RatingModal({
@@ -32,9 +32,9 @@ export default function RatingModal({
   paper,
   onSubmit,
 }: RatingModalProps) {
-  const [rating, setRating] = useState<Rating>(INITIALRATING);
+  const [rating, setRating] = useState<RatingSchema>(INITIALRATING);
 
-  const handleScoreChange = (category: keyof Rating, value: string) => {
+  const handleScoreChange = (category: keyof RatingSchema, value: string) => {
     setRating((prevRating) => ({
       ...prevRating,
       [category]: parseInt(value, 10) * 2, // Multiply by 2 to get the 2-10 scale
@@ -47,7 +47,9 @@ export default function RatingModal({
   };
 
   const isAllRated = useMemo(() => {
-    return Object.values(rating).every((score) => score > 0);
+    return Object.values(rating).every(
+      (score) => typeof score === "number" && score > 0,
+    );
   }, [rating]);
 
   return (
@@ -63,7 +65,7 @@ export default function RatingModal({
         </DialogHeader>
         <div className="py-4 px-10">
           {RATINGCATEGORIES.map((category) => (
-            <div key={category} className="mb-2">
+            <div key={category as string} className="mb-2">
               <Label className="block text-sm font-medium text-zinc-100 mb-2">
                 {RATINGCATEGORYLABELS[category]}
               </Label>

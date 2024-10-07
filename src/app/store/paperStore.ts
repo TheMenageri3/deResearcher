@@ -23,19 +23,22 @@ interface PaperStore {
   fetchPapersByState: (state: string) => Promise<ResearchPaperType[] | null>;
   fetchPaperByPubkey: (
     state: string,
-    paperPubkey: string
+    paperPubkey: string,
+  ) => Promise<ResearchPaperType[] | null>;
+  fetchAllPapersByResearcherPubkey: (
+    researcherPubkey: string,
   ) => Promise<ResearchPaperType[] | null>;
   fetchAndStorePeerReviewsByReviewerPubkey: (
-    reviewerPubkey: string
+    reviewerPubkey: string,
   ) => Promise<void>;
   createResearchPaper: (
-    paper: PaperFormData
+    paper: PaperFormData,
   ) => Promise<{ success: boolean; error?: string }>;
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
-  addPeerReview: (
-    paper: ResearchPaperType,
-    data: PeerReviewFormData
-  ) => Promise<void>;
+  // addPeerReview: (
+  //   paper: ResearchPaperType,
+  //   data: PeerReviewFormData,
+  // ) => Promise<void>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
   pushToPapersStore: (paper: ResearchPaperType) => void;
@@ -75,7 +78,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   fetchPaperByPubkey: async (state: string, paperId: string) => {
     try {
       const papers: ResearchPaperType[] = await fetchPaperByPubkeyFromDB(
-        paperId
+        paperId,
       );
       return papers;
     } catch (error: any) {
@@ -83,6 +86,17 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return null;
     }
   },
+  fetchAllPapersByResearcherPubkey: async (researcherPubkey: string) => {
+    try {
+      const papers: ResearchPaperType[] =
+        await fetchPapersByResearcherPubkeyFromDB(researcherPubkey);
+      return papers;
+    } catch (error: any) {
+      console.error(error);
+      return null;
+    }
+  },
+
   createResearchPaper: async (paper) => {
     set({ isLoading: true, error: null });
 
@@ -125,7 +139,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
                 value: "application/pdf",
               },
             ],
-          ]
+          ],
         );
 
       // Generate merkle roots for paper content and metadata
@@ -162,7 +176,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Call the SDK to create the paper
       const researchPaper = await sdkInstance.createResearchPaper(
-        createResearchPaperInput
+        createResearchPaperInput,
       );
 
       // Off-chain part
@@ -217,7 +231,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // on-chain part
       const updatedPaper = await sdkInstance.publishResearchPaper(
         paper.address,
-        paper.bump
+        paper.bump,
       );
 
       // off-chain part
@@ -226,7 +240,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedPaperDB: ResearchPaperType = await updateResearchPaperDB(
-        data
+        data,
       );
 
       // Update the paper in the store
@@ -238,68 +252,68 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       set({ error: "Failed to publish paper", isLoading: false });
     }
   },
-  addPeerReview: async (paper, data) => {
-    const { sdk: sdkInstance } = useSDKStore.getState();
-    const { pushToPeerReviewsStore } = get();
-    if (!sdkInstance) {
-      set({ error: "SDK not initialized" });
-      return;
-    }
-    set({ isLoading: true });
-    try {
-      // on-chain part
+  // addPeerReview: async (paper, data) => {
+  //   const { sdk: sdkInstance } = useSDKStore.getState();
+  //   const { pushToPeerReviewsStore } = get();
+  //   if (!sdkInstance) {
+  //     set({ error: "SDK not initialized" });
+  //     return;
+  //   }
+  //   set({ isLoading: true });
+  //   try {
+  //     // on-chain part
 
-      const metaDataMerkleRoot =
-        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
-          ...data,
-        });
+  //     const metaDataMerkleRoot =
+  //       await sdk.SDK.compressObjectAndGenerateMerkleRoot({
+  //         ...data,
+  //       });
 
-      const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
-        qualityOfResearch: data.qualityOfResearch,
-        practicalityOfResultObtained: data.practicalityOfResultObtained,
-        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
-        metaDataMerkleRoot: metaDataMerkleRoot,
-        domainKnowledge: data.domainKnowledge,
-      };
+  //     const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
+  //       qualityOfResearch: data.qualityOfResearch,
+  //       practicalityOfResultObtained: data.practicalityOfResultObtained,
+  //       potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+  //       metaDataMerkleRoot: metaDataMerkleRoot,
+  //       domainKnowledge: data.domainKnowledge,
+  //     };
 
-      const peerReview = await sdkInstance.addPeerReview(
-        paper.address,
-        addPeerReviewData
-      );
+  //     const peerReview = await sdkInstance.addPeerReview(
+  //       paper.address,
+  //       addPeerReviewData,
+  //     );
 
-      // off-chain part
+  //     // off-chain part
 
-      const addPeerReviewDbData: AddPeerReview = {
-        reviewerPubkey: sdkInstance.pubkey.toBase58(),
-        address: peerReview.address.toBase58(),
-        paperPubkey: paper.address,
-        qualityOfResearch: data.qualityOfResearch,
-        practicalityOfResultObtained: data.practicalityOfResultObtained,
-        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
-        metaDataMerkleRoot,
-        domainKnowledge: data.domainKnowledge,
-        metadata: {
-          title: paper.metadata.title,
-          reviewComments: data.reviewComments,
-        },
-        bump: peerReview.bump,
-      };
+  //     const addPeerReviewDbData: AddPeerReview = {
+  //       reviewerPubkey: sdkInstance.pubkey.toBase58(),
+  //       address: peerReview.address.toBase58(),
+  //       paperPubkey: paper.address,
+  //       qualityOfResearch: data.qualityOfResearch,
+  //       practicalityOfResultObtained: data.practicalityOfResultObtained,
+  //       potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+  //       metaDataMerkleRoot,
+  //       domainKnowledge: data.domainKnowledge,
+  //       metadata: {
+  //         title: paper.metadata.title,
+  //         reviewComments: data.reviewComments,
+  //       },
+  //       bump: peerReview.bump,
+  //     };
 
-      // Add the peer review to the store
+  //     // Add the peer review to the store
 
-      const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
-        addPeerReviewDbData
-      );
+  //     const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
+  //       addPeerReviewDbData,
+  //     );
 
-      // Add the peer review to the store
+  //     // Add the peer review to the store
 
-      pushToPeerReviewsStore(newPeerReview);
+  //     pushToPeerReviewsStore(newPeerReview);
 
-      set({ isLoading: false });
-    } catch (error: any) {
-      set({ error: "Failed to add peer review", isLoading: false });
-    }
-  },
+  //     set({ isLoading: false });
+  //   } catch (error: any) {
+  //     set({ error: "Failed to add peer review", isLoading: false });
+  //   }
+  // },
   mintResearchPaper: async (paper) => {
     const { sdk: sdkInstance } = useSDKStore.getState();
     const { researchMintCollection, updateResearchMintCollection } =
@@ -327,7 +341,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         paper.address,
         {
           metaDataMerkleRoot,
-        }
+        },
       );
 
       // off-chain part
@@ -341,7 +355,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedMiningCollection = await mintResearchPaperDB(
-        mintCollectionDBData
+        mintCollectionDBData,
       );
 
       // Update the mint collection in the store
@@ -358,7 +372,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const peerReviews = await fetchPeerReviewsByReviewerPubkeyFromDB(
-        reviewerPubkey
+        reviewerPubkey,
       );
       set({ peerReviews, isLoading: false });
     } catch (error: any) {
@@ -372,7 +386,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   updatePaperInStore: (paper) => {
     set((state) => ({
       papers: state.papers.map((p) =>
-        p.address === paper.address ? paper : p
+        p.address === paper.address ? paper : p,
       ),
     }));
   },
@@ -420,6 +434,16 @@ async function fetchAllPapersFromDB() {
 
 async function fetchPaperByPubkeyFromDB(paperPubkey: string) {
   const urlSearchParams = new URLSearchParams({ paperPubkey });
+
+  const response = await fetch(`/api/research?${urlSearchParams}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch paper");
+  }
+  return await response.json();
+}
+
+async function fetchPapersByResearcherPubkeyFromDB(researcherPubkey: string) {
+  const urlSearchParams = new URLSearchParams({ researcherPubkey });
 
   const response = await fetch(`/api/research?${urlSearchParams}`);
   if (!response.ok) {

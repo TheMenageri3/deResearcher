@@ -1,11 +1,18 @@
+"use client";
+
 import H3 from "@/components/H3";
 import Table from "../Table";
 import users from "../../../dummyData/dummyUser.json";
 import { COLUMNS } from "@/lib/constants";
 import H4 from "@/components/H4";
 import P from "../../P";
+import React from "react";
+
+import { usePaperStore } from "@/app/store/paperStore";
 
 export default function MintedComponent() {
+  const { papers } = usePaperStore();
+
   // Create a new columns array based on COLUMNS, but replace the last item
   const mintedColumns = [
     ...COLUMNS.slice(0, -1),

@@ -7,7 +7,7 @@ import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
 import { AvatarWithName } from "../Avatar";
 import { Lock } from "lucide-react";
-import { Paper, Review } from "@/lib/validation";
+import { PaperSchema, PeerReviewSchema } from "@/lib/validation";
 import { formatTimeAgo } from "@/lib/helpers";
 import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
@@ -20,7 +20,11 @@ import RatingModal from "../Rating";
 
 const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 
-export default function PaperContentComponent({ paper }: { paper: Paper }) {
+export default function PaperContentComponent({
+  paper,
+}: {
+  paper: PaperSchema;
+}) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const screenSize = useScreen();
@@ -53,12 +57,19 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
     }));
   };
 
+  console.log(paper.peerReviews?.[0]?.metadata.title);
+  console.log(paper.peerReviews?.[0]?.metadata.reviewComments);
+
   const renderReviews = () => {
-    if (paper.peerReviews?.length === 0) {
-      return <P className="text-zinc-500">No reviews yet.</P>;
+    if (!paper.peerReviews || paper.peerReviews.length === 0) {
+      return (
+        <div className="text-left py-8">
+          <P className="text-zinc-500 mb-4">No peer reviews found yet.</P>
+        </div>
+      );
     }
 
-    return paper.peerReviews?.map((review: Review) => (
+    return paper.peerReviews.map((review: PeerReviewSchema) => (
       <PeerReviewComponent
         key={review._id}
         review={{
@@ -81,7 +92,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
         <div className="md:col-span-2">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap gap-2">
-              {paper.metadata.tags.map((domain, index) => (
+              {paper.metadata.tags.map((domain: string, index: number) => (
                 <span
                   key={index}
                   className="bg-violet-100 text-violet-800 text-xs font-medium px-2.5 py-0.5 rounded"
@@ -101,7 +112,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
             {paper.metadata.abstract}
           </P>
           <div className="flex items-center space-x-1 mb-4">
-            {paper.metadata.authors.map((author: string, index) => (
+            {paper.metadata.authors.map((author: string, index: number) => (
               <AvatarWithName key={index} name={author} />
             ))}
             <span className="text-sm text-zinc-500">
@@ -150,7 +161,7 @@ export default function PaperContentComponent({ paper }: { paper: Paper }) {
             paper.state === PAPER_STATUS.REQUEST_REVISION ||
             paper.state === PAPER_STATUS.APPROVED) && (
             <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
-              <PDFViewComponent url="/test.pdf" />
+              <PDFViewComponent url={paper.metadata.decentralizedStorageURI} />
             </div>
           )}
         </div>

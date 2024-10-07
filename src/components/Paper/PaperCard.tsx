@@ -135,23 +135,26 @@ const MintedInfo = ({ count }: { count: number }) => (
 );
 
 const ReviewersInfo = ({ count }: { count: number }) => (
-  <>
-    <div className="flex -space-x-2 mr-2">
-      {count > 0 &&
-        count <= 3 &&
-        Array.from({ length: count }).map((_, index) => (
-          <Avatar
-            key={index}
-            className="w-6 h-6 border-2 border-white rounded-full shadow-md"
-          />
-        ))}
-    </div>
-    <span className="text-zinc-600 text-xs">
-      {count === 0
-        ? "No reviews yet"
-        : `${count} review${count !== 1 ? "s" : ""}`}
-    </span>
-  </>
+  <div className="flex items-center">
+    {count > 0 ? (
+      <>
+        <div className="flex -space-x-2 mr-2">
+          {count <= 3 &&
+            Array.from({ length: count }).map((_, index) => (
+              <Avatar
+                key={index}
+                className="w-6 h-6 border-2 border-white rounded-full shadow-md"
+              />
+            ))}
+        </div>
+        <span className="text-zinc-600 text-xs">
+          {`${count} review${count !== 1 ? "s" : ""}`}
+        </span>
+      </>
+    ) : (
+      <span className="text-zinc-600 text-xs">No reviews yet</span>
+    )}
+  </div>
 );
 
 const ActionButton = ({

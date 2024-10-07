@@ -14,12 +14,12 @@ export const ProfileFormData = z.object({
   email: z.string().trim().email("Invalid email address"),
   organization: z.string().trim().optional(),
   bio: z.string().trim().max(500, "Bio must be 500 words or less").optional(),
-  socialLinks: z.array(z.string().url("Invalid URL")).optional(),
+  socialLinks: z.string().url("Invalid URL").optional(),
   profileImage: z
     .instanceof(File)
     .refine((file) => file.type === "image/png", "Only PNG files are allowed")
-    .optional()
-    .or(z.literal("")),
+    .or(z.string())
+    .optional(),
   backgroundImage: z
     .instanceof(File)
     .refine((file) => file.type === "image/png", "Only PNG files are allowed")
@@ -38,7 +38,7 @@ export const PaperFormData = z.object({
         val
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean)
+          .filter(Boolean),
       ),
       z.array(z.string()),
     ])
@@ -47,11 +47,11 @@ export const PaperFormData = z.object({
         Array.isArray(value)
           ? value.every((author) => author.length >= 2)
           : true,
-      "Each author name must be at least 2 characters long"
+      "Each author name must be at least 2 characters long",
     )
     .refine(
       (value) => (Array.isArray(value) ? value.length > 0 : true),
-      "Must have at least one author"
+      "Must have at least one author",
     ),
   accessFee: z
     .union([z.string(), z.number()])
@@ -62,7 +62,7 @@ export const PaperFormData = z.object({
       },
       {
         message: "Price must be a non-negative number",
-      }
+      },
     )
     .transform((val) => {
       const num = typeof val === "string" ? parseFloat(val) : val;
@@ -75,20 +75,20 @@ export const PaperFormData = z.object({
         val
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean)
+          .filter(Boolean),
       ),
       z.array(z.string()),
     ])
     .refine(
       (value) =>
         Array.isArray(value)
-          ? value.every((author) => author.length >= 2)
+          ? value.every((domain) => domain.length >= 2)
           : true,
-      "Each author name must be at least 2 characters long"
+      "Each domain name must be at least 2 characters long",
     )
     .refine(
       (value) => (Array.isArray(value) ? value.length > 0 : true),
-      "Must have at least one author"
+      "Must have at least one domain",
     ),
   paperImage: z
     .instanceof(File)
@@ -99,21 +99,24 @@ export const PaperFormData = z.object({
     .instanceof(File, { message: "Please upload a PDF file" })
     .refine(
       (file) => file.size <= 5000000,
-      "File size should be less than 5 MB"
+      "File size should be less than 5 MB",
     )
     .refine(
       (file) => file.type === "application/pdf",
-      "Only PDF files are allowed"
+      "Only PDF files are allowed",
     ),
 });
 
 export const PeerReviewFormData = z.object({
-  qualityOfResearch: z.number().min(0).max(5),
-  potentialForRealWorldUseCase: z.number().min(0).max(5),
-  domainKnowledge: z.number().min(0).max(5),
-  practicalityOfResultObtained: z.number().min(0).max(5),
   title: z.string(),
   reviewComments: z.string(),
+});
+
+export const RatingSchema = z.object({
+  qualityOfResearch: z.number(),
+  potentialForRealWorldUseCase: z.number(),
+  domainKnowledge: z.number(),
+  practicalityOfResultObtained: z.number(),
 });
 
 export const PeerReviewSchema = z.object({
@@ -174,3 +177,4 @@ export type PaperFormData = z.infer<typeof PaperFormData>;
 export type PeerReviewFormData = z.infer<typeof PeerReviewFormData>;
 export type PeerReviewSchema = z.infer<typeof PeerReviewSchema>;
 export type PaperSchema = z.infer<typeof PaperSchema>;
+export type RatingSchema = z.infer<typeof RatingSchema>;
