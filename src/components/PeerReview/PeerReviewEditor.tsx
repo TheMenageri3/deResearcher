@@ -46,7 +46,7 @@ export default function PeerReviewEditor({
       }`}
     >
       <div className="p-4 h-full flex flex-col">
-        <div className="bg-zinc-100 rounded-lg shadow-md p-4 mb-4 flex-grow overflow-hidden">
+        <div className="bg-zinc-700 rounded-lg shadow-md p-4 mb-4 flex-grow overflow-hidden">
           <div className="flex items-center justify-end">
             <Button size="icon" onClick={handleClose} variant="ghost">
               <X className="h-5 w-5 font-black text-zinc-10" />

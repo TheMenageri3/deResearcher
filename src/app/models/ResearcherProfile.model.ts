@@ -8,7 +8,6 @@ type ResearcherProfileStateDB = "AwaitingApproval" | "Approved" | "Rejected";
 
 // Define interface for ResearcherProfileArgs
 export interface ResearcherProfile extends Document {
-  id?: string; // Aliased from _id
   address: string; // Storing the PublicKey as a String
   researcherPubkey: string; // Storing the PublicKey as a String
   name: string; // Firstname + Lastname
@@ -17,9 +16,7 @@ export interface ResearcherProfile extends Document {
   totalCitations?: number;
   totalReviews?: number;
   reputation?: number;
-  metaDataMerkleRoot?: number[]; // Array of size 64
-  peerReviewsAsReviewer: mongoose.Types.ObjectId[]; // Array of PeerReviews where researcher is the reviewer
-  papers: mongoose.Types.ObjectId[]; // Array of ResearchPaper IDs authored by the researcher
+  metaDataMerkleRoot: string; // merkel root of the metadata
   metadata: {
     email: string;
     organization?: string;
@@ -33,8 +30,6 @@ export interface ResearcherProfile extends Document {
   };
   bump: number;
 }
-
-export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
 // Define the ResearcherProfile schema
 const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
@@ -73,24 +68,13 @@ const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
       default: 0,
     },
     metaDataMerkleRoot: {
-      type: [Number],
+      type: String, // Storing the MetadataMerkleRoot as a String
       validate: [
         isLimitedByteArray,
-        "MetadataMerkleRoot array must have exactly 64 elements (bytes)",
+        "MetadataMerkleRoot string must be 64 characters long",
       ],
+      required: true,
     },
-    peerReviewsAsReviewer: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "PeerReview",
-      },
-    ],
-    papers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ResearchPaper",
-      },
-    ],
     metadata: {
       type: {
         email: { type: String, required: true },
@@ -112,28 +96,11 @@ const ResearcherProfileSchema: Schema = new Schema<ResearcherProfile>(
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-      versionKey: false,
-      transform: (doc, ret) => {
-        delete ret._id;
-      },
-    },
-  },
+  }
 );
-
-// Virtual to map _id to id
-ResearcherProfileSchema.virtual("id").get(function (this: {
-  _id: mongoose.Types.ObjectId;
-}) {
-  return this._id.toHexString();
-});
-
-// Ensure virtual fields like `id` are included when converting to JSON
-ResearcherProfileSchema.set("toJSON", { virtuals: true });
 
 export default mongoose.models.ResearcherProfile ||
   mongoose.model<ResearcherProfile>(
     "ResearcherProfile",
-    ResearcherProfileSchema,
+    ResearcherProfileSchema
   );

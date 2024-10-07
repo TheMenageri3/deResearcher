@@ -16,14 +16,9 @@ export const toErrResponse = (err: string): NextResponse => {
 };
 
 export const toSuccessResponse = <T>(data: T): NextResponse => {
-  return NextResponse.json(
-    {
-      data,
-    },
-    {
-      status: 200,
-    }
-  );
+  return NextResponse.json(data, {
+    status: 200,
+  });
 };
 
 export function verifySignature(signature: string, pubkey: string) {

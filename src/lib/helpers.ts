@@ -1,11 +1,14 @@
-import { PublicKey } from "@solana/web3.js";
+import { Cluster, Connection, PublicKey } from "@solana/web3.js";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Globe, Twitter, Github, Linkedin, Facebook } from "lucide-react";
-import { Paper } from "./validation";
+import { PaperSchema } from "./validation";
+import * as sdk from "./sdk";
 import solanaCrypto from "tweetnacl";
 import { LOGIN_MESSAGE } from "./constants";
 import bs58 from "bs58";
+import { SDK } from "./sdk";
+import { PaperStateDB } from "@/app/models/ResearchPaper.model";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -73,8 +76,8 @@ export const formatTimeAgo = (dateString: string): string => {
 };
 
 // Format paper
-export const formatPaper = (paper: Paper) => ({
-  id: paper.id,
+export const formatPaper = (paper: PaperSchema) => ({
+  id: paper._id,
   title: paper.metadata.title,
   authors: paper.metadata.authors,
   createdDate: new Date(paper.createdAt).toISOString().split("T")[0],
@@ -107,19 +110,15 @@ export const getLinkIcon = (url: string) => {
     return Globe;
   }
 };
-export function isLimitedByteArray(arr: number[]) {
-  return (
-    Array.isArray(arr) &&
-    arr.length === 64 &&
-    arr.every((num) => num >= 0 && num <= 255)
-  );
+export function isLimitedByteArray(data: string) {
+  return data.length === 64;
 }
 
 export function verifySignature(signature: string, pubkey: PublicKey) {
   return solanaCrypto.sign.detached.verify(
     getEncodedLoginMessage(pubkey.toBase58()),
     bs58.decode(signature),
-    bs58.decode(pubkey.toBase58()),
+    bs58.decode(pubkey.toBase58())
   );
 }
 
@@ -130,6 +129,49 @@ export function getEncodedLoginMessage(pubkey: string) {
       pubkey: minimizePubkey(pubkey),
     })
       .split("")
-      .map((c) => c.charCodeAt(0)),
+      .map((c) => c.charCodeAt(0))
   );
 }
+
+export const toPaperDbState = (state: sdk.PaperState): PaperStateDB => {
+  switch (state) {
+    case sdk.PaperState.AwaitingPeerReview:
+      return "AwaitingPeerReview";
+    case sdk.PaperState.InPeerReview:
+      return "InPeerReview";
+    case sdk.PaperState.ApprovedToPublish:
+      return "ApprovedToPublish";
+
+    case sdk.PaperState.RequiresRevision:
+      return "RequiresRevision";
+
+    case sdk.PaperState.Published:
+      return "Published";
+
+    case sdk.PaperState.Minted:
+      return "Minted";
+  }
+};
+
+export const getConnection = (cluster: Cluster) => {
+  return new Connection(getRPCUrlFromCluster(cluster), {
+    commitment: "confirmed",
+  });
+};
+
+export const getRPCUrlFromCluster = (cluster: Cluster) => {
+  switch (cluster) {
+    case "devnet":
+      return "https://devnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+    case "testnet":
+      return "https://testnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+    case "mainnet-beta":
+      return "https://mainnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+    default:
+      return "https://devnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+  }
+};
+
+export const getPaperContentHashForSeeds = (hash: string) => {
+  return hash.slice(0, 32);
+};

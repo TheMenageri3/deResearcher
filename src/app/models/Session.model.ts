@@ -1,5 +1,7 @@
+import connectToDatabase from "@/lib/mongoServer";
 import mongoose, { Schema, Document } from "mongoose";
 
+connectToDatabase();
 mongoose.Promise = global.Promise;
 
 export interface Session extends Document {
@@ -8,8 +10,6 @@ export interface Session extends Document {
   createdAt: Date;
   expiresAt: Date;
 }
-
-export type SessionType = Omit<Session, keyof Document>;
 
 const SessionSchema: Schema = new Schema<Session>({
   walletSignature: {

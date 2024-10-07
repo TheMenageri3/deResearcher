@@ -1,42 +1,60 @@
 import MainLayout from "@/app/main-layout";
 import PaperContentComponent from "@/components/Paper/PaperContent";
 import { notFound } from "next/navigation";
-import { Paper, PaperSchema } from "@/lib/validation";
+import { PaperSchema } from "@/lib/validation";
+import { Suspense } from "react";
+import Spinner from "@/components/Spinner";
 
-export default async function PaperContentPage({
+async function fetchPaperData(status: string, paper_id: string) {
+  console.log("Starting to fetch paper data...");
+
+  const res = await fetch(
+    `http://localhost:3000/api/research/${status}/${paper_id}`,
+    { cache: "no-store" },
+  );
+
+  if (!res.ok) {
+    console.error(`API response not OK: ${res.status} ${res.statusText}`);
+    notFound();
+  }
+
+  const paperData = await res.json();
+  console.log("Received paper data:", JSON.stringify(paperData, null, 2));
+
+  try {
+    return PaperSchema.parse(paperData);
+  } catch (error) {
+    console.error("Invalid paper data:", error);
+    notFound();
+  }
+}
+
+async function PaperContent({
+  status,
+  paper_id,
+}: {
+  status: string;
+  paper_id: string;
+}) {
+  const paper = await fetchPaperData(status, paper_id);
+
+  return <PaperContentComponent paper={paper} />;
+}
+
+export default function PaperContentPage({
   params,
 }: {
   params: { paper_id: string; status: string };
 }) {
   const { paper_id, status } = params;
 
-  // Fetch paper data from the API route
-  const res = await fetch(
-    `http://localhost:3000/api/research/${status}/${paper_id}`,
-  );
-
-  if (!res.ok) {
-    notFound(); // Return 404 if paper not found
-  }
-
-  const paperData = await res.json();
-
-  // Validate the data using PaperSchema
-  let paper: Paper;
-
-  try {
-    paper = PaperSchema.parse(paperData);
-    console.log(paper);
-  } catch (error) {
-    console.error("Invalid paper data:", error);
-    notFound(); // If validation fails, return 404
-  }
-
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8 pb-20">
-        <PaperContentComponent paper={paper} />
-      </div>
+      <Suspense fallback={<Spinner />}>
+        <div className="container mx-auto px-4 py-8 pb-20">
+          <PaperContent status={status} paper_id={paper_id} />
+        </div>
+      </Suspense>
     </MainLayout>
   );
 }

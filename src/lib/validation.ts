@@ -10,17 +10,24 @@ export const PaperState = z.enum([
 ]);
 
 export const ProfileFormData = z.object({
-  firstName: z
-    .string()
-    .trim()
-    .min(2, "First name must be at least 2 characters"),
-  lastName: z.string().trim().min(2, "Last name must be at least 2 characters"),
+  name: z.string().trim().min(2, "name must be at least 2 characters"),
   email: z.string().trim().email("Invalid email address"),
   organization: z.string().trim().optional(),
-  website: z.string().trim().url("Invalid URL").optional().or(z.literal("")),
-  socialLink: z.string().trim().url("Invalid URL").optional().or(z.literal("")),
   bio: z.string().trim().max(500, "Bio must be 500 words or less").optional(),
-  profileImage: z.string().optional(),
+  socialLinks: z.array(z.string().url("Invalid URL")).optional(),
+  profileImage: z
+    .instanceof(File)
+    .refine((file) => file.type === "image/png", "Only PNG files are allowed")
+    .optional()
+    .or(z.literal("")),
+  backgroundImage: z
+    .instanceof(File)
+    .refine((file) => file.type === "image/png", "Only PNG files are allowed")
+    .optional()
+    .or(z.literal("")),
+  externalResearchProfiles: z.array(z.string()).optional(),
+  interestedDomains: z.array(z.string()).optional(),
+  topPublications: z.array(z.string().trim().url("Invalid URL")).optional(),
 });
 
 export const PaperFormData = z.object({
@@ -31,7 +38,7 @@ export const PaperFormData = z.object({
         val
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean),
+          .filter(Boolean)
       ),
       z.array(z.string()),
     ])
@@ -40,13 +47,13 @@ export const PaperFormData = z.object({
         Array.isArray(value)
           ? value.every((author) => author.length >= 2)
           : true,
-      "Each author name must be at least 2 characters long",
+      "Each author name must be at least 2 characters long"
     )
     .refine(
       (value) => (Array.isArray(value) ? value.length > 0 : true),
-      "Must have at least one author",
+      "Must have at least one author"
     ),
-  price: z
+  accessFee: z
     .union([z.string(), z.number()])
     .refine(
       (val) => {
@@ -55,7 +62,7 @@ export const PaperFormData = z.object({
       },
       {
         message: "Price must be a non-negative number",
-      },
+      }
     )
     .transform((val) => {
       const num = typeof val === "string" ? parseFloat(val) : val;
@@ -68,7 +75,7 @@ export const PaperFormData = z.object({
         val
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean),
+          .filter(Boolean)
       ),
       z.array(z.string()),
     ])
@@ -77,11 +84,11 @@ export const PaperFormData = z.object({
         Array.isArray(value)
           ? value.every((author) => author.length >= 2)
           : true,
-      "Each author name must be at least 2 characters long",
+      "Each author name must be at least 2 characters long"
     )
     .refine(
       (value) => (Array.isArray(value) ? value.length > 0 : true),
-      "Must have at least one author",
+      "Must have at least one author"
     ),
   paperImage: z
     .instanceof(File)
@@ -92,85 +99,78 @@ export const PaperFormData = z.object({
     .instanceof(File, { message: "Please upload a PDF file" })
     .refine(
       (file) => file.size <= 5000000,
-      "File size should be less than 5 MB",
+      "File size should be less than 5 MB"
     )
     .refine(
       (file) => file.type === "application/pdf",
-      "Only PDF files are allowed",
+      "Only PDF files are allowed"
     ),
 });
 
-export const ReviewSchema = z.object({
-  id: z.string().optional(),
-  address: z.string(),
-  reviewerPubkey: z.string(),
-  paperPubkey: z.string(),
-  // mapping frontend score to working with backend 1-10 scale
-  qualityOfResearch: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  potentialForRealWorldUseCase: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  domainKnowledge: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  practicalityOfResultObtained: z
-    .number()
-    .min(1)
-    .max(5)
-    .transform((v) => v * 2),
-  metaDataMerkleRoot: z.array(z.number()).length(64).optional(),
+export const PeerReviewFormData = z.object({
+  qualityOfResearch: z.number().min(0).max(5),
+  potentialForRealWorldUseCase: z.number().min(0).max(5),
+  domainKnowledge: z.number().min(0).max(5),
+  practicalityOfResultObtained: z.number().min(0).max(5),
+  title: z.string(),
+  reviewComments: z.string(),
+});
+
+export const PeerReviewSchema = z.object({
+  _id: z.string(),
+  reviewerId: z.object({
+    _id: z.string(),
+    researcherPubkey: z.string(),
+    name: z.string(),
+  }),
+  qualityOfResearch: z.number(),
+  potentialForRealWorldUseCase: z.number(),
+  domainKnowledge: z.number(),
+  practicalityOfResultObtained: z.number(),
   metadata: z.object({
+    title: z.string(),
     reviewComments: z.string(),
   }),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  bump: z.number().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const PaperSchema = z.object({
-  id: z.string(),
-  address: z.string().optional(), // TODO: Will remove optional when production
+  _id: z.string(), // Change from `id` to `_id` or map it later
   creatorPubkey: z.string(),
-  state: PaperState.default("InPeerReview"),
-  accessFee: z.number().nullable().default(0),
-  references: z.array(z.string()).optional(),
-  paperContentHash: z.array(z.number()),
+  state: z.string(),
+  accessFee: z.number(),
+  version: z.number(),
+  paperContentHash: z.string(),
+
   totalApprovals: z.number().default(0),
   totalCitations: z.number().default(0),
   totalMints: z.number().default(0),
-  metaDataMerkleRoot: z.array(z.number()).optional(),
-  version: z.number().default(1),
+  metaDataMerkleRoot: z.string(),
+
   metadata: z.object({
-    title: z.string().trim().min(5, "Title must be at least 5 characters"),
-    abstract: z.string().trim(), // TODO: Will change back when production
-    // abstract: z
-    //   .string()
-    //   .trim()
-    //   .min(250, "Description must be at least 250 words"),
+    title: z.string(),
+    abstract: z.string(),
     authors: z.array(z.string()),
+    datePublished: z.string(),
     domain: z.string(),
     tags: z.array(z.string()),
     references: z.array(z.string()),
     paperImageURI: z.string(),
     decentralizedStorageURI: z.string(),
-    datePublished: z.union([z.string(), z.date()]),
   }),
-  bump: z.number().optional(),
-  createdAt: z.union([z.string(), z.date()]),
-  updatedAt: z.union([z.string(), z.date()]),
-  peerReviews: z.array(ReviewSchema).optional(),
+
+  bump: z.number(),
+
+  peerReviews: z.array(PeerReviewSchema).optional(),
+
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 // TypeScript types
 export type ProfileFormData = z.infer<typeof ProfileFormData>;
 export type PaperFormData = z.infer<typeof PaperFormData>;
-export type Review = z.infer<typeof ReviewSchema>;
-export type Paper = z.infer<typeof PaperSchema>;
+export type PeerReviewFormData = z.infer<typeof PeerReviewFormData>;
+export type PeerReviewSchema = z.infer<typeof PeerReviewSchema>;
+export type PaperSchema = z.infer<typeof PaperSchema>;

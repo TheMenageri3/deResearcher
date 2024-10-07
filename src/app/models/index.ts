@@ -8,6 +8,9 @@ import SessionModel from "./Session.model";
 // Import types
 import type { PeerReview } from "./PeerReview.model";
 import type { ResearchMintCollection } from "./ResearchMintCollection.model";
+import type { ResearchPaper } from "./ResearchPaper.model";
+import type { ResearcherProfile } from "./ResearcherProfile.model";
+import type { Session } from "./Session.model";
 
 // Ensure connection is established
 const initializeModels = async () => {
@@ -17,7 +20,6 @@ const initializeModels = async () => {
 initializeModels().catch((error) => {
   console.error("Failed to connect to the database:", error);
 });
-
 
 // Export models for easier imports
 export {
@@ -29,4 +31,10 @@ export {
 };
 
 // Re-export types
-export type { PeerReview, ResearchMintCollection };
+export type {
+  PeerReview,
+  ResearchMintCollection,
+  ResearchPaper,
+  ResearcherProfile,
+  Session,
+};

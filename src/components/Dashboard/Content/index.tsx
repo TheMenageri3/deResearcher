@@ -36,12 +36,9 @@ export default function DashboardContent({
 
   useEffect(() => {
     if (hasCheckedAuth) {
-      console.log("Updating local auth state", { isAuthenticated, wallet });
       setLocalAuthState({ isAuthenticated, wallet });
     }
   }, [isAuthenticated, wallet, hasCheckedAuth]);
-
-  console.log("Current state:", { isLoading, hasCheckedAuth, localAuthState });
 
   const latestPeerReviewingPapers = papers
     .filter((paper) => paper.state === PAPER_STATUS.IN_PEER_REVIEW)
@@ -52,8 +49,8 @@ export default function DashboardContent({
     .slice(0, 5)
     .map((paper) => ({
       id: paper.id,
-      title: paper.title,
-      authors: paper.authors,
+      title: paper.metadata.title,
+      authors: paper.metadata.authors,
       createdDate: new Date(paper.createdAt).toISOString().split("T")[0],
       domains: paper.domains,
       status: paper.state,
@@ -86,7 +83,6 @@ export default function DashboardContent({
   );
 }
 
-// Fake data
 const CardContent = [
   {
     title: "Complete your profile ⚡",

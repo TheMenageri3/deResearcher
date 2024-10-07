@@ -6,7 +6,6 @@ import { ProfileBanner } from "./ProfileBanner";
 import { ProfileTabs } from "./ProfileTabs";
 import Table from "@/components/Dashboard/Table";
 
-import { Paper } from "@/lib/validation";
 import { formatPaper, minimizePubkey } from "@/lib/helpers";
 import { PROFILE_COLUMNS } from "@/lib/constants";
 
@@ -14,6 +13,7 @@ import { useBackgroundImage } from "@/hooks/useBackgroundImage";
 
 import dummyUser from "@/dummyData/dummyUser.json";
 import dummyPapers from "@/dummyData/dummyPapers.json";
+import { ResearchPaperType } from "@/lib/types";
 
 export default function ProfileComponent() {
   const fullWalletAddress = dummyUser[0].wallets[0];
@@ -30,27 +30,33 @@ export default function ProfileComponent() {
   const prevActiveTabRef = useRef(activeTab);
 
   // TODO: Implement API calls to get data
-  const data = useMemo(() => {
-    const filterAndFormatPapers = (papers: Paper[], paperIds: string[]) =>
-      papers.filter((paper) => paperIds.includes(paper.id)).map(formatPaper);
+  // const data = useMemo(() => {
+  //   const filterAndFormatPapers = (
+  //     papers: ResearchPaperType[],
+  //     paperIds: string[]
+  //   ) =>
+  //     papers.filter((paper) => paperIds.includes(paper._id)).map(formatPaper);
 
-    switch (activeTab) {
-      case "contributions":
-        return dummyUser[0].papers.map(formatPaper);
-      case "peer-reviews":
-        const reviewedPaperIds = dummyUser[0].paper_reviews.map(
-          (review) => review.paperId,
-        );
-        return filterAndFormatPapers(dummyPapers as Paper[], reviewedPaperIds);
-      case "paid-reads":
-        const mintedPaperIds = dummyUser[0].minted_papers.map(
-          (paper) => paper.paper_id,
-        );
-        return filterAndFormatPapers(dummyPapers as Paper[], mintedPaperIds);
-      default:
-        return [];
-    }
-  }, [activeTab]);
+  //   switch (activeTab) {
+  //     case "contributions":
+  //       return dummyUser[0].papers;
+  //     case "peer-reviews":
+  //       const reviewedPaperIds = dummyUser[0].paper_reviews.map(
+  //         (review) => review.paperId
+  //       );
+  //       return dummyPapers;
+  //     case "paid-reads":
+  //       const mintedPaperIds = dummyUser[0].minted_papers.map(
+  //         (paper) => paper.paper_id
+  //       );
+  //       return filterAndFormatPapers(
+  //         dummyPapers as ResearchPaperType[],
+  //         mintedPaperIds
+  //       );
+  //     default:
+  //       return [];
+  //   }
+  // }, [activeTab]);
 
   useEffect(() => {
     if (prevActiveTabRef.current !== activeTab && tableContainerRef.current) {
@@ -93,7 +99,7 @@ export default function ProfileComponent() {
         ref={tableContainerRef}
         className="h-[calc(100vh-400px)] overflow-y-auto"
       >
-        <Table columns={PROFILE_COLUMNS} data={data} />
+        <Table columns={PROFILE_COLUMNS} data={[]} />
       </div>
     </div>
   );

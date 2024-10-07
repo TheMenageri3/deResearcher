@@ -14,6 +14,7 @@ import { Form, FormField } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/app/store/userStore";
 
 type ProfileFormProps = {
   initialData: ProfileFormData & { isVerified: boolean; id: string };
@@ -23,6 +24,10 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
   // const [isEditing, setIsEditing] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const createResearcherProfile = useUserStore(
+    (state) => state.createResearcherProfile
+  );
 
   const form = useForm<z.infer<typeof ProfileFormData>>({
     resolver: zodResolver(ProfileFormData),
@@ -34,7 +39,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        form.setValue("profileImage", reader.result as string);
+        form.setValue("profileImage", file);
       };
       reader.readAsDataURL(file);
     }
@@ -42,10 +47,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
   const handleSubmit = async (values: ProfileFormData) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Profile created:", values);
       // setIsEditing(false);
-      router.push(`/profile/${initialData.id}`);
+      await createResearcherProfile(values);
+      // router.push(`/profile/${initialData.id}`);
     } catch (error) {
       console.error("An error occurred:", error);
     }
@@ -233,7 +237,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           >
             {form.watch("profileImage") ? (
               <img
-                src={form.watch("profileImage")}
+                src={""}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -256,24 +260,12 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="firstName"
+            name="name"
             render={({ field }) => (
               <CustomFormItem
-                label="First Name"
+                label="Name"
                 field={field}
-                placeholder="Enter your first name"
-              />
-            )}
-            required
-          />
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <CustomFormItem
-                label="Last Name"
-                field={field}
-                placeholder="Enter your last name"
+                placeholder="Enter your name"
               />
             )}
             required
@@ -306,21 +298,10 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="website"
-            render={({ field }) => (
-              <CustomFormItem
-                label="Website/Github"
-                field={field}
-                placeholder="Enter your website"
-              />
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="socialLink"
+            name="socialLinks"
             render={({ field }) => (
               <CustomFormItem
                 label="Twitter/X/Facebook/LinkedIn"
@@ -329,7 +310,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
               />
             )}
           />
-        </div>
+        </div> */}
 
         <FormField
           control={form.control}
