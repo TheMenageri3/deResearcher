@@ -5,11 +5,11 @@ mongoose.Promise = global.Promise;
 
 // Define interface for ResearchMintCollectionArgs
 export interface ResearchMintCollection extends Document {
-  id?: string; // Aliased from _id
+  address: string; // Storing the PublicKey as a String
   readerPubkey: string; // Storing the PublicKey as a String
   metaDataMerkleRoot: string; // merkel root of the metadata
   metadata: {
-    mintedResearchPaperIds: mongoose.Types.ObjectId[]; // Array of ResearchPaper IDs (references)
+    mintedResearchPaperPubkeys: string[]; // Array of ResearchPaper IDs
   };
   bump: number;
 }
@@ -17,6 +17,10 @@ export interface ResearchMintCollection extends Document {
 // Define the ResearchMintCollection schema
 const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
   {
+    address: {
+      type: String, // Storing the PublicKey as a String
+      required: true,
+    },
     readerPubkey: {
       type: String, // Storing the PublicKey or wallet address as a String
       required: true,
@@ -31,9 +35,9 @@ const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
     },
     metadata: {
       type: {
-        mintedResearchPaperIds: [
+        mintedResearchPaperPubkeys: [
           {
-            type: mongoose.Types.ObjectId,
+            type: [String],
             ref: "ResearchPaper", // Reference to ResearchPaper documents
           },
         ],
@@ -47,30 +51,13 @@ const ResearchMintCollectionSchema: Schema = new Schema<ResearchMintCollection>(
   },
   {
     timestamps: true,
-    toJSON: {
-      virtuals: true,
-      versionKey: false,
-      transform: (doc, ret) => {
-        delete ret._id;
-      },
-    },
   }
 );
 
 ResearchMintCollectionSchema.index({
   readerPubkey: 1,
-  "metadata.mintedResearchPaperIds": 1,
+  "metadata.mintedResearchPaperPubkeys": 1,
 });
-
-// Virtual to map _id to id
-ResearchMintCollectionSchema.virtual("id").get(function (this: {
-  _id: mongoose.Types.ObjectId;
-}) {
-  return this._id.toHexString();
-});
-
-// Ensure virtual fields like `id` are included when converting to JSON
-ResearchMintCollectionSchema.set("toJSON", { virtuals: true });
 
 // Export the model
 export default mongoose.models.ResearchMintCollection ||

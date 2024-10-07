@@ -3,8 +3,6 @@ import { toSuccessResponse } from "../helpers";
 import { MerkleTree } from "merkletreejs";
 import SHA256 from "crypto-js/sha256";
 
-const MAX_MERKLE_ROOT_STRING_LENGTH = 64;
-
 function removeHexPrefix(hex: string): string {
   if (hex.startsWith("0x")) {
     return hex.slice(2, hex.length);
@@ -47,5 +45,5 @@ export async function POST(req: NextRequest) {
   const data: Object = await req.json();
   const merkleRoot = removeHexPrefix(generateMerkleRoot(data));
 
-  return toSuccessResponse({ merkleRoot });
+  return toSuccessResponse(merkleRoot);
 }

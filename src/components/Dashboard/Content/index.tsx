@@ -40,8 +40,6 @@ export default function DashboardContent({
     }
   }, [isAuthenticated, wallet, hasCheckedAuth]);
 
-  console.log("Current state:", { isLoading, hasCheckedAuth, localAuthState });
-
   const latestPeerReviewingPapers = papers
     .filter((paper) => paper.state === PAPER_STATUS.IN_PEER_REVIEW)
     .sort(

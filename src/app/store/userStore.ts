@@ -7,6 +7,7 @@ import * as sdk from "@/lib/sdk";
 import {
   CreateResearcherProfile,
   ResearcherProfileMetadata,
+  ResearchMintCollectionType,
 } from "@/lib/types";
 import { ProfileFormData } from "@/lib/validation";
 import { ResearcherProfileType } from "../api/types";
@@ -15,6 +16,7 @@ interface UserState {
   isAuthenticated: boolean;
   walletSignature: string | null;
   researcherProfile: ResearcherProfileType | null;
+  researchMintCollection: ResearchMintCollectionType | null;
   wallet: string | null;
   isLoading: boolean;
   lastChecked: number;
@@ -25,6 +27,11 @@ interface UserState {
   createResearcherProfile: (data: ProfileFormData) => Promise<void>;
   requestToAssignRepuation: () => Promise<void>;
   setError: (error: string | null) => void;
+  fetchAndStoreResearcherProfile: () => Promise<void>;
+  fetchAndStoreResearchMintCollection: () => Promise<void>;
+  updateResearchMintCollection: (
+    researchMintCollection: ResearchMintCollectionType
+  ) => void;
 }
 
 export type UserStore = UserState;
@@ -38,16 +45,13 @@ export const useUserStore = create<UserState>((set, get) => ({
   isLoading: false,
   lastChecked: 0,
   researcherProfile: null,
+  researchMintCollection: null,
   error: null,
   checkAuthAndTryLogin: async (wallet: WalletContextState) => {
     if (!wallet.connected || !wallet.publicKey) {
       return;
     }
 
-    const sdk = useSDKStore.getState();
-    if (!sdk.sdk) {
-      sdk.initializeSDK(wallet, "devnet");
-    }
     const { isLoading, lastChecked } = get();
     const now = Date.now();
     if (isLoading || now - lastChecked < AUTH_CHECK_INTERVAL) return;
@@ -60,8 +64,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         body: JSON.stringify({ walletPubkey: wallet.publicKey.toString() }),
       });
       const checkAuthResponseData = await checkAuthResponse.json();
-      const data = checkAuthResponseData.data;
-      const { isAuthenticated, walletSignature } = data;
+      const { isAuthenticated, walletSignature } = checkAuthResponseData;
       set({
         isAuthenticated,
         walletSignature,
@@ -267,6 +270,74 @@ export const useUserStore = create<UserState>((set, get) => ({
       });
     }
   },
+  async fetchAndStoreResearcherProfile() {
+    const { sdk } = useSDKStore.getState();
+    if (!sdk) {
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      const researcherProfile: ResearcherProfileType =
+        await fetchResearcherProfile(sdk.pubkey.toBase58());
+      console.log("ResearcherProfile", researcherProfile);
+      set({ researcherProfile, isLoading: false });
+    } catch (error) {
+      set({
+        error: `Failed to fetch researcher profile: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+    }
+  },
+
+  async fetchAndStoreResearchMintCollection() {
+    const { sdk } = useSDKStore.getState();
+    if (!sdk) {
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      const researchMintCollection: ResearchMintCollectionType =
+        await fetchResearchMintCollection(sdk.pubkey.toBase58());
+
+      console.log("researchMintCollection", researchMintCollection);
+      set({ researchMintCollection, isLoading: false });
+    } catch (error) {
+      set({
+        error: `Failed to fetch research mint collection: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
+    }
+  },
+  updateResearchMintCollection(researchMintCollection) {
+    set({ researchMintCollection });
+  },
   async requestToAssignRepuation() {},
   setError: (error) => set({ error }),
 }));
+
+async function fetchResearcherProfile(researcherPubkey: string) {
+  const urlSearchParams = new URLSearchParams({ researcherPubkey });
+
+  const response = await fetch(
+    `/api/researcher-profile?${urlSearchParams.toString()}`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch researcher profile: ${response.statusText}`
+    );
+  }
+  return await response.json();
+}
+
+async function fetchResearchMintCollection(researcherPubkey: string) {
+  const urlSearchParams = new URLSearchParams({ researcherPubkey });
+  const response = await fetch(`/api/mint?${urlSearchParams.toString()}`);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch research mint collection: ${response.statusText}`
+    );
+  }
+  return await response.json();
+}

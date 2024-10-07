@@ -102,8 +102,6 @@ export type PeerReviewMetadata = {
 };
 
 export type AddPeerReview = {
-  reviewerId: string;
-  paperId: string;
   address: string;
   reviewerPubkey: string;
   paperPubkey: string;
@@ -115,3 +113,35 @@ export type AddPeerReview = {
   metadata: PeerReviewMetadata;
   bump: number;
 };
+
+export const AddPeerReviewSchema = z.object({
+  address: z.string(),
+  reviewerPubkey: z.string(),
+  paperPubkey: z.string(),
+  qualityOfResearch: z.number(),
+  potentialForRealWorldUseCase: z.number(),
+  domainKnowledge: z.number(),
+  practicalityOfResultObtained: z.number(),
+  metaDataMerkleRoot: z.string(),
+  metadata: z.object({
+    title: z.string(),
+    reviewComments: z.string(),
+  }),
+  bump: z.number(),
+});
+
+export type PushToResearchMintCollection = {
+  address: string;
+  readerPubkey: string;
+  bump: number;
+  newMintedResearchPaperPubkey: string;
+  metaDataMerkleRoot: string;
+};
+
+export const PushToResearchMintCollectionSchema = z.object({
+  address: z.string(),
+  readerPubkey: z.string(),
+  bump: z.number(),
+  newMintedResearchPaperPubkey: z.string(),
+  metaDataMerkleRoot: z.string(),
+});

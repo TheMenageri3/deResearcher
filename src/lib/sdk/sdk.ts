@@ -15,8 +15,7 @@ import {
   getPaperContentHashForSeeds,
   getRPCUrlFromCluster,
 } from "@/lib/helpers";
-import { WebUploader } from "@irys/web-upload";
-import { WebSolana } from "@irys/web-upload-solana";
+
 import BigNumber from "bignumber.js";
 import { TaggedFile } from "@irys/sdk/web/upload";
 
@@ -606,7 +605,7 @@ export class SDK {
 
     const data = await response.json();
 
-    return data.data.merkleRoot;
+    return data;
   }
 }
 

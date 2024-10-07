@@ -84,3 +84,11 @@ export type AddPeerReviewType = {
   metadata: PeerReviewMetadata;
   bump: number;
 };
+
+export type PushToResearchMintCollection = {
+  address: string;
+  readerPubkey: string;
+  bump: number;
+  newMintedResearchPaperPubkey: string;
+  metaDataMerkleRoot: string;
+};
