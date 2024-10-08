@@ -145,6 +145,7 @@ export const PaperSchema = z.object({
   accessFee: z.number(),
   version: z.number(),
   paperContentHash: z.string(),
+  address: z.string(),
 
   totalApprovals: z.number().default(0),
   totalCitations: z.number().default(0),

@@ -13,6 +13,8 @@ import { PeerReviewFormData } from "@/lib/validation";
 import { toPaperDbState } from "@/lib/helpers";
 import { useUserStore } from "./userStore";
 import { PushToResearchMintCollection } from "../api/types";
+import { WalletContext } from "@solana/wallet-adapter-react";
+import { useContext } from "react";
 
 interface PaperStore {
   papers: ResearchPaperType[];
@@ -44,6 +46,9 @@ interface PaperStore {
   pushToPapersStore: (paper: ResearchPaperType) => void;
   pushToPeerReviewsStore: (peerReview: PeerReviewType) => void;
   updatePaperInStore: (paper: ResearchPaperType) => void;
+  fetchPeerReviewsByPaperPubkeyFromDB: (
+    paperPubkey: string,
+  ) => Promise<PeerReviewType[] | null>;
 }
 
 export const usePaperStore = create<PaperStore>((set, get) => ({
@@ -395,6 +400,17 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set((state) => ({ peerReviews: [...state.peerReviews, peerReview] }));
   },
 
+  // TODO: Implement this
+  fetchPeerReviewsByPaperPubkeyFromDB: async (paperPubkey: string) => {
+    const urlSearchParams = new URLSearchParams({ paperPubkey });
+
+    const response = await fetch(`/api/peer-review?${urlSearchParams}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch peer review");
+    }
+    return await response.json();
+  },
+
   setError: (error) => set({ error }),
 }));
 
@@ -462,16 +478,6 @@ async function fetchPapersByStateFromDB(state: string) {
   return await response.json();
 }
 
-async function fetchPeerReviewsByPaperPubkeyFromDB(paperPubkey: string) {
-  const urlSearchParams = new URLSearchParams({ paperPubkey });
-
-  const response = await fetch(`/api/peer-review?${urlSearchParams}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch peer review");
-  }
-  return await response.json();
-}
-
 async function fetchPeerReviewsByReviewerPubkeyFromDB(reviewerPubkey: string) {
   const urlSearchParams = new URLSearchParams({ reviewerPubkey });
 
@@ -483,16 +489,24 @@ async function fetchPeerReviewsByReviewerPubkeyFromDB(reviewerPubkey: string) {
 }
 
 async function mintResearchPaperDB(data: PushToResearchMintCollection) {
+  console.log("mintResearchPaperDB called with data:", data);
   const response = await fetch("/api/mint", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to mint research paper");
+    const errorData = await response.json();
+    console.error("Error response from /api/mint:", errorData);
+    throw new Error("Failed to mint research paper: " + errorData.message);
   }
 
-  return await response.json();
+  const result = await response.json();
+  console.log("mintResearchPaperDB result:", result);
+  return result;
 }
 
 async function updateResearchPaperDB(data: {}) {

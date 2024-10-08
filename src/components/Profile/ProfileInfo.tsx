@@ -86,8 +86,10 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({
           </Button>
         )}
       </div>
+      <P className="text-sm text-zinc-500 text-pretty max-w-full sm:max-w-xl md:max-w-3xl mx-auto mb-6">
+        {bio}
+      </P>
 
-      <P className="text-sm max-w-2xl mx-auto mb-6">{bio}</P>
       <div className="flex justify-center space-x-12 mb-6">
         <div className="text-center">
           <P className="text-2xl font-bold">{formatNumber(stats.papers)}</P>

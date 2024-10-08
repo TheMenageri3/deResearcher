@@ -43,10 +43,7 @@ export default function ResearchPaperLayout({
     }
 
     fetchPapers();
-  }, [state, setIsLoading]); // Remove 'papers' from dependency array
-
-  console.log(state);
-  console.log(papers);
+  }, [state, setIsLoading]);
 
   return (
     <MainLayout>
