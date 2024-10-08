@@ -19,14 +19,14 @@ import { Button } from "../ui/button";
 import RatingModal from "../Rating";
 import { useUserStore } from "@/app/store/userStore";
 import { usePaperStore } from "@/app/store/paperStore";
-import { ResearchPaperType } from "@/lib/types";
+import { PeerReviewType, ResearchPaperType } from "@/lib/types";
 
 const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 
 export default function PaperContentComponent({
   paper,
 }: {
-  paper: PaperSchema;
+  paper: ResearchPaperType;
 }) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const screenSize = useScreen();
@@ -36,29 +36,38 @@ export default function PaperContentComponent({
   const [isOwner, setIsOwner] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [submittedRating, setSubmittedRating] = useState<RatingSchema | null>(
-    null,
+    null
   );
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
-  const { addPeerReviewRating, mintResearchPaper, isLoading } = usePaperStore();
+  const {
+    addPeerReviewRating,
+    fetchPeerReviewsByPaperPubkey,
+    mintResearchPaper,
+    isLoading,
+  } = usePaperStore();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL(
       "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url,
+      import.meta.url
     ).toString();
   }, []);
 
+  const [peerReviews, setPeerReviews] = useState<PeerReviewType[]>([]);
+
   useEffect(() => {
-    if (paper?.peerReviews && paper.peerReviews.length > 0) {
-      setExpandedReviews((prev) => ({
-        ...prev,
-        [paper.peerReviews?.[0]?._id ?? "default"]: true,
-      }));
+    const fetchPeerReviews = async () => {
+      const peerReviews = await fetchPeerReviewsByPaperPubkey(paper.address);
+      if (peerReviews) setPeerReviews(peerReviews);
+    };
+
+    if (paper) {
+      fetchPeerReviews();
     }
-  }, [paper?.peerReviews]);
+  }, [fetchPeerReviewsByPaperPubkey, paper]);
 
   const toggleReview = (reviewId: string) => {
     setExpandedReviews((prev) => ({
@@ -74,13 +83,8 @@ export default function PaperContentComponent({
     }
   }, [wallet, paper.creatorPubkey]);
 
-  // console.log(paper.creatorPubkey);
-  // console.log(paper.peerReviews?.[0]?.metadata.title);
-  // console.log(paper.peerReviews?.[0]?.metadata.reviewComments);
-  // console.log(isMinter);
-
   const renderReviews = () => {
-    if (!paper.peerReviews || paper.peerReviews.length === 0) {
+    if (!peerReviews || peerReviews.length === 0) {
       return (
         <div className="text-left py-8">
           <P className="text-zinc-500 mb-4">No peer reviews found yet.</P>
@@ -88,15 +92,14 @@ export default function PaperContentComponent({
       );
     }
 
-    return paper.peerReviews.map((review: PeerReviewSchema) => (
+    return peerReviews.map((review: PeerReviewType) => (
       <PeerReviewComponent
-        key={review._id}
+        key={review.address}
         review={{
           ...review,
-          time: formatTimeAgo(review.createdAt.toString()),
         }}
-        isExpanded={!!expandedReviews[review._id]}
-        onToggle={() => toggleReview(review._id)}
+        isExpanded={!!expandedReviews[review.address]}
+        onToggle={() => toggleReview(review.address)}
       />
     ));
   };
@@ -178,7 +181,7 @@ export default function PaperContentComponent({
             ))}
             <span className="text-sm text-zinc-500">
               {paper.metadata.authors.join(", ")} •{" "}
-              {formatTimeAgo(paper.createdAt)}
+              {/* {formatTimeAgo(paper.createdAt)} */}
             </span>
           </div>
 

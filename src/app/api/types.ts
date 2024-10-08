@@ -138,7 +138,6 @@ export type AddPeerReviewComments = {
 
 export const AddPeerReviewCommentsSchema = z.object({
   address: z.string(),
-
   title: z.string(),
   reviewComments: z.string(),
 });

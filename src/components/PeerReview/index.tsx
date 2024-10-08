@@ -4,9 +4,10 @@ import P from "../P";
 import { AvatarWithName } from "../Avatar";
 import { getScoreColorClass } from "@/lib/helpers";
 import { PeerReviewSchema } from "@/lib/validation";
+import { PeerReviewType } from "@/lib/types";
 
 interface PeerReviewProps {
-  review: PeerReviewSchema & { time: string };
+  review: PeerReviewType;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -36,11 +37,11 @@ export default function PeerReviewComponent({
     <div className="border-b py-4 border-zinc-200">
       <div className="cursor-pointer" onClick={onToggle}>
         <div className="grid grid-cols-[auto,1fr,auto] gap-2 items-center mb-2">
-          <AvatarWithName name={review.reviewerId.name} />
-          <div className="flex items-center gap-2">
+          {/* <AvatarWithName name={review.} /> */}
+          {/* <div className="flex items-center gap-2">
             <P className="font-medium text-xs">{review.reviewerId.name}</P>
             <P className="text-xs text-zinc-500">{review.time}</P>
-          </div>
+          </div> */}
           <div
             className={`flex items-center justify-center ${scoreColorClass} text-white font-arbutus font-medium w-10 h-10 rounded-md text-xs`}
           >

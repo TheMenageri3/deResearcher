@@ -4,39 +4,21 @@ import { notFound } from "next/navigation";
 import { PaperSchema } from "@/lib/validation";
 import { Suspense } from "react";
 import Spinner from "@/components/Spinner";
-
-async function fetchPaperData(status: string, paper_id: string) {
-  const res = await fetch(
-    `${process.env.BASE_URL}/api/research/${status}/${paper_id}`,
-    {
-      cache: "no-store",
-    },
-  );
-
-  if (!res.ok) {
-    console.error(`API response not OK: ${res.status} ${res.statusText}`);
-    notFound();
-  }
-
-  const paperData = await res.json();
-  console.log("Received paper data:", JSON.stringify(paperData, null, 2));
-
-  try {
-    return PaperSchema.parse(paperData);
-  } catch (error) {
-    console.error("Invalid paper data:", error);
-    notFound();
-  }
-}
+import { usePaperStore } from "@/app/store/paperStore";
 
 async function PaperContent({
   status,
-  paper_id,
+  paperPubkey,
 }: {
   status: string;
-  paper_id: string;
+  paperPubkey: string;
 }) {
-  const paper = await fetchPaperData(status, paper_id);
+  const { fetchPaperByPubkey } = usePaperStore();
+  const paper = await fetchPaperByPubkey(paperPubkey);
+
+  if (!paper) {
+    return notFound();
+  }
 
   return <PaperContentComponent paper={paper} />;
 }
@@ -44,15 +26,15 @@ async function PaperContent({
 export default function PaperContentPage({
   params,
 }: {
-  params: { paper_id: string; status: string };
+  params: { paperPubkey: string; status: string };
 }) {
-  const { paper_id, status } = params;
+  const { paperPubkey, status } = params;
 
   return (
     <MainLayout>
       <Suspense fallback={<Spinner />}>
         <div className="container mx-auto px-4 py-8 pb-20">
-          <PaperContent status={status} paper_id={paper_id} />
+          <PaperContent status={status} paperPubkey={paperPubkey} />
         </div>
       </Suspense>
     </MainLayout>

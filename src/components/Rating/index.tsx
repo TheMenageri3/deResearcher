@@ -17,11 +17,12 @@ import {
   RATINGCATEGORYLABELS,
 } from "@/lib/constants";
 import { Loader2 } from "lucide-react"; // Import a loading icon
+import { ResearchPaperType } from "@/lib/types";
 
 interface RatingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  paper: PaperSchema;
+  paper: ResearchPaperType;
   onSubmit: (rating: RatingSchema) => Promise<void>;
 }
 
