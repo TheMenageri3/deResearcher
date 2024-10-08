@@ -11,7 +11,7 @@ import { getGradientForPaper } from "@/lib/helpers";
 import React from "react";
 
 interface PaperCardProps {
-  id: string;
+  paperPubkey: string;
   title: string;
   authors: string[];
   domain: string;
@@ -23,7 +23,7 @@ interface PaperCardProps {
 }
 
 export default function PaperCard({
-  id,
+  paperPubkey,
   title,
   tags,
   authors,
@@ -34,9 +34,9 @@ export default function PaperCard({
   reviewers,
 }: PaperCardProps) {
   const router = useRouter();
-  const handleClick = () => router.push(`/research/${status}/${id}`);
+  const handleClick = () => router.push(`/research/${status}/${paperPubkey}`);
 
-  const gradient = getGradientForPaper(id);
+  const gradient = getGradientForPaper(paperPubkey);
 
   return (
     <div

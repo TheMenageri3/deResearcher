@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { PaperSchema } from "@/lib/validation";
 import { Loader2 } from "lucide-react";
 import React from "react";
+import { ResearchPaperType } from "@/lib/types";
 PaperSchema;
 
 interface PaperActionButtonProps {
-  paper: PaperSchema;
+  paper: ResearchPaperType;
   size?: string;
   onToggleReview?: () => void;
   onUpdateNewPaper?: () => void; // TODO: Implement later
@@ -27,7 +28,6 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
   isLoading,
   isOwner,
 }) => {
-
   const getButtonContent = () => {
     if (isOwner) {
       return {
