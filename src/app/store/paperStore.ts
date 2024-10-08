@@ -9,7 +9,6 @@ import {
 import { PaperFormData } from "@/lib/validation";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
-import { PeerReviewFormData } from "@/lib/validation";
 import { toPaperDbState } from "@/lib/helpers";
 import { useUserStore } from "./userStore";
 import { PushToResearchMintCollection } from "../api/types";
@@ -23,16 +22,21 @@ interface PaperStore {
   fetchPapersByState: (state: string) => Promise<ResearchPaperType[] | null>;
   fetchPaperByPubkey: (
     state: string,
-    paperPubkey: string,
+    paperPubkey: string
   ) => Promise<ResearchPaperType[] | null>;
   fetchAllPapersByResearcherPubkey: (
-    researcherPubkey: string,
+    researcherPubkey: string
   ) => Promise<ResearchPaperType[] | null>;
   fetchAndStorePeerReviewsByReviewerPubkey: (
-    reviewerPubkey: string,
+    reviewerPubkey: string
   ) => Promise<void>;
+
+  fetchPeerReviewsByPaperPubkey: (
+    paperPubkey: string
+  ) => Promise<PeerReviewType[] | null>;
+
   createResearchPaper: (
-    paper: PaperFormData,
+    paper: PaperFormData
   ) => Promise<{ success: boolean; error?: string }>;
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   // addPeerReview: (
@@ -78,7 +82,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   fetchPaperByPubkey: async (state: string, paperId: string) => {
     try {
       const papers: ResearchPaperType[] = await fetchPaperByPubkeyFromDB(
-        paperId,
+        paperId
       );
       return papers;
     } catch (error: any) {
@@ -139,7 +143,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
                 value: "application/pdf",
               },
             ],
-          ],
+          ]
         );
 
       // Generate merkle roots for paper content and metadata
@@ -176,7 +180,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Call the SDK to create the paper
       const researchPaper = await sdkInstance.createResearchPaper(
-        createResearchPaperInput,
+        createResearchPaperInput
       );
 
       // Off-chain part
@@ -231,7 +235,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // on-chain part
       const updatedPaper = await sdkInstance.publishResearchPaper(
         paper.address,
-        paper.bump,
+        paper.bump
       );
 
       // off-chain part
@@ -240,7 +244,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedPaperDB: ResearchPaperType = await updateResearchPaperDB(
-        data,
+        data
       );
 
       // Update the paper in the store
@@ -341,7 +345,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         paper.address,
         {
           metaDataMerkleRoot,
-        },
+        }
       );
 
       // off-chain part
@@ -355,7 +359,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedMiningCollection = await mintResearchPaperDB(
-        mintCollectionDBData,
+        mintCollectionDBData
       );
 
       // Update the mint collection in the store
@@ -372,11 +376,23 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const peerReviews = await fetchPeerReviewsByReviewerPubkeyFromDB(
-        reviewerPubkey,
+        reviewerPubkey
       );
       set({ peerReviews, isLoading: false });
     } catch (error: any) {
       set({ error: "Failed to fetch peer reviews", isLoading: false });
+    }
+  },
+
+  fetchPeerReviewsByPaperPubkey: async (paperPubkey) => {
+    try {
+      const peerReviews = await fetchPeerReviewsByPaperPubkeyFromDB(
+        paperPubkey
+      );
+      return peerReviews;
+    } catch (error: any) {
+      console.error(error);
+      return null;
     }
   },
 
@@ -386,7 +402,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   updatePaperInStore: (paper) => {
     set((state) => ({
       papers: state.papers.map((p) =>
-        p.address === paper.address ? paper : p,
+        p.address === paper.address ? paper : p
       ),
     }));
   },

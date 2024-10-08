@@ -6,13 +6,13 @@ import {
   ResearcherProfileModel,
   ResearchPaperModel,
 } from "@/app/models";
-import { toErrResponse, toSuccessResponse } from "../helpers";
+import { toErrResponse, toSuccessResponse } from "../../helpers";
 import {
-  AddPeerReviewSchema,
+  AddPeerReviewCommentsSchema,
   PeerReviewType,
   ResearcherProfileType,
   ResearchPaperType,
-} from "../types";
+} from "../../types";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   await connectToDatabase();
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const unsafeData = await req.json();
 
-    const data = AddPeerReviewSchema.parse(unsafeData);
+    const data = AddPeerReviewCommentsSchema.parse(unsafeData);
 
     // Validate that the reviewer exists
     const reviewer =
@@ -52,21 +52,31 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         },
         {
           $set: {
-            qualityOfResearch: data.qualityOfResearch,
-            potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
-            domainKnowledge: data.domainKnowledge,
-            practicalityOfResultObtained: data.practicalityOfResultObtained,
-            metaDataMerkleRoot: data.metaDataMerkleRoot,
-            metadata: data.metadata,
-            bump: data.bump,
+            metadata: {
+              title: data.title,
+              reviewComments: data.reviewComments,
+            },
           },
         }
       );
 
       return toSuccessResponse(existingPeerReview);
     } else {
-      // Create the new PeerReview document
-      const newPeerReview = await PeerReviewModel.create<PeerReviewType>(data);
+      const newPeerReview = await PeerReviewModel.create<PeerReviewType>({
+        address: data.address,
+        reviewerPubkey: data.reviewerPubkey,
+        paperPubkey: data.paperPubkey,
+        qualityOfResearch: 0,
+        potentialForRealWorldUseCase: 0,
+        domainKnowledge: 0,
+        practicalityOfResultObtained: 0,
+        metaDataMerkleRoot: data.metaDataMerkleRoot,
+        metadata: {
+          title: data.title,
+          reviewComments: data.reviewComments,
+        },
+        bump: data.bump,
+      });
 
       return toSuccessResponse(newPeerReview);
     }
@@ -87,43 +97,5 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     return toErrResponse("Error creating Peer Review");
-  }
-}
-
-// get peer reviews by paperId/reviewerId
-export async function GET(req: NextRequest) {
-  await connectToDatabase();
-
-  try {
-    // Extract query parameters
-    const searchParams = req.nextUrl.searchParams;
-    const reviewerPubkey = searchParams.get("reviewerPubkey");
-    const paperPubkey = searchParams.get("paperPubkey");
-
-    // Build query object
-    let query: {
-      [key: string]: string;
-    } = {};
-
-    if (paperPubkey) {
-      query.paperPubkey = paperPubkey;
-    }
-
-    if (reviewerPubkey) {
-      query.reviewerPubkey = reviewerPubkey;
-    }
-
-    // If no parameters are provided, return an error or all peer reviews
-    if (Object.keys(query).length === 0) {
-      toErrResponse("Please provide a paperPubkey or reviewerPubkey");
-    }
-
-    // Fetch peer reviews based on the query
-    const peerReviews = await PeerReviewModel.find<PeerReviewType[]>(query);
-
-    return toSuccessResponse(peerReviews);
-  } catch (error: any) {
-    console.log("Error in GET /api/peer-reviews:", error);
-    toErrResponse("Error fetching peer reviews");
   }
 }

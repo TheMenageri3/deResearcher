@@ -130,6 +130,26 @@ export const AddPeerReviewSchema = z.object({
   bump: z.number(),
 });
 
+export type AddPeerReviewComments = {
+  address: string;
+  reviewerPubkey: string;
+  paperPubkey: string;
+  title: string;
+  reviewComments: string;
+  metaDataMerkleRoot: string;
+  bump: number;
+};
+
+export const AddPeerReviewCommentsSchema = z.object({
+  address: z.string(),
+  reviewerPubkey: z.string(),
+  paperPubkey: z.string(),
+  title: z.string(),
+  reviewComments: z.string(),
+  bump: z.number(),
+  metaDataMerkleRoot: z.string(),
+});
+
 export type PushToResearchMintCollection = {
   address: string;
   readerPubkey: string;
