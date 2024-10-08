@@ -22,6 +22,7 @@ import { minimizePubkey } from "@/lib/helpers";
 import { Avatar } from "@/components/Avatar";
 import { useUserStore } from "@/app/store/userStore";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export const AvatarDropdown = () => {
   const router = useRouter();
@@ -66,7 +67,17 @@ export const AvatarDropdown = () => {
         <button className="flex items-center gap-3 max-w-xs bg-white text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           <span className="sr-only">Open user menu</span>
           <div>
-            <Avatar className="h-8 w-8 rounded-full" />
+            {researcherProfile?.metadata.profileImageURI ? (
+              <Image
+                src={researcherProfile?.metadata.profileImageURI}
+                alt="Profile"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full"
+              />
+            ) : (
+              <Avatar className="h-8 w-8 rounded-full" />
+            )}
           </div>
           {isOpen ? (
             <ChevronUp className="h-4 w-4 text-zinc-500" />

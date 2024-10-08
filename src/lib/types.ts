@@ -92,3 +92,9 @@ export type PushToResearchMintCollection = {
   newMintedResearchPaperPubkey: string;
   metaDataMerkleRoot: string;
 };
+
+export type AddPeerReviewComments = {
+  address: string;
+  title: string;
+  reviewComments: string;
+};

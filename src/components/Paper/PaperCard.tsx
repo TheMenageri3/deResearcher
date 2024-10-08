@@ -130,7 +130,7 @@ const MintedInfo = ({ count }: { count: number }) => (
           />
         ))}
     </div>
-    <span className="text-zinc-600 text-xs">{count} minted</span>
+    <span className="text-zinc-600 text-xs -ml-2">{count} minted</span>
   </>
 );
 

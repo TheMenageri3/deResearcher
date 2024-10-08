@@ -15,25 +15,30 @@ import {
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const searchParams = req.nextUrl.searchParams;
-
     const researcherPubkey = searchParams.get("researcherPubkey");
+    const paperPubkey = searchParams.get("paperPubkey");
 
     if (!researcherPubkey) {
-      return toErrResponse("readerPubkey is required");
+      return toErrResponse("researcherPubkey is required");
     }
 
-    const researchMintCollection =
-      await ResearchMintCollectionModel.findOne<ResearchMintCollection>({
-        readerPubkey: researcherPubkey,
-      });
+    if (!paperPubkey) {
+      return toErrResponse("paperPubkey is required");
+    }
+
+    const researchMintCollection = await ResearchMintCollectionModel.findOne({
+      readerPubkey: researcherPubkey,
+      "metadata.mintedResearchPaperPubkeys": paperPubkey,
+    });
 
     if (!researchMintCollection) {
-      return toErrResponse("Research Mints Collection not found");
+      return toSuccessResponse({ isMinter: false });
     }
 
-    return toSuccessResponse(researchMintCollection);
+    return toSuccessResponse({ isMinter: true });
   } catch (err) {
-    return toErrResponse("Error fetching Research Mint Collection");
+    console.error("Error checking minter status:", err);
+    return toErrResponse("Error checking minter status");
   }
 }
 
@@ -50,7 +55,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
 
     const researchPaper = await ResearchPaperModel.findById<ResearchPaperType>(
-      data.newMintedResearchPaperPubkey
+      data.newMintedResearchPaperPubkey,
     );
 
     if (!researchPaper) {
@@ -67,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           $addToSet: {
             "metadata.mintedResearchPaperPubkeys": researchPaper.address,
           },
-        }
+        },
       );
 
       return toSuccessResponse({
@@ -86,7 +91,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       };
 
       newResearchMintCollection = await ResearchMintCollectionModel.create(
-        newResearchMintCollection
+        newResearchMintCollection,
       );
 
       return toSuccessResponse({
