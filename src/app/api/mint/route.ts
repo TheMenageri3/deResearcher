@@ -16,19 +16,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const searchParams = req.nextUrl.searchParams;
     const researcherPubkey = searchParams.get("researcherPubkey");
-    const paperPubkey = searchParams.get("paperPubkey");
 
     if (!researcherPubkey) {
       return toErrResponse("researcherPubkey is required");
     }
 
-    if (!paperPubkey) {
-      return toErrResponse("paperPubkey is required");
-    }
-
     const researchMintCollection = await ResearchMintCollectionModel.findOne({
       readerPubkey: researcherPubkey,
-      "metadata.mintedResearchPaperPubkeys": paperPubkey,
     });
 
     if (!researchMintCollection) {
@@ -54,9 +48,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         address: data.address,
       });
 
-    const researchPaper = await ResearchPaperModel.findById<ResearchPaperType>(
-      data.newMintedResearchPaperPubkey,
-    );
+    const researchPaper = await ResearchPaperModel.findOne<ResearchPaperType>({
+      address: data.newMintedResearchPaperPubkey,
+    });
 
     if (!researchPaper) {
       return toErrResponse("Research Paper not found");
@@ -72,7 +66,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           $addToSet: {
             "metadata.mintedResearchPaperPubkeys": researchPaper.address,
           },
-        },
+        }
       );
 
       return toSuccessResponse({
@@ -91,7 +85,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       };
 
       newResearchMintCollection = await ResearchMintCollectionModel.create(
-        newResearchMintCollection,
+        newResearchMintCollection
       );
 
       return toSuccessResponse({
