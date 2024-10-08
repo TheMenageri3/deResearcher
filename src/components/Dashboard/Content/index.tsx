@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useUserStore } from "@/app/store/userStore";
 import DashboardCard from "@/components/Dashboard/Card";
 import H3 from "@/components/H3";
@@ -19,7 +19,8 @@ interface DashboardContentProps {
 export default function DashboardContent({
   initialAuthState,
 }: DashboardContentProps) {
-  const { isAuthenticated, wallet, checkAuth, isLoading } = useUserStore();
+  const { isAuthenticated, wallet, checkAuth, researcherProfile, isLoading } =
+    useUserStore();
   const [localAuthState, setLocalAuthState] = useState(initialAuthState);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
@@ -44,7 +45,7 @@ export default function DashboardContent({
     .filter((paper) => paper.state === PAPER_STATUS.IN_PEER_REVIEW)
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 5)
     .map((paper) => ({
@@ -55,6 +56,30 @@ export default function DashboardContent({
       domains: paper.domains,
       status: paper.state,
     }));
+
+  // conditionally show cards based on researcher profile
+  const CardContent = useMemo(() => {
+    const cards = [
+      {
+        title: "Upload your paper 🦒",
+        description:
+          "Contribute to the community by sharing your research and gaining valuable peer feedback.",
+        buttonText: "Upload Paper",
+        path: "/dashboard/papers/create",
+      },
+    ];
+
+    if (!researcherProfile) {
+      cards.unshift({
+        title: "Complete your profile ⚡",
+        description: "Please complete your profile to create a paper",
+        buttonText: "Complete Profile",
+        path: "/dashboard/profile",
+      });
+    }
+
+    return cards;
+  }, [researcherProfile]);
 
   return (
     <main className="flex-1 overflow-x-hidden bg-zinc-100">
@@ -74,7 +99,7 @@ export default function DashboardContent({
       </H3>
       {latestPeerReviewingPapers.length === 0 ? (
         <P className="text-zinc-600 text-center pt-10">
-          No peer-reviewing papers found. Create a new paper to get started.
+          No peer-reviewing papers found. Upload a new paper to get started.
         </P>
       ) : (
         <Table columns={COLUMNS} data={latestPeerReviewingPapers} />
@@ -82,20 +107,3 @@ export default function DashboardContent({
     </main>
   );
 }
-
-const CardContent = [
-  {
-    title: "Complete your profile ⚡",
-    description:
-      "Ensure your profile is up to date to maximize visibility and enhance collaboration opportunities.",
-    buttonText: "Complete Profile",
-    path: "/dashboard/profile",
-  },
-  {
-    title: "Upload your paper 🦒",
-    description:
-      "Contribute to the community by sharing your research and gaining valuable peer feedback.",
-    buttonText: "Upload Paper",
-    path: "/dashboard/papers/create",
-  },
-];

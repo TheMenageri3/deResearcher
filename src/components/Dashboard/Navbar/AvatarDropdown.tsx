@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import {
@@ -21,14 +21,14 @@ import {
 import { minimizePubkey } from "@/lib/helpers";
 import { Avatar } from "@/components/Avatar";
 import { useUserStore } from "@/app/store/userStore";
-import React from "react";
+import { useRouter } from "next/navigation";
 
 export const AvatarDropdown = () => {
+  const router = useRouter();
   const { setVisible } = useWalletModal();
   const { connected, publicKey, disconnect, wallet } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
-  const { userRole, userName } = dummyUserData;
-  const { logout } = useUserStore();
+  const { logout, researcherProfile } = useUserStore();
 
   const handleConnect = () => {
     setVisible(true);
@@ -46,15 +46,15 @@ export const AvatarDropdown = () => {
   }, [disconnect, logout, publicKey]);
 
   const getDropdownLabel = () => {
-    if (userRole && userName) {
+    if (researcherProfile !== null) {
       return (
         <>
-          <div className="font-bold">{userName}</div>
-          <div className="text-xs text-zinc-500 font-normal">{userRole}</div>
+          <div className="font-bold">{researcherProfile.name}</div>
+          <div className="text-xs text-zinc-500 font-normal">
+            {researcherProfile.state === "Approved" ? "Researcher" : ""}
+          </div>
         </>
       );
-    } else if (userName) {
-      return userName;
     } else {
       return "My Account";
     }
@@ -87,6 +87,25 @@ export const AvatarDropdown = () => {
           <>
             <DropdownMenuGroup>
               <DropdownMenuItem>
+                <button
+                  onClick={() => {
+                    if (researcherProfile?.researcherPubkey) {
+                      router.push(
+                        `/profile/${researcherProfile.researcherPubkey}`,
+                      );
+                    }
+                  }}
+                  className="w-full text-left" // This ensures the button text aligns left like a normal menu item
+                >
+                  {researcherProfile !== null ? (
+                    <span>My Profile</span>
+                  ) : (
+                    <span>🚀 Explorer</span>
+                  )}
+                </button>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
                 <WalletIcon className="mr-2 h-4 w-4" />
                 <span className="truncate">{wallet?.adapter.name}</span>
               </DropdownMenuItem>
@@ -106,9 +125,4 @@ export const AvatarDropdown = () => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
-
-const dummyUserData = {
-  userName: "Adela Parkson",
-  userRole: "Researcher",
 };

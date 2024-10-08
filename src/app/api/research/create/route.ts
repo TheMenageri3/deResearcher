@@ -40,7 +40,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return toSuccessResponse(paper);
   } catch (error: any) {
-    console.error("Error in POST /api/research-papers:", error);
+    console.error("Error in POST /api/research-paper/create:", error);
 
     if (error.name === "ValidationError") {
       const validationErrors = Object.entries(error.errors).map(

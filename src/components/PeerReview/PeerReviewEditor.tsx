@@ -32,6 +32,7 @@ export default function PeerReviewEditor({
     setTimeout(onClose, 300); // Match the transition duration
   };
 
+  // TODO: Add peer review, pass paper and content
   const handleSubmit = (data: { title: string; content: string }) => {
     console.log(data);
   };

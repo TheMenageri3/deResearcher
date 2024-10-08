@@ -6,11 +6,15 @@ export const metadata: Metadata = {
   title: "Profile",
 };
 
-export default function ProfilePage() {
+export default function ProfilePage({
+  params,
+}: {
+  params: { pubkey: string };
+}) {
   return (
     <MainLayout>
       <div className="flex bg-zinc-100">
-        <ProfileComponent />
+        <ProfileComponent pubkey={params.pubkey} />
       </div>
     </MainLayout>
   );

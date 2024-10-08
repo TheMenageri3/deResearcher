@@ -1,4 +1,4 @@
-import { Rating } from "./validation";
+import { RatingSchema } from "./validation";
 
 interface ColumnDefinition {
   key: string;
@@ -47,21 +47,21 @@ export const PLACEHOLDER = `Providing a Quality Peer Review:
 - Discussion: Review if the findings are interpreted well and their significance is clear.
 `;
 
-export const RATINGCATEGORIES: (keyof Rating)[] = [
+export const RATINGCATEGORIES: (keyof RatingSchema)[] = [
   "qualityOfResearch",
   "potentialForRealWorldUseCase",
   "domainKnowledge",
   "practicalityOfResultObtained",
 ];
 
-export const RATINGCATEGORYLABELS: Record<keyof Rating, string> = {
+export const RATINGCATEGORYLABELS: Record<keyof RatingSchema, string> = {
   qualityOfResearch: "Quality of Research",
   potentialForRealWorldUseCase: "Potential for Real-World Use Case",
   domainKnowledge: "Domain Knowledge",
   practicalityOfResultObtained: "Practicality of Results Obtained",
 };
 
-export const INITIALRATING: Rating = {
+export const INITIALRATING: RatingSchema = {
   qualityOfResearch: 0,
   potentialForRealWorldUseCase: 0,
   domainKnowledge: 0,

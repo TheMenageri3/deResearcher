@@ -3,10 +3,10 @@ import H4 from "../H4";
 import P from "../P";
 import { AvatarWithName } from "../Avatar";
 import { getScoreColorClass } from "@/lib/helpers";
-import { Review } from "@/lib/validation";
+import { PeerReviewSchema } from "@/lib/validation";
 
 interface PeerReviewProps {
-  review: Review & { time: string };
+  review: PeerReviewSchema & { time: string };
   isExpanded: boolean;
   onToggle: () => void;
 }

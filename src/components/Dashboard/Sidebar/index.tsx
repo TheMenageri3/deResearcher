@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,6 +14,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { useUserStore } from "@/app/store/userStore";
+import { PAPER_STATUS } from "@/lib/constants";
 
 type LinkDefinition = {
   name: string;
@@ -21,28 +24,41 @@ type LinkDefinition = {
   subItems?: { name: string; href: string }[];
 };
 
-const links: LinkDefinition[] = [
-  { name: "Dashboard", icon: Home, href: "/dashboard" },
-  { name: "Profile", icon: User2Icon, href: "/dashboard/profile" },
-  {
-    name: "Papers",
-    icon: FileText,
-    href: "/dashboard/papers/overview",
-    subItems: [
-      { name: "Overview", href: "/dashboard/papers/overview" },
-      { name: "Minted", href: "/dashboard/papers/minted" },
-    ],
-  },
-  { name: "Reviews", icon: Star, href: "/dashboard/reviews" },
-  { name: "Labs", icon: Beaker, href: "/dashboard/labs" },
-];
-
 export default function Sidebar() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [papersExpanded, setPapersExpanded] = useState(false);
   const pathname = usePathname();
 
   const isPapersRoute = pathname.startsWith("/dashboard/papers");
+
+  const { researcherProfile, isLoading } = useUserStore();
+
+  const dynamicLinks = useMemo(() => {
+    const baseLinks = [
+      { name: "Dashboard", icon: Home, href: "/dashboard" },
+      {
+        name: "Papers",
+        icon: FileText,
+        href: "/dashboard/papers/overview",
+        subItems: [
+          { name: "Overview", href: "/dashboard/papers/overview" },
+          { name: "Minted", href: `/dashboard/papers/${PAPER_STATUS.MINTED}` },
+        ],
+      },
+      { name: "Reviews", icon: Star, href: "/dashboard/reviews" },
+      { name: "Labs", icon: Beaker, href: "/dashboard/labs" },
+    ];
+
+    if (researcherProfile === null) {
+      baseLinks.splice(1, 0, {
+        name: "Profile",
+        icon: User2Icon,
+        href: "/dashboard/profile",
+      });
+    }
+
+    return baseLinks;
+  }, [researcherProfile]);
 
   useEffect(() => {
     if (isPapersRoute) {
@@ -105,7 +121,7 @@ export default function Sidebar() {
         </button>
       </div>
       <nav className="mt-8">
-        {links.map((item) => (
+        {dynamicLinks.map((item) => (
           <div key={item.name}>
             <Link
               href={item.href}

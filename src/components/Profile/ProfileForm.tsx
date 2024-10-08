@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,7 +12,7 @@ import CustomFormItem from "../CustomForm";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Camera, Upload } from "lucide-react";
+import { Camera, Loader2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/app/store/userStore";
 
@@ -20,36 +20,42 @@ type ProfileFormProps = {
   initialData: ProfileFormData & { isVerified: boolean; id: string };
 };
 
-export default function ProfileForm({ initialData }: ProfileFormProps) {
+export default function ProfileForm() {
   // const [isEditing, setIsEditing] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const createResearcherProfile = useUserStore(
-    (state) => state.createResearcherProfile
+    (state) => state.createResearcherProfile,
   );
+
+  const publicKey = useUserStore((state) => state.wallet);
 
   const form = useForm<z.infer<typeof ProfileFormData>>({
     resolver: zodResolver(ProfileFormData),
-    defaultValues: initialData,
+    defaultValues: {
+      name: "",
+      email: "",
+      organization: "",
+      socialLinks: "",
+      bio: "",
+      profileImage: undefined,
+    },
   });
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        form.setValue("profileImage", file);
-      };
-      reader.readAsDataURL(file);
+      form.setValue("profileImage", file);
     }
   };
 
   const handleSubmit = async (values: ProfileFormData) => {
     try {
+      console.log(values);
       // setIsEditing(false);
       await createResearcherProfile(values);
-      // router.push(`/profile/${initialData.id}`);
+      router.push(`/profile/${publicKey}`);
     } catch (error) {
       console.error("An error occurred:", error);
     }
@@ -237,7 +243,11 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           >
             {form.watch("profileImage") ? (
               <img
-                src={""}
+                src={
+                  form.watch("profileImage") instanceof File
+                    ? URL.createObjectURL(form.watch("profileImage") as File)
+                    : undefined
+                }
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -265,14 +275,11 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
               <CustomFormItem
                 label="Name"
                 field={field}
-                placeholder="Enter your name"
+                placeholder="Joe Bloggs"
               />
             )}
             required
           />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="email"
@@ -285,6 +292,9 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             )}
             required
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="organization"
@@ -296,21 +306,18 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
               />
             )}
           />
-        </div>
-
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="socialLinks"
             render={({ field }) => (
               <CustomFormItem
-                label="Twitter/X/Facebook/LinkedIn"
+                label="Twitter/X/Facebook/LinkedIn/Github"
                 field={field}
                 placeholder="Enter your social link"
               />
             )}
           />
-        </div> */}
+        </div>
 
         <FormField
           control={form.control}
@@ -332,7 +339,14 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             className="w-40 bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? "Creating..." : "Create Profile"}
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Profile"
+            )}
           </Button>
         </div>
       </form>
