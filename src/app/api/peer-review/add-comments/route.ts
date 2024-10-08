@@ -7,12 +7,7 @@ import {
   ResearchPaperModel,
 } from "@/app/models";
 import { toErrResponse, toSuccessResponse } from "../../helpers";
-import {
-  AddPeerReviewCommentsSchema,
-  PeerReviewType,
-  ResearcherProfileType,
-  ResearchPaperType,
-} from "../../types";
+import { AddPeerReviewCommentsSchema, PeerReviewType } from "../../types";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   await connectToDatabase();
@@ -22,64 +17,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const data = AddPeerReviewCommentsSchema.parse(unsafeData);
 
-    // Validate that the reviewer exists
-    const reviewer =
-      await ResearcherProfileModel.findOne<ResearcherProfileType>({
-        researcherPubkey: data.reviewerPubkey,
-      });
-
-    if (!reviewer) {
-      return toErrResponse("Reviewer not found");
-    }
-
-    // Validate that the paper exists
-    const paper = await ResearchPaperModel.findOne<ResearchPaperType>({
-      paperPubkey: data.paperPubkey,
-    });
-
-    if (!paper) {
-      return toErrResponse("Paper not found");
-    }
-
     const existingPeerReview = await PeerReviewModel.findOne<PeerReviewType>({
       address: data.address,
     });
 
-    if (existingPeerReview) {
-      await PeerReviewModel.updateOne<PeerReviewType>(
-        {
-          address: data.address,
-        },
-        {
-          $set: {
-            metadata: {
-              title: data.title,
-              reviewComments: data.reviewComments,
-            },
-          },
-        }
-      );
-
-      return toSuccessResponse(existingPeerReview);
-    } else {
-      const newPeerReview = await PeerReviewModel.create<PeerReviewType>({
-        address: data.address,
-        reviewerPubkey: data.reviewerPubkey,
-        paperPubkey: data.paperPubkey,
-        qualityOfResearch: 0,
-        potentialForRealWorldUseCase: 0,
-        domainKnowledge: 0,
-        practicalityOfResultObtained: 0,
-        metaDataMerkleRoot: data.metaDataMerkleRoot,
-        metadata: {
-          title: data.title,
-          reviewComments: data.reviewComments,
-        },
-        bump: data.bump,
-      });
-
-      return toSuccessResponse(newPeerReview);
+    if (!existingPeerReview) {
+      return toErrResponse("Peer Review not found");
     }
+    await PeerReviewModel.updateOne<PeerReviewType>(
+      {
+        address: data.address,
+      },
+      {
+        $set: {
+          metadata: {
+            title: data.title,
+            reviewComments: data.reviewComments,
+          },
+        },
+      }
+    );
+
+    return toSuccessResponse(existingPeerReview);
   } catch (error: any) {
     console.error("Error in POST /api/peer-reviews:", error);
 

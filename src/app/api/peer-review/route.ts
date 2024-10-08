@@ -41,35 +41,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return toErrResponse("Paper not found");
     }
 
-    const existingPeerReview = await PeerReviewModel.findOne<PeerReviewType>({
-      address: data.address,
-    });
+    // Create the new PeerReview document
+    const newPeerReview = await PeerReviewModel.create<PeerReviewType>(data);
 
-    if (existingPeerReview) {
-      await PeerReviewModel.updateOne<PeerReviewType>(
-        {
-          address: data.address,
-        },
-        {
-          $set: {
-            qualityOfResearch: data.qualityOfResearch,
-            potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
-            domainKnowledge: data.domainKnowledge,
-            practicalityOfResultObtained: data.practicalityOfResultObtained,
-            metaDataMerkleRoot: data.metaDataMerkleRoot,
-            metadata: data.metadata,
-            bump: data.bump,
-          },
-        }
-      );
-
-      return toSuccessResponse(existingPeerReview);
-    } else {
-      // Create the new PeerReview document
-      const newPeerReview = await PeerReviewModel.create<PeerReviewType>(data);
-
-      return toSuccessResponse(newPeerReview);
-    }
+    return toSuccessResponse(newPeerReview);
   } catch (error: any) {
     console.error("Error in POST /api/peer-reviews:", error);
 

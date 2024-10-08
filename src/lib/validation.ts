@@ -38,7 +38,7 @@ export const PaperFormData = z.object({
         val
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean),
+          .filter(Boolean)
       ),
       z.array(z.string()),
     ])
@@ -47,11 +47,11 @@ export const PaperFormData = z.object({
         Array.isArray(value)
           ? value.every((author) => author.length >= 2)
           : true,
-      "Each author name must be at least 2 characters long",
+      "Each author name must be at least 2 characters long"
     )
     .refine(
       (value) => (Array.isArray(value) ? value.length > 0 : true),
-      "Must have at least one author",
+      "Must have at least one author"
     ),
   accessFee: z
     .union([z.string(), z.number()])
@@ -62,7 +62,7 @@ export const PaperFormData = z.object({
       },
       {
         message: "Price must be a non-negative number",
-      },
+      }
     )
     .transform((val) => {
       const num = typeof val === "string" ? parseFloat(val) : val;
@@ -75,7 +75,7 @@ export const PaperFormData = z.object({
         val
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean),
+          .filter(Boolean)
       ),
       z.array(z.string()),
     ])
@@ -84,11 +84,11 @@ export const PaperFormData = z.object({
         Array.isArray(value)
           ? value.every((domain) => domain.length >= 2)
           : true,
-      "Each domain name must be at least 2 characters long",
+      "Each domain name must be at least 2 characters long"
     )
     .refine(
       (value) => (Array.isArray(value) ? value.length > 0 : true),
-      "Must have at least one domain",
+      "Must have at least one domain"
     ),
   paperImage: z
     .instanceof(File)
@@ -99,17 +99,24 @@ export const PaperFormData = z.object({
     .instanceof(File, { message: "Please upload a PDF file" })
     .refine(
       (file) => file.size <= 5000000,
-      "File size should be less than 5 MB",
+      "File size should be less than 5 MB"
     )
     .refine(
       (file) => file.type === "application/pdf",
-      "Only PDF files are allowed",
+      "Only PDF files are allowed"
     ),
 });
 
-export const PeerReviewFormData = z.object({
+export const PeerReviewCommentsFormData = z.object({
   title: z.string(),
   reviewComments: z.string(),
+});
+
+export const PeerReviewRatingFormData = z.object({
+  qualityOfResearch: z.number(),
+  potentialForRealWorldUseCase: z.number(),
+  domainKnowledge: z.number(),
+  practicalityOfResultObtained: z.number(),
 });
 
 export const RatingSchema = z.object({
@@ -174,7 +181,11 @@ export const PaperSchema = z.object({
 // TypeScript types
 export type ProfileFormData = z.infer<typeof ProfileFormData>;
 export type PaperFormData = z.infer<typeof PaperFormData>;
-export type PeerReviewFormData = z.infer<typeof PeerReviewFormData>;
+export type PeerReviewCommentsFormData = z.infer<
+  typeof PeerReviewCommentsFormData
+>;
+
+export type PeerReviewRatingFormData = z.infer<typeof PeerReviewRatingFormData>;
 export type PeerReviewSchema = z.infer<typeof PeerReviewSchema>;
 export type PaperSchema = z.infer<typeof PaperSchema>;
 export type RatingSchema = z.infer<typeof RatingSchema>;

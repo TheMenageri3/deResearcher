@@ -95,10 +95,6 @@ export type PushToResearchMintCollection = {
 
 export type AddPeerReviewComments = {
   address: string;
-  reviewerPubkey: string;
-  paperPubkey: string;
   title: string;
   reviewComments: string;
-  metaDataMerkleRoot: string;
-  bump: number;
 };

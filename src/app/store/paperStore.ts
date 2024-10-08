@@ -6,12 +6,19 @@ import {
   ResearchPaperMetadata,
   ResearchPaperType,
 } from "@/lib/types";
-import { PaperFormData } from "@/lib/validation";
+import {
+  PaperFormData,
+  PeerReviewCommentsFormData,
+  PeerReviewRatingFormData,
+} from "@/lib/validation";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
 import { toPaperDbState } from "@/lib/helpers";
 import { useUserStore } from "./userStore";
-import { PushToResearchMintCollection } from "../api/types";
+import {
+  AddPeerReviewComments,
+  PushToResearchMintCollection,
+} from "@/lib/types";
 
 interface PaperStore {
   papers: ResearchPaperType[];
@@ -39,14 +46,19 @@ interface PaperStore {
     paper: PaperFormData
   ) => Promise<{ success: boolean; error?: string }>;
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
-  // addPeerReview: (
-  //   paper: ResearchPaperType,
-  //   data: PeerReviewFormData,
-  // ) => Promise<void>;
+  addPeerReviewRating: (
+    paper: ResearchPaperType,
+    data: PeerReviewRatingFormData
+  ) => Promise<void>;
+  addPeerReviewComments: (
+    paper: PeerReviewType,
+    data: PeerReviewCommentsFormData
+  ) => Promise<void>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
   pushToPapersStore: (paper: ResearchPaperType) => void;
   pushToPeerReviewsStore: (peerReview: PeerReviewType) => void;
+  updatePeerReviewInStore: (peerReview: PeerReviewType) => void;
   updatePaperInStore: (paper: ResearchPaperType) => void;
 }
 
@@ -256,68 +268,101 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       set({ error: "Failed to publish paper", isLoading: false });
     }
   },
-  // addPeerReview: async (paper, data) => {
-  //   const { sdk: sdkInstance } = useSDKStore.getState();
-  //   const { pushToPeerReviewsStore } = get();
-  //   if (!sdkInstance) {
-  //     set({ error: "SDK not initialized" });
-  //     return;
-  //   }
-  //   set({ isLoading: true });
-  //   try {
-  //     // on-chain part
+  addPeerReviewRating: async (paper, data) => {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+    const { pushToPeerReviewsStore } = get();
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      // on-chain part
 
-  //     const metaDataMerkleRoot =
-  //       await sdk.SDK.compressObjectAndGenerateMerkleRoot({
-  //         ...data,
-  //       });
+      const metaDataMerkleRoot =
+        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
+          ...data,
+        });
 
-  //     const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
-  //       qualityOfResearch: data.qualityOfResearch,
-  //       practicalityOfResultObtained: data.practicalityOfResultObtained,
-  //       potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
-  //       metaDataMerkleRoot: metaDataMerkleRoot,
-  //       domainKnowledge: data.domainKnowledge,
-  //     };
+      const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
+        qualityOfResearch: data.qualityOfResearch,
+        practicalityOfResultObtained: data.practicalityOfResultObtained,
+        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+        metaDataMerkleRoot: metaDataMerkleRoot,
+        domainKnowledge: data.domainKnowledge,
+      };
 
-  //     const peerReview = await sdkInstance.addPeerReview(
-  //       paper.address,
-  //       addPeerReviewData,
-  //     );
+      const peerReview = await sdkInstance.addPeerReview(
+        paper.address,
+        addPeerReviewData
+      );
 
-  //     // off-chain part
+      // off-chain part
 
-  //     const addPeerReviewDbData: AddPeerReview = {
-  //       reviewerPubkey: sdkInstance.pubkey.toBase58(),
-  //       address: peerReview.address.toBase58(),
-  //       paperPubkey: paper.address,
-  //       qualityOfResearch: data.qualityOfResearch,
-  //       practicalityOfResultObtained: data.practicalityOfResultObtained,
-  //       potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
-  //       metaDataMerkleRoot,
-  //       domainKnowledge: data.domainKnowledge,
-  //       metadata: {
-  //         title: paper.metadata.title,
-  //         reviewComments: data.reviewComments,
-  //       },
-  //       bump: peerReview.bump,
-  //     };
+      const addPeerReviewDbData: AddPeerReview = {
+        reviewerPubkey: sdkInstance.pubkey.toBase58(),
+        address: peerReview.address.toBase58(),
+        paperPubkey: paper.address,
+        qualityOfResearch: data.qualityOfResearch,
+        practicalityOfResultObtained: data.practicalityOfResultObtained,
+        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+        metaDataMerkleRoot,
+        domainKnowledge: data.domainKnowledge,
+        metadata: {
+          title: "...",
+          reviewComments: "...",
+        },
+        bump: peerReview.bump,
+      };
 
-  //     // Add the peer review to the store
+      // Add the peer review to the store
 
-  //     const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
-  //       addPeerReviewDbData,
-  //     );
+      const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
+        addPeerReviewDbData
+      );
 
-  //     // Add the peer review to the store
+      // Add the peer review to the store
 
-  //     pushToPeerReviewsStore(newPeerReview);
+      pushToPeerReviewsStore(newPeerReview);
 
-  //     set({ isLoading: false });
-  //   } catch (error: any) {
-  //     set({ error: "Failed to add peer review", isLoading: false });
-  //   }
-  // },
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ error: "Failed to add peer review", isLoading: false });
+    }
+  },
+
+  addPeerReviewComments: async (peerReview, data) => {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+
+    const { updatePeerReviewInStore } = get();
+
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      // off-chain part
+
+      const addPeerReviewCommentsDbData: AddPeerReviewComments = {
+        address: peerReview.address,
+        title: data.title,
+        reviewComments: data.reviewComments,
+      };
+
+      const updatedPeerReview: PeerReviewType = await addCommentsPeerReviewDB(
+        addPeerReviewCommentsDbData
+      );
+
+      // Add the peer review to the store
+
+      updatePeerReviewInStore(updatedPeerReview);
+
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ error: "Failed to add peer review comments", isLoading: false });
+    }
+  },
   mintResearchPaper: async (paper) => {
     const { sdk: sdkInstance } = useSDKStore.getState();
     const { researchMintCollection, updateResearchMintCollection } =
@@ -409,6 +454,14 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
   pushToPeerReviewsStore: (peerReview) => {
     set((state) => ({ peerReviews: [...state.peerReviews, peerReview] }));
+  },
+
+  updatePeerReviewInStore: (peerReview) => {
+    set((state) => ({
+      peerReviews: state.peerReviews.map((p) =>
+        p.address === peerReview.address ? peerReview : p
+      ),
+    }));
   },
 
   setError: (error) => set({ error }),
@@ -519,6 +572,19 @@ async function updateResearchPaperDB(data: {}) {
 
   if (!response.ok) {
     throw new Error("Failed to update research paper");
+  }
+
+  return await response.json();
+}
+
+async function addCommentsPeerReviewDB(data: AddPeerReviewComments) {
+  const response = await fetch("/api/peer-review/add-comments", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update peer review");
   }
 
   return await response.json();
