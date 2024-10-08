@@ -6,11 +6,11 @@ import { Suspense } from "react";
 import Spinner from "@/components/Spinner";
 
 async function fetchPaperData(status: string, paper_id: string) {
-  console.log("Starting to fetch paper data...");
-
   const res = await fetch(
-    `http://localhost:3000/api/research/${status}/${paper_id}`,
-    { cache: "no-store" },
+    `${process.env.BASE_URL}/api/research/${status}/${paper_id}`,
+    {
+      cache: "no-store",
+    },
   );
 
   if (!res.ok) {

@@ -1,12 +1,11 @@
 "use client";
 
 import MainLayout from "@/app/main-layout";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PaperList from "../Paper/PaperList";
 import { Input } from "@/components/ui/input";
 import H3 from "@/components/H3";
 import { ChevronDown } from "lucide-react";
-import { usePaperStore } from "@/app/store/paperStore";
 import Spinner from "../Spinner";
 
 interface ResearchLayoutProps {
@@ -14,15 +13,37 @@ interface ResearchLayoutProps {
   state: string;
 }
 
+async function fetchPapersByState(state: string) {
+  const response = await fetch(`/api/research?researchPaperstate=${state}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch papers: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data;
+}
+
 export default function ResearchPaperLayout({
   title,
   state,
 }: ResearchLayoutProps) {
-  const { fetchPapersByState, papers, isLoading } = usePaperStore();
+  const [papers, setPapers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchPapersByState(state);
-  }, [fetchPapersByState, state]);
+    async function fetchPapers() {
+      setIsLoading(true);
+      try {
+        const fetchedPapers = await fetchPapersByState(state);
+        setPapers(fetchedPapers);
+      } catch (error) {
+        console.error("Error fetching papers:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPapers();
+  }, [state, setIsLoading]);
 
   return (
     <MainLayout>
@@ -52,6 +73,8 @@ export default function ResearchPaperLayout({
         </div>
         {isLoading ? (
           <Spinner />
+        ) : papers.length === 0 ? (
+          <div className="text-center text-zinc-500">No papers found </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <PaperList papers={papers} />

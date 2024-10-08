@@ -53,14 +53,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     // Fetch Research Papers UI
-    const fetchResearchPapersUI = async () => {
-      if (!sdk || papers?.length > 0) return;
-      try {
-        await fetchAndStorePapers();
-      } catch (error) {
-        console.error("Error fetching Research Papers:", error);
-      }
-    };
+    // const fetchResearchPapersUI = async () => {
+    //   if (!sdk || papers?.length > 0) return;
+    //   try {
+    //     await fetchAndStorePapers();
+    //   } catch (error) {
+    //     console.error("Error fetching Research Papers:", error);
+    //   }
+    // };
 
     // Fetch Research Mint Collection UI
     const fetchResearchMintCollectionUI = async () => {
@@ -74,7 +74,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (sdk) {
       fetchResearcherProfileUI();
-      fetchResearchPapersUI();
+      // fetchResearchPapersUI();
       fetchResearchMintCollectionUI();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

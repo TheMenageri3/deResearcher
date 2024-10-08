@@ -10,7 +10,7 @@ import {
   ResearchMintCollectionType,
 } from "@/lib/types";
 import { ProfileFormData } from "@/lib/validation";
-import { ResearcherProfileType } from "../api/types";
+import { ResearcherProfileType, ResearchPaperType } from "../api/types";
 
 interface UserState {
   isAuthenticated: boolean;
@@ -30,7 +30,7 @@ interface UserState {
   fetchAndStoreResearcherProfile: () => Promise<void>;
   fetchAndStoreResearchMintCollection: () => Promise<void>;
   updateResearchMintCollection: (
-    researchMintCollection: ResearchMintCollectionType
+    researchMintCollection: ResearchMintCollectionType,
   ) => void;
 }
 
@@ -79,7 +79,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       const encodedMessage = getEncodedLoginMessage(
-        wallet.publicKey.toBase58()
+        wallet.publicKey.toBase58(),
       );
       const signature = await wallet.signMessage(encodedMessage);
 
@@ -166,13 +166,11 @@ export const useUserStore = create<UserState>((set, get) => ({
 
     try {
       // on-chain part
-
-      // arweave part
-
       const filesToUpload: File[] = [];
       const tags = [];
+
       if (data.profileImage) {
-        filesToUpload.push(data.profileImage);
+        filesToUpload.push(data.profileImage as File);
         tags.push([
           {
             name: "Content-Type",
@@ -194,7 +192,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       if (filesToUpload.length > 0) {
         arweaveUploadedIds = await sdkInstance.arweaveUploadFiles(
           filesToUpload,
-          tags
+          tags,
         );
       }
 
@@ -207,16 +205,22 @@ export const useUserStore = create<UserState>((set, get) => ({
         organization: data.organization,
         bio: data.bio,
         profileImageURI: arweaveUploadedIds[0],
-        backgroundImageURI: arweaveUploadedIds[1],
+        backgroundImageURI: "",
         externalResearchProfiles: data.externalResearchProfiles,
         interestedDomains: data.interestedDomains,
         topPublications: data.topPublications,
-        socialLinks: data.socialLinks,
+
+        // The reason we use this is that when setting an array for form validation,
+        // it always shows "expected array, but got string" no matter what the user passes.
+        // So, we accept a string in form validation and convert it to an array here.
+        socialLinks: Array.isArray(data.socialLinks)
+          ? [...data.socialLinks]
+          : [data.socialLinks],
       };
 
       const metadataMerkleRoot =
         await sdk.SDK.compressObjectAndGenerateMerkleRoot(
-          researcherProfileMetadata
+          researcherProfileMetadata,
         );
 
       const createResearcherProfileInput: Omit<
@@ -228,7 +232,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       };
 
       const researcherProfile = await sdkInstance.createResearcherProfile(
-        createResearcherProfileInput
+        createResearcherProfileInput,
       );
 
       // off-chain part
@@ -252,7 +256,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       if (!response.ok) {
         throw new Error(
-          `Failed to create researcher profile: ${response.statusText}`
+          `Failed to create researcher profile: ${response.statusText}`,
         );
       }
 
@@ -321,11 +325,11 @@ async function fetchResearcherProfile(researcherPubkey: string) {
   const urlSearchParams = new URLSearchParams({ researcherPubkey });
 
   const response = await fetch(
-    `/api/researcher-profile?${urlSearchParams.toString()}`
+    `/api/researcher-profile?${urlSearchParams.toString()}`,
   );
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch researcher profile: ${response.statusText}`
+      `Failed to fetch researcher profile: ${response.statusText}`,
     );
   }
   return await response.json();
@@ -336,7 +340,7 @@ async function fetchResearchMintCollection(researcherPubkey: string) {
   const response = await fetch(`/api/mint?${urlSearchParams.toString()}`);
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch research mint collection: ${response.statusText}`
+      `Failed to fetch research mint collection: ${response.statusText}`,
     );
   }
   return await response.json();

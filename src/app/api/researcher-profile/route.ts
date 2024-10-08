@@ -37,10 +37,10 @@ export async function POST(req: NextRequest) {
           field,
           message: err.message,
           value: err.value,
-        })
+        }),
       );
       return toErrResponse(
-        "Error in validation : " + JSON.stringify(validationErrors)
+        "Error in validation : " + JSON.stringify(validationErrors),
       );
     }
     return toErrResponse("Error creating Researcher Profile");

@@ -17,8 +17,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Camera, Upload } from "lucide-react";
+import { Camera, Loader2, Upload } from "lucide-react";
 import { z } from "zod";
+import React from "react";
 
 type PaperFormDataType = z.infer<typeof PaperFormData>;
 
@@ -126,8 +127,7 @@ export default function CreatePaperForm() {
                   placeholder="Enter price (SOL)"
                   inputProps={{
                     type: "number",
-                    step: "0.01",
-                    min: "0",
+                    min: 0,
                   }}
                 />
               )}
@@ -245,7 +245,14 @@ export default function CreatePaperForm() {
             variant="default"
             disabled={isLoading}
           >
-            {isLoading ? "Creating..." : "Create Paper"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Paper"
+            )}
           </Button>
         </div>
       </form>

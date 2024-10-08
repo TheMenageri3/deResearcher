@@ -1,15 +1,20 @@
 import { PAPER_STATUS } from "@/lib/constants";
 import { SolanaLogo } from "@/components/SolanaLogo";
 import { Button } from "@/components/ui/button";
-import { Paper } from "@/lib/validation";
+import { PaperSchema } from "@/lib/validation";
+import { Loader2 } from "lucide-react";
+import React from "react";
+PaperSchema;
 
 interface PaperActionButtonProps {
-  paper: Paper;
+  paper: PaperSchema;
   size?: string;
   onToggleReview?: () => void;
   onUpdateNewPaper?: () => void; // TODO: Implement later
   onPublishPaper?: () => void; // TODO: Implement later
-  onBuyPaper?: () => void; // TODO: Implement later
+  onBuyPaper?: () => void;
+  isLoading?: boolean;
+  isOwner?: boolean;
 }
 
 const PaperActionButton: React.FC<PaperActionButtonProps> = ({
@@ -19,10 +24,22 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
   onPublishPaper,
   onBuyPaper,
   size = "lg",
+  isLoading,
+  isOwner,
 }) => {
+
   const getButtonContent = () => {
+    if (isOwner) {
+      return {
+        text: "Publish Paper",
+        action: onPublishPaper,
+        icon: null,
+      };
+    }
+
     switch (paper.state) {
-      case PAPER_STATUS.AWAITING_PEER_REVIEW || PAPER_STATUS.IN_PEER_REVIEW:
+      case PAPER_STATUS.AWAITING_PEER_REVIEW:
+      case PAPER_STATUS.IN_PEER_REVIEW:
         return {
           text: "Write Review",
           action: onToggleReview,
@@ -34,12 +51,12 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
           action: onUpdateNewPaper,
           icon: null,
         };
-      case PAPER_STATUS.APPROVED:
-        return {
-          text: "Publish Paper",
-          action: onPublishPaper,
-          icon: null,
-        };
+      // case PAPER_STATUS.APPROVED:
+      //   return {
+      //     text: "Publish Paper",
+      //     action: onPublishPaper,
+      //     icon: null,
+      //   };
       case PAPER_STATUS.PUBLISHED:
       case PAPER_STATUS.MINTED:
         return {
@@ -67,10 +84,20 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
       className="w-full md:w-[240px] text-sm flex items-center justify-center bg-primary hover:bg-primary/90"
       onClick={action}
       size={size === "lg" ? "lg" : "sm"}
+      disabled={isLoading}
     >
-      {<span className="mr-2">{buy}</span>}
-      {icon}
-      {text}
+      {isLoading ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading...
+        </>
+      ) : (
+        <>
+          {buy && <span className="mr-2">{buy}</span>}
+          {icon}
+          {text}
+        </>
+      )}
     </Button>
   );
 };

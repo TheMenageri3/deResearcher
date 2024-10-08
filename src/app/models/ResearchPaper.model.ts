@@ -53,6 +53,7 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
       type: String,
       enum: Object.values(sdk.PaperState),
       required: true,
+      index: true,
     },
     accessFee: {
       type: Number,
@@ -112,7 +113,7 @@ const ResearchPaperSchema: Schema = new Schema<ResearchPaper>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.models.ResearchPaper ||

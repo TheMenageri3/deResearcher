@@ -11,7 +11,6 @@ export default async function DashboardPage() {
       user = JSON.parse(authCookie.value);
     } catch (error) {
       console.error("Error parsing auth cookie:", error);
-      // If there's an error parsing, we'll use the default user object
     }
   }
 

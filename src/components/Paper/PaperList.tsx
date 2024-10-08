@@ -1,9 +1,9 @@
 import React from "react";
 import PaperCard from "./PaperCard";
-import { Paper } from "@/lib/validation";
+import { PaperSchema } from "@/lib/validation";
 
 interface PaperListProps {
-  papers: Paper[];
+  papers: PaperSchema[];
 }
 
 export default function PaperList({ papers }: PaperListProps) {

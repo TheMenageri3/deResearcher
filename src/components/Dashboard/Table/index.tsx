@@ -95,7 +95,8 @@ const TableRow: React.FC<{
             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
               item.status === PAPER_STATUS.APPROVED
                 ? "bg-secondary-foreground text-secondary"
-                : item.status === PAPER_STATUS.IN_PEER_REVIEW
+                : item.status === PAPER_STATUS.IN_PEER_REVIEW ||
+                  item.status === PAPER_STATUS.AWAITING_PEER_REVIEW
                 ? "bg-primary-foreground text-primary"
                 : item.status === PAPER_STATUS.PUBLISHED
                 ? "bg-accent text-accent-foreground"
@@ -131,25 +132,38 @@ export default function Table({
       return [];
     }
 
+    const formattedData = data.map((item) => ({
+      ...item,
+      createdDate: item.createdDate || "N/A",
+    }));
+
     if (sortConfig !== null) {
-      return [...data].sort((a, b) => {
+      return formattedData.sort((a, b) => {
         if (sortConfig.key === "createdDate") {
+          // Parse dates, defaulting to the earliest possible date if invalid
+          const dateA =
+            a.createdDate !== "N/A" ? new Date(a.createdDate) : new Date(0);
+          const dateB =
+            b.createdDate !== "N/A" ? new Date(b.createdDate) : new Date(0);
+
           return sortConfig.direction === "asc"
-            ? new Date(a.createdDate).getTime() -
-                new Date(b.createdDate).getTime()
-            : new Date(b.createdDate).getTime() -
-                new Date(a.createdDate).getTime();
+            ? dateA.getTime() - dateB.getTime()
+            : dateB.getTime() - dateA.getTime();
         }
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+
+        const valueA = a[sortConfig.key] ?? "";
+        const valueB = b[sortConfig.key] ?? "";
+
+        if (valueA < valueB) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (valueA > valueB) {
           return sortConfig.direction === "asc" ? 1 : -1;
         }
         return 0;
       });
     }
-    return data;
+    return formattedData;
   }, [data, sortConfig]);
 
   const requestSort = (key: string) => {
@@ -165,7 +179,7 @@ export default function Table({
   };
 
   const handleRowClick = (item: { id: string; status: string }) =>
-    router.push(`/research/${item.status.toLowerCase()}/${item.id}`);
+    router.push(`/research/${item.status}/${item.id}`);
 
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available</div>;
@@ -185,7 +199,7 @@ export default function Table({
               <tbody className="bg-white divide-y divide-zinc-200 text-pretty">
                 {sortedData.map((item, index) => (
                   <TableRow
-                    key={item.id || index}
+                    key={item.address || index}
                     item={item}
                     columns={columns}
                     onRowClick={handleRowClick}
