@@ -7,7 +7,7 @@ import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
 import { AvatarWithName } from "../Avatar";
 import { Lock } from "lucide-react";
-import { PaperSchema, PeerReviewSchema } from "@/lib/validation";
+import { PaperSchema, PeerReviewSchema, RatingSchema } from "@/lib/validation";
 import { formatTimeAgo } from "@/lib/helpers";
 import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
@@ -29,12 +29,20 @@ export default function PaperContentComponent({
   paper: PaperSchema;
 }) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const screenSize = useScreen();
   const isMobile = screenSize === "sm" || screenSize === "md";
   const { wallet } = useUserStore();
   const [isMinter, setIsMinter] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [submittedRating, setSubmittedRating] = useState<RatingSchema | null>(
+    null,
+  );
+  const [expandedReviews, setExpandedReviews] = useState<
+    Record<string, boolean>
+  >({});
+  const { addPeerReviewRating, mintResearchPaper, isLoading } = usePaperStore();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -52,29 +60,6 @@ export default function PaperContentComponent({
     }
   }, [paper?.peerReviews]);
 
-  const [expandedReviews, setExpandedReviews] = useState<
-    Record<string, boolean>
-  >({});
-
-  const { mintResearchPaper, isLoading } = usePaperStore();
-
-  const handleBuyPaper = useCallback(() => {
-    console.log("handleBuyPaper called");
-    const { wallet } = useUserStore.getState();
-    if (!wallet) {
-      console.error("Wallet not connected");
-      // You might want to show a message to the user here
-      return;
-    }
-    try {
-      console.log("Attempting to mint paper:", paper);
-      mintResearchPaper(paper as ResearchPaperType);
-      console.log("Paper minting initiated");
-    } catch (error) {
-      console.error("Error minting paper:", error);
-    }
-  }, [paper, mintResearchPaper]);
-
   const toggleReview = (reviewId: string) => {
     setExpandedReviews((prev) => ({
       ...prev,
@@ -89,10 +74,10 @@ export default function PaperContentComponent({
     }
   }, [wallet, paper.creatorPubkey]);
 
-  console.log(paper.creatorPubkey);
-  console.log(paper.peerReviews?.[0]?.metadata.title);
-  console.log(paper.peerReviews?.[0]?.metadata.reviewComments);
-  console.log(isMinter);
+  // console.log(paper.creatorPubkey);
+  // console.log(paper.peerReviews?.[0]?.metadata.title);
+  // console.log(paper.peerReviews?.[0]?.metadata.reviewComments);
+  // console.log(isMinter);
 
   const renderReviews = () => {
     if (!paper.peerReviews || paper.peerReviews.length === 0) {
@@ -116,8 +101,50 @@ export default function PaperContentComponent({
     ));
   };
 
+  const handleBuyPaper = useCallback(() => {
+    console.log("handleBuyPaper called");
+    const { wallet } = useUserStore.getState();
+    if (!wallet) {
+      console.error("Wallet not connected");
+      // You might want to show a message to the user here
+      return;
+    }
+    try {
+      console.log("Attempting to mint paper:", paper);
+      mintResearchPaper(paper as ResearchPaperType);
+      console.log("Paper minting initiated");
+    } catch (error) {
+      console.error("Error minting paper:", error);
+    }
+  }, [paper, mintResearchPaper]);
+
   const handleRateButtonClick = () => {
     setIsRatingModalOpen(true);
+  };
+
+  const handleRatingSubmit = async (rating: RatingSchema) => {
+    console.log("Parent component received rating:", rating);
+    const { wallet } = useUserStore.getState();
+    if (!wallet) {
+      console.error("Wallet not connected");
+      setError("Please connect your wallet before submitting a rating.");
+      return;
+    }
+    try {
+      setError(null);
+      console.log("Initiating blockchain transaction...");
+      await addPeerReviewRating(paper as unknown as ResearchPaperType, rating);
+      console.log("Rating submitted successfully");
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred while submitting the rating");
+      }
+      return;
+    }
+    setIsRatingModalOpen(false);
   };
 
   return (
@@ -251,13 +278,12 @@ export default function PaperContentComponent({
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}
       />
+
       <RatingModal
         isOpen={isRatingModalOpen}
         onClose={() => setIsRatingModalOpen(false)}
         paper={paper}
-        onSubmit={(rating) => {
-          console.log(rating);
-        }}
+        onSubmit={handleRatingSubmit}
       />
     </div>
   );
