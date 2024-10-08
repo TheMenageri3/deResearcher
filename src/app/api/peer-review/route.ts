@@ -34,7 +34,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Validate that the paper exists
     const paper = await ResearchPaperModel.findOne<ResearchPaperType>({
-      paperPubkey: data.paperPubkey,
+      address: data.paperPubkey,
     });
 
     if (!paper) {
@@ -54,10 +54,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           field,
           message: err.message,
           value: err.value,
-        }),
+        })
       );
       toErrResponse(
-        "Error in validation : " + JSON.stringify(validationErrors),
+        "Error in validation : " + JSON.stringify(validationErrors)
       );
     }
 

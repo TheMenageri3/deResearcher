@@ -6,6 +6,19 @@ import { Suspense } from "react";
 import Spinner from "@/components/Spinner";
 import { usePaperStore } from "@/app/store/paperStore";
 
+async function fetchPaperByPubkeyFromDB(status: string, paperPubkey: string) {
+  const response = await fetch(
+    `${process.env.BASE_URL}/api/research/${status}/${paperPubkey}`,
+    {
+      cache: "no-store",
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch paper");
+  }
+  return await response.json();
+}
+
 async function PaperContent({
   status,
   paperPubkey,
@@ -13,8 +26,7 @@ async function PaperContent({
   status: string;
   paperPubkey: string;
 }) {
-  const { fetchPaperByPubkey } = usePaperStore();
-  const paper = await fetchPaperByPubkey(paperPubkey);
+  const paper = await fetchPaperByPubkeyFromDB(status, paperPubkey);
 
   if (!paper) {
     return notFound();

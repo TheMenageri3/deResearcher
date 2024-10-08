@@ -14,6 +14,7 @@ interface ResearchLayoutProps {
 }
 
 async function fetchPapersByState(state: string) {
+  console.log("fetchPapersByState", state);
   const response = await fetch(`/api/research?researchPaperstate=${state}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch papers: ${response.statusText}`);
@@ -34,6 +35,7 @@ export default function ResearchPaperLayout({
       setIsLoading(true);
       try {
         const fetchedPapers = await fetchPapersByState(state);
+        console.log("fetchedPapers", fetchedPapers);
         setPapers(fetchedPapers);
       } catch (error) {
         console.error("Error fetching papers:", error);

@@ -20,6 +20,7 @@ import {
   PushToResearchMintCollection,
 } from "@/lib/types";
 import { PeerReview } from "../models";
+import { PublicKey } from "@solana/web3.js";
 
 interface PaperStore {
   papers: ResearchPaperType[];
@@ -295,8 +296,11 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         addPeerReviewData
       );
 
-      // off-chain part
+      if (!peerReview) {
+        throw new Error("Peer review not found");
+      }
 
+      // off-chain part
       const addPeerReviewDbData: AddPeerReview = {
         reviewerPubkey: sdkInstance.pubkey.toBase58(),
         address: peerReview.address.toBase58(),

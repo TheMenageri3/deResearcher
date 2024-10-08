@@ -5,16 +5,13 @@ import { ResearchPaper } from "@/app/models/ResearchPaper.model";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { status: string; paper_id: string } },
+  { params }: { params: { status: string; paperPubkey: string } }
 ): Promise<NextResponse> {
   try {
     await connectToDatabase();
-    const { status, paper_id } = params;
-
-    console.log("Fetching paper with status:", status, "and ID:", paper_id);
-
+    const { status, paperPubkey } = params;
     const paper = await ResearchPaperModel.findOne<ResearchPaper>({
-      _id: paper_id,
+      address: paperPubkey,
       state: status,
     }).lean();
 
@@ -29,7 +26,7 @@ export async function GET(
     console.error("Error in GET /api/research/[status]/[paper_id]:", error);
     return NextResponse.json(
       { error: "Error fetching Research Paper" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
