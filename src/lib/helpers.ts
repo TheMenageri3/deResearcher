@@ -36,7 +36,8 @@ const gradients = [
 ];
 
 export const getGradientForPaper = (paperId: string): string => {
-  const index = parseInt(paperId.slice(-1), 16) % gradients.length;
+  const id = Math.ceil(gradients.length + Math.random() * 10);
+  const index = id % gradients.length;
   return gradients[index];
 };
 

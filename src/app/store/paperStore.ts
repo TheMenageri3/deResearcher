@@ -19,6 +19,8 @@ import {
   AddPeerReviewComments,
   PushToResearchMintCollection,
 } from "@/lib/types";
+import { PeerReview } from "../models";
+import { PublicKey } from "@solana/web3.js";
 
 interface PaperStore {
   papers: ResearchPaperType[];
@@ -28,31 +30,30 @@ interface PaperStore {
   fetchAndStorePapers: () => Promise<void>;
   fetchPapersByState: (state: string) => Promise<ResearchPaperType[] | null>;
   fetchPaperByPubkey: (
-    state: string,
-    paperPubkey: string,
-  ) => Promise<ResearchPaperType[] | null>;
+    paperPubkey: string
+  ) => Promise<ResearchPaperType | null>;
   fetchAllPapersByResearcherPubkey: (
-    researcherPubkey: string,
+    researcherPubkey: string
   ) => Promise<ResearchPaperType[] | null>;
   fetchAndStorePeerReviewsByReviewerPubkey: (
-    reviewerPubkey: string,
+    reviewerPubkey: string
   ) => Promise<void>;
 
   fetchPeerReviewsByPaperPubkey: (
-    paperPubkey: string,
+    paperPubkey: string
   ) => Promise<PeerReviewType[] | null>;
 
   createResearchPaper: (
-    paper: PaperFormData,
+    paper: PaperFormData
   ) => Promise<{ success: boolean; error?: string }>;
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   addPeerReviewRating: (
     paper: ResearchPaperType,
-    data: PeerReviewRatingFormData,
+    data: PeerReviewRatingFormData
   ) => Promise<void>;
   addPeerReviewComments: (
     paper: PeerReviewType,
-    data: PeerReviewCommentsFormData,
+    data: PeerReviewCommentsFormData
   ) => Promise<void>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
@@ -91,12 +92,10 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return null;
     }
   },
-  fetchPaperByPubkey: async (state: string, paperId: string) => {
+  fetchPaperByPubkey: async (paperId: string) => {
     try {
-      const papers: ResearchPaperType[] = await fetchPaperByPubkeyFromDB(
-        paperId,
-      );
-      return papers;
+      const paper: ResearchPaperType = await fetchPaperByPubkeyFromDB(paperId);
+      return paper;
     } catch (error: any) {
       console.error(error);
       return null;
@@ -155,7 +154,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
                 value: "application/pdf",
               },
             ],
-          ],
+          ]
         );
 
       // Generate merkle roots for paper content and metadata
@@ -192,7 +191,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Call the SDK to create the paper
       const researchPaper = await sdkInstance.createResearchPaper(
-        createResearchPaperInput,
+        createResearchPaperInput
       );
 
       // Off-chain part
@@ -247,7 +246,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // on-chain part
       const updatedPaper = await sdkInstance.publishResearchPaper(
         paper.address,
-        paper.bump,
+        paper.bump
       );
 
       // off-chain part
@@ -256,7 +255,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedPaperDB: ResearchPaperType = await updateResearchPaperDB(
-        data,
+        data
       );
 
       // Update the paper in the store
@@ -294,11 +293,14 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       const peerReview = await sdkInstance.addPeerReview(
         paper.address,
-        addPeerReviewData,
+        addPeerReviewData
       );
 
-      // off-chain part
+      if (!peerReview) {
+        throw new Error("Peer review not found");
+      }
 
+      // off-chain part
       const addPeerReviewDbData: AddPeerReview = {
         reviewerPubkey: sdkInstance.pubkey.toBase58(),
         address: peerReview.address.toBase58(),
@@ -318,7 +320,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // Add the peer review to the store
 
       const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
-        addPeerReviewDbData,
+        addPeerReviewDbData
       );
 
       // Add the peer review to the store
@@ -351,7 +353,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedPeerReview: PeerReviewType = await addCommentsPeerReviewDB(
-        addPeerReviewCommentsDbData,
+        addPeerReviewCommentsDbData
       );
 
       // Add the peer review to the store
@@ -390,7 +392,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         paper.address,
         {
           metaDataMerkleRoot,
-        },
+        }
       );
 
       // off-chain part
@@ -404,7 +406,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedMiningCollection = await mintResearchPaperDB(
-        mintCollectionDBData,
+        mintCollectionDBData
       );
 
       // Update the mint collection in the store
@@ -421,7 +423,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const peerReviews = await fetchPeerReviewsByReviewerPubkeyFromDB(
-        reviewerPubkey,
+        reviewerPubkey
       );
       set({ peerReviews, isLoading: false });
     } catch (error: any) {
@@ -432,7 +434,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   fetchPeerReviewsByPaperPubkey: async (paperPubkey) => {
     try {
       const peerReviews = await fetchPeerReviewsByPaperPubkeyFromDB(
-        paperPubkey,
+        paperPubkey
       );
       return peerReviews;
     } catch (error: any) {
@@ -447,7 +449,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   updatePaperInStore: (paper) => {
     set((state) => ({
       papers: state.papers.map((p) =>
-        p.address === paper.address ? paper : p,
+        p.address === paper.address ? paper : p
       ),
     }));
   },
@@ -459,7 +461,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   updatePeerReviewInStore: (peerReview) => {
     set((state) => ({
       peerReviews: state.peerReviews.map((p) =>
-        p.address === peerReview.address ? peerReview : p,
+        p.address === peerReview.address ? peerReview : p
       ),
     }));
   },
