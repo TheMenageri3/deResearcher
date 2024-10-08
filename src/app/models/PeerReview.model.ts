@@ -5,15 +5,15 @@ import { isLimitedByteArray } from "@/lib/helpers";
 export interface PeerReview extends Document {
   address: string; // Review public key
   reviewerPubkey: string;
-  paperPubkey: string;
+  paperPubkey: string; // paper public key
   qualityOfResearch: number;
   potentialForRealWorldUseCase: number;
   domainKnowledge: number;
   practicalityOfResultObtained: number;
   metaDataMerkleRoot: string;
   metadata: {
-    title: string;
-    reviewComments: string;
+    title: string; // empty strings are not allowed
+    reviewComments: string; // empty strings are not allowed
   };
   bump: number;
 }

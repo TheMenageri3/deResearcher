@@ -11,10 +11,19 @@ import {
   PeerReviewCommentsFormData,
   PeerReviewRatingFormData,
 } from "@/lib/validation";
+import {
+  PaperFormData,
+  PeerReviewCommentsFormData,
+  PeerReviewRatingFormData,
+} from "@/lib/validation";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
 import { toPaperDbState } from "@/lib/helpers";
 import { useUserStore } from "./userStore";
+import {
+  AddPeerReviewComments,
+  PushToResearchMintCollection,
+} from "@/lib/types";
 import {
   AddPeerReviewComments,
   PushToResearchMintCollection,
@@ -58,6 +67,7 @@ interface PaperStore {
   setError: (error: string | null) => void;
   pushToPapersStore: (paper: ResearchPaperType) => void;
   pushToPeerReviewsStore: (peerReview: PeerReviewType) => void;
+  updatePeerReviewInStore: (peerReview: PeerReviewType) => void;
   updatePeerReviewInStore: (peerReview: PeerReviewType) => void;
   updatePaperInStore: (paper: ResearchPaperType) => void;
 }
@@ -278,12 +288,33 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true });
     try {
       // on-chain part
+  addPeerReviewRating: async (paper, data) => {
+    const { sdk: sdkInstance } = useSDKStore.getState();
+    const { pushToPeerReviewsStore } = get();
+    if (!sdkInstance) {
+      set({ error: "SDK not initialized" });
+      return;
+    }
+    set({ isLoading: true });
+    try {
+      // on-chain part
 
       const metaDataMerkleRoot =
         await sdk.SDK.compressObjectAndGenerateMerkleRoot({
           ...data,
         });
+      const metaDataMerkleRoot =
+        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
+          ...data,
+        });
 
+      const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
+        qualityOfResearch: data.qualityOfResearch,
+        practicalityOfResultObtained: data.practicalityOfResultObtained,
+        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+        metaDataMerkleRoot: metaDataMerkleRoot,
+        domainKnowledge: data.domainKnowledge,
+      };
       const addPeerReviewData: Omit<sdk.AddPeerReview, "pdaBump"> = {
         qualityOfResearch: data.qualityOfResearch,
         practicalityOfResultObtained: data.practicalityOfResultObtained,
@@ -297,6 +328,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         addPeerReviewData
       );
 
+      // off-chain part
       // off-chain part
 
       const addPeerReviewDbData: AddPeerReview = {
@@ -314,7 +346,23 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         },
         bump: peerReview.bump,
       };
+      const addPeerReviewDbData: AddPeerReview = {
+        reviewerPubkey: sdkInstance.pubkey.toBase58(),
+        address: peerReview.address.toBase58(),
+        paperPubkey: paper.address,
+        qualityOfResearch: data.qualityOfResearch,
+        practicalityOfResultObtained: data.practicalityOfResultObtained,
+        potentialForRealWorldUseCase: data.potentialForRealWorldUseCase,
+        metaDataMerkleRoot,
+        domainKnowledge: data.domainKnowledge,
+        metadata: {
+          title: "...",
+          reviewComments: "...",
+        },
+        bump: peerReview.bump,
+      };
 
+      // Add the peer review to the store
       // Add the peer review to the store
 
       const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
@@ -322,7 +370,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       );
 
       // Add the peer review to the store
+      // Add the peer review to the store
 
+      pushToPeerReviewsStore(newPeerReview);
       pushToPeerReviewsStore(newPeerReview);
 
       set({ isLoading: false });
@@ -572,6 +622,19 @@ async function updateResearchPaperDB(data: {}) {
 
   if (!response.ok) {
     throw new Error("Failed to update research paper");
+  }
+
+  return await response.json();
+}
+
+async function addCommentsPeerReviewDB(data: AddPeerReviewComments) {
+  const response = await fetch("/api/peer-review/add-comments", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update peer review");
   }
 
   return await response.json();

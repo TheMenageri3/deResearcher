@@ -205,7 +205,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         organization: data.organization,
         bio: data.bio,
         profileImageURI: arweaveUploadedIds[0],
-        backgroundImageURI: arweaveUploadedIds[1],
+        backgroundImageURI: "",
         externalResearchProfiles: data.externalResearchProfiles,
         interestedDomains: data.interestedDomains,
         topPublications: data.topPublications,

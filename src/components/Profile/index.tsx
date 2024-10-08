@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ProfileInfo } from "./ProfileInfo";
 import { ProfileBanner } from "./ProfileBanner";
 import { ProfileTabs } from "./ProfileTabs";
 import Table from "@/components/Dashboard/Table";
 
-import { formatPaper, minimizePubkey } from "@/lib/helpers";
+import { minimizePubkey } from "@/lib/helpers";
 import { PROFILE_COLUMNS } from "@/lib/constants";
 
 import { useBackgroundImage } from "@/hooks/useBackgroundImage";
@@ -28,25 +28,20 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
   const prevActiveTabRef = useRef(activeTab);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function getProfile(pubkey: string): Promise<any> {
-    try {
-      const response = await fetch(
-        `${process.env.BASE_URL}/api/researcher-profile?researcherPubkey=${pubkey}`,
-        { cache: "no-store" },
-      );
+  async function getProfile(pubkey: string): Promise<ResearcherProfileType> {
+    const response = await fetch(
+      `/api/researcher-profile?researcherPubkey=${pubkey}`,
+      { cache: "no-store" }
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log("API response:", result);
-
-      return result;
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const result = await response.json();
+    console.log("API response:", result);
+
+    return result;
   }
 
   useEffect(() => {
@@ -65,35 +60,6 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
 
     fetchProfile();
   }, [pubkey]);
-
-  // TODO: Implement API calls to get data
-  // const data = useMemo(() => {
-  //   const filterAndFormatPapers = (
-  //     papers: ResearchPaperType[],
-  //     paperIds: string[]
-  //   ) =>
-  //     papers.filter((paper) => paperIds.includes(paper._id)).map(formatPaper);
-
-  //   switch (activeTab) {
-  //     case "contributions":
-  //       return dummyUser[0].papers;
-  //     case "peer-reviews":
-  //       const reviewedPaperIds = dummyUser[0].paper_reviews.map(
-  //         (review) => review.paperId
-  //       );
-  //       return dummyPapers;
-  //     case "paid-reads":
-  //       const mintedPaperIds = dummyUser[0].minted_papers.map(
-  //         (paper) => paper.paper_id
-  //       );
-  //       return filterAndFormatPapers(
-  //         dummyPapers as ResearchPaperType[],
-  //         mintedPaperIds
-  //       );
-  //     default:
-  //       return [];
-  //   }
-  // }, [activeTab]);
 
   useEffect(() => {
     if (prevActiveTabRef.current !== activeTab && tableContainerRef.current) {
@@ -138,7 +104,6 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
             isNewBackgroundImage={isNewBackgroundImage}
           />
 
-          {/* Profile Information */}
           <ProfileInfo
             name={user?.name || ""}
             organization={user?.metadata?.organization || ""}
@@ -155,7 +120,6 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
 
           <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-          {/* Table Container to avoid jumping */}
           <div
             ref={tableContainerRef}
             className="h-[calc(100vh-400px)] overflow-y-auto"
