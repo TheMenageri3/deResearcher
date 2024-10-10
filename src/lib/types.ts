@@ -98,3 +98,13 @@ export type AddPeerReviewComments = {
   title: string;
   reviewComments: string;
 };
+
+export type PeerReviewWithResearcherProfile = {
+  peerReview: PeerReviewType;
+  researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchPaperWithResearcherProfile = {
+  researchPaper: ResearchPaperType;
+  researcherProfile: ResearcherProfileType;
+};

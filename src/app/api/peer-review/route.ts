@@ -13,6 +13,7 @@ import {
   ResearcherProfileType,
   ResearchPaperType,
 } from "../types";
+import { PeerReviewWithResearcherProfile } from "@/lib/types";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   await connectToDatabase();
@@ -94,7 +95,29 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch peer reviews based on the query
-    const peerReviews = await PeerReviewModel.find<PeerReviewType[]>(query);
+    const peerReviews = await PeerReviewModel.find<PeerReviewType>(query);
+
+    if (paperPubkey) {
+      // Fetch the researcher profile for each reviewer
+      const peerReviewsWithResearcherProfile: PeerReviewWithResearcherProfile[] =
+        [];
+
+      for (const peerReview of peerReviews) {
+        const researcherProfile =
+          await ResearcherProfileModel.findOne<ResearcherProfileType>({
+            researcherPubkey: peerReview.reviewerPubkey,
+          });
+
+        if (researcherProfile) {
+          peerReviewsWithResearcherProfile.push({
+            peerReview,
+            researcherProfile,
+          });
+        }
+      }
+
+      return toSuccessResponse(peerReviewsWithResearcherProfile);
+    }
 
     return toSuccessResponse(peerReviews);
   } catch (error: any) {
