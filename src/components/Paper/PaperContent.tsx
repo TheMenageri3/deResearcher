@@ -5,7 +5,7 @@ import H4 from "../H4";
 import P from "../P";
 import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
-import { AvatarWithName } from "../Avatar";
+import { AvatarImageOrName } from "../Avatar";
 import { Lock } from "lucide-react";
 import { PaperSchema, PeerReviewSchema, RatingSchema } from "@/lib/validation";
 import { formatTimeAgo } from "@/lib/helpers";
@@ -19,14 +19,18 @@ import { Button } from "../ui/button";
 import RatingModal from "../Rating";
 import { useUserStore } from "@/app/store/userStore";
 import { usePaperStore } from "@/app/store/paperStore";
-import { PeerReviewType, ResearchPaperType } from "@/lib/types";
+import {
+  PeerReviewType,
+  PeerReviewWithResearcherProfile,
+  ResearchPaperType,
+} from "@/lib/types";
 
 const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 
 export default function PaperContentComponent({
   paper,
 }: {
-  paper: ResearchPaperType;
+  paper: PaperSchema;
 }) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const screenSize = useScreen();
@@ -36,7 +40,7 @@ export default function PaperContentComponent({
   const [isOwner, setIsOwner] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [submittedRating, setSubmittedRating] = useState<RatingSchema | null>(
-    null
+    null,
   );
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
@@ -48,15 +52,16 @@ export default function PaperContentComponent({
     isLoading,
   } = usePaperStore();
   const [error, setError] = useState<string | null>(null);
+  const [peerReviews, setPeerReviews] = useState<
+    PeerReviewWithResearcherProfile[]
+  >([]);
 
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL(
       "pdfjs-dist/build/pdf.worker.min.mjs",
-      import.meta.url
+      import.meta.url,
     ).toString();
   }, []);
-
-  const [peerReviews, setPeerReviews] = useState<PeerReviewType[]>([]);
 
   useEffect(() => {
     const fetchPeerReviews = async () => {
@@ -92,24 +97,20 @@ export default function PaperContentComponent({
       );
     }
 
-    return peerReviews.map((review: PeerReviewType) => (
+    return peerReviews.map((review) => (
       <PeerReviewComponent
-        key={review.address}
-        review={{
-          ...review,
-        }}
-        isExpanded={!!expandedReviews[review.address]}
-        onToggle={() => toggleReview(review.address)}
+        key={review.peerReview.address}
+        review={review}
+        isExpanded={!!expandedReviews[review.peerReview.address]}
+        onToggle={() => toggleReview(review.peerReview.address)}
       />
     ));
   };
 
   const handleBuyPaper = useCallback(() => {
     console.log("handleBuyPaper called");
-    const { wallet } = useUserStore.getState();
     if (!wallet) {
       console.error("Wallet not connected");
-      // You might want to show a message to the user here
       return;
     }
     try {
@@ -128,6 +129,7 @@ export default function PaperContentComponent({
   const handleRatingSubmit = async (rating: RatingSchema) => {
     console.log("Parent component received rating:", rating);
     const { wallet } = useUserStore.getState();
+
     if (!wallet) {
       console.error("Wallet not connected");
       setError("Please connect your wallet before submitting a rating.");
@@ -177,11 +179,11 @@ export default function PaperContentComponent({
           </P>
           <div className="flex items-center space-x-1 mb-4">
             {paper.metadata.authors.map((author: string, index: number) => (
-              <AvatarWithName key={index} name={author} />
+              <AvatarImageOrName key={index} name={author} />
             ))}
             <span className="text-sm text-zinc-500">
               {paper.metadata.authors.join(", ")} •{" "}
-              {/* {formatTimeAgo(paper.createdAt)} */}
+              {formatTimeAgo(paper.createdAt)}
             </span>
           </div>
 
@@ -199,19 +201,18 @@ export default function PaperContentComponent({
                   isOwner={isOwner}
                 />
               </div>
-              {/** TEMPORARY APPROACH TO SHOW RATE PAPER BUTTON*/}
-              {!isOwner &&
-                (paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
-                  paper.state === PAPER_STATUS.IN_PEER_REVIEW) && (
-                  <Button
-                    className="w-full mb-16 md:w-[240px] text-sm flex items-center justify-center"
-                    size="lg"
-                    variant="outline"
-                    onClick={handleRateButtonClick}
-                  >
-                    ⭐ Rate this Paper
-                  </Button>
-                )}
+
+              {(paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
+                paper.state === PAPER_STATUS.IN_PEER_REVIEW) && (
+                <Button
+                  className="w-full mb-16 md:w-[240px] text-sm flex items-center justify-center"
+                  size="lg"
+                  variant="outline"
+                  onClick={handleRateButtonClick}
+                >
+                  ⭐ Rate this Paper
+                </Button>
+              )}
             </>
           )}
 
@@ -251,7 +252,7 @@ export default function PaperContentComponent({
                 isOwner={isOwner}
               />
               {/** TEMPORARY APPROACH TO SHOW RATE PAPER BUTTON*/}
-              {!isOwner &&
+              {
                 // paper?.peerReviews &&
                 // paper?.peerReviews.length < 1 &&
                 (paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
@@ -264,7 +265,8 @@ export default function PaperContentComponent({
                   >
                     ⭐ Rate this Paper
                   </Button>
-                )}
+                )
+              }
             </>
           )}
           <div className="md:hidden">

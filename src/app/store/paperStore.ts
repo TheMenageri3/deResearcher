@@ -30,30 +30,30 @@ interface PaperStore {
   fetchAndStorePapers: () => Promise<void>;
   fetchPapersByState: (state: string) => Promise<ResearchPaperType[] | null>;
   fetchPaperByPubkey: (
-    paperPubkey: string
+    paperPubkey: string,
   ) => Promise<ResearchPaperType | null>;
   fetchAllPapersByResearcherPubkey: (
-    researcherPubkey: string
+    researcherPubkey: string,
   ) => Promise<ResearchPaperType[] | null>;
   fetchAndStorePeerReviewsByReviewerPubkey: (
-    reviewerPubkey: string
+    reviewerPubkey: string,
   ) => Promise<void>;
 
   fetchPeerReviewsByPaperPubkey: (
-    paperPubkey: string
+    paperPubkey: string,
   ) => Promise<PeerReviewType[] | null>;
 
   createResearchPaper: (
-    paper: PaperFormData
+    paper: PaperFormData,
   ) => Promise<{ success: boolean; error?: string }>;
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   addPeerReviewRating: (
     paper: ResearchPaperType,
-    data: PeerReviewRatingFormData
+    data: PeerReviewRatingFormData,
   ) => Promise<void>;
   addPeerReviewComments: (
     paper: PeerReviewType,
-    data: PeerReviewCommentsFormData
+    data: PeerReviewCommentsFormData,
   ) => Promise<void>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
@@ -116,7 +116,6 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true, error: null });
 
     const { pushToPapersStore } = get();
-
     const { sdk: sdkInstance } = useSDKStore.getState();
 
     if (!sdkInstance) {
@@ -132,14 +131,18 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
     formData.append("paperData", JSON.stringify(paper));
     const paperFile = formData.get("paperFile") as File;
-    const paperImage = formData.get("paperImage") as File;
+    const paperImage = formData.get("paperImage") as File | undefined;
 
     try {
       // On-chain part
 
-      //Upload files to Arweave
-      const [arweaveImageId, arweavePaperId] =
-        await sdkInstance.arweaveUploadFiles(
+      // Upload files to Arweave
+      let arweaveImageId = "";
+      let arweavePaperId = "";
+
+      if (paperImage) {
+        // If paperImage exists, upload both files
+        [arweaveImageId, arweavePaperId] = await sdkInstance.arweaveUploadFiles(
           [paperImage, paperFile],
           [
             [
@@ -154,8 +157,22 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
                 value: "application/pdf",
               },
             ],
-          ]
+          ],
         );
+      } else {
+        // If paperImage doesn't exist, only upload paperFile
+        [arweavePaperId] = await sdkInstance.arweaveUploadFiles(
+          [paperFile],
+          [
+            [
+              {
+                name: "Content-Type",
+                value: "application/pdf",
+              },
+            ],
+          ],
+        );
+      }
 
       // Generate merkle roots for paper content and metadata
 
@@ -191,7 +208,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Call the SDK to create the paper
       const researchPaper = await sdkInstance.createResearchPaper(
-        createResearchPaperInput
+        createResearchPaperInput,
       );
 
       // Off-chain part
@@ -246,7 +263,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // on-chain part
       const updatedPaper = await sdkInstance.publishResearchPaper(
         paper.address,
-        paper.bump
+        paper.bump,
       );
 
       // off-chain part
@@ -255,7 +272,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedPaperDB: ResearchPaperType = await updateResearchPaperDB(
-        data
+        data,
       );
 
       // Update the paper in the store
@@ -275,6 +292,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return;
     }
     set({ isLoading: true });
+    console.log("data", data);
+    console.log("paper", paper);
+
     try {
       // on-chain part
 
@@ -293,7 +313,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       const peerReview = await sdkInstance.addPeerReview(
         paper.address,
-        addPeerReviewData
+        addPeerReviewData,
       );
 
       if (!peerReview) {
@@ -320,8 +340,10 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // Add the peer review to the store
 
       const newPeerReview: PeerReviewType = await storePeerReviewOnDB(
-        addPeerReviewDbData
+        addPeerReviewDbData,
       );
+
+      console.log("newPeerReview", newPeerReview);
 
       // Add the peer review to the store
 
@@ -353,7 +375,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedPeerReview: PeerReviewType = await addCommentsPeerReviewDB(
-        addPeerReviewCommentsDbData
+        addPeerReviewCommentsDbData,
       );
 
       // Add the peer review to the store
@@ -392,7 +414,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         paper.address,
         {
           metaDataMerkleRoot,
-        }
+        },
       );
 
       // off-chain part
@@ -406,7 +428,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       const updatedMiningCollection = await mintResearchPaperDB(
-        mintCollectionDBData
+        mintCollectionDBData,
       );
 
       // Update the mint collection in the store
@@ -423,7 +445,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const peerReviews = await fetchPeerReviewsByReviewerPubkeyFromDB(
-        reviewerPubkey
+        reviewerPubkey,
       );
       set({ peerReviews, isLoading: false });
     } catch (error: any) {
@@ -434,7 +456,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   fetchPeerReviewsByPaperPubkey: async (paperPubkey) => {
     try {
       const peerReviews = await fetchPeerReviewsByPaperPubkeyFromDB(
-        paperPubkey
+        paperPubkey,
       );
       return peerReviews;
     } catch (error: any) {
@@ -449,7 +471,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   updatePaperInStore: (paper) => {
     set((state) => ({
       papers: state.papers.map((p) =>
-        p.address === paper.address ? paper : p
+        p.address === paper.address ? paper : p,
       ),
     }));
   },
@@ -461,7 +483,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   updatePeerReviewInStore: (peerReview) => {
     set((state) => ({
       peerReviews: state.peerReviews.map((p) =>
-        p.address === peerReview.address ? peerReview : p
+        p.address === peerReview.address ? peerReview : p,
       ),
     }));
   },

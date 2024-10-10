@@ -178,8 +178,9 @@ export default function Table({
     });
   };
 
-  const handleRowClick = (item: { id: string; status: string }) =>
-    router.push(`/research/${item.status}/${item.id}`);
+  // NOTE: id changes to pubkey
+  const handleRowClick = (item: { address: string; status: string }) =>
+    router.push(`/research/${item.status}/${item.address}`);
 
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available</div>;

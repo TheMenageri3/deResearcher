@@ -5,7 +5,7 @@ import {
   ResearchPaper,
   Session,
 } from "@/app/models";
-import { Document } from "mongoose";
+import { Date, Document } from "mongoose";
 
 export type SessionType = Omit<Session, keyof Document>;
 
@@ -65,7 +65,9 @@ export type CreateResearcherProfile = {
   metaDataMerkleRoot: string;
 };
 
-export type PeerReviewType = Omit<PeerReview, keyof Document>;
+export type PeerReviewType = Omit<PeerReview, keyof Document> & {
+  createdAt?: Date;
+};
 
 export type PeerReviewMetadata = {
   title: string;
@@ -97,4 +99,14 @@ export type AddPeerReviewComments = {
   address: string;
   title: string;
   reviewComments: string;
+};
+
+export type PeerReviewWithResearcherProfile = {
+  peerReview: PeerReviewType;
+  researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchPaperWithResearcherProfile = {
+  researchPaper: ResearchPaperType;
+  researcherProfile: ResearcherProfileType;
 };

@@ -23,10 +23,11 @@ export const COLUMNS: ColumnDefinition[] = [
   { key: "status", header: "Status", sortable: true },
 ];
 
-export const PROFILE_COLUMNS: ColumnDefinition[] = [
+export const PROFILE_COLUMNS = [
   { key: "title", header: "Paper Title" },
   { key: "authors", header: "Authors" },
-  { key: "domains", header: "Domains", sortable: true },
+  { key: "domains", header: "Domains" },
+  { key: "status", header: "Status", sortable: true },
 ];
 export const RESEARCH_PAPER_PDA_SEED: string = "deres_research_paper";
 export const PEER_REVIEW_PDA_SEED: string = "deres_peer_review";

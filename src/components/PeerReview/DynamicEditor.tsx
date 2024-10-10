@@ -4,7 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AvatarWithName } from "../Avatar";
+import { AvatarImageOrName } from "../Avatar";
 import Placeholder from "@tiptap/extension-placeholder";
 import { PLACEHOLDER } from "@/lib/constants";
 
@@ -58,7 +58,7 @@ export default function DynamicEditor({
   return (
     <>
       <div className="flex items-center space-x-3 mb-4">
-        <AvatarWithName name="Kim C" />
+        <AvatarImageOrName name="Kim C" />
         <div className="flex-grow">
           <p className="font-semibold text-zinc-300">Kim C</p>
         </div>

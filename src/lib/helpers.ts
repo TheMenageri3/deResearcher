@@ -7,8 +7,8 @@ import * as sdk from "./sdk";
 import solanaCrypto from "tweetnacl";
 import { LOGIN_MESSAGE } from "./constants";
 import bs58 from "bs58";
-import { SDK } from "./sdk";
 import { PaperStateDB } from "@/app/models/ResearchPaper.model";
+import crypto from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -35,9 +35,10 @@ const gradients = [
   "linear-gradient(to bottom, #A984FF, #9574E2)",
 ];
 
-export const getGradientForPaper = (paperId: string): string => {
-  const id = Math.ceil(gradients.length + Math.random() * 10);
-  const index = id % gradients.length;
+export const getGradientForPaper = (pubkey: string): string => {
+  const hash = crypto.createHash("sha1");
+  hash.update(pubkey);
+  const index = parseInt(hash.digest("hex").slice(-1), 16) % gradients.length;
   return gradients[index];
 };
 
@@ -111,6 +112,7 @@ export const getLinkIcon = (url: string) => {
     return Globe;
   }
 };
+
 export function isLimitedByteArray(data: string) {
   return data.length === 64;
 }
@@ -119,7 +121,7 @@ export function verifySignature(signature: string, pubkey: PublicKey) {
   return solanaCrypto.sign.detached.verify(
     getEncodedLoginMessage(pubkey.toBase58()),
     bs58.decode(signature),
-    bs58.decode(pubkey.toBase58())
+    bs58.decode(pubkey.toBase58()),
   );
 }
 
@@ -130,7 +132,7 @@ export function getEncodedLoginMessage(pubkey: string) {
       pubkey: minimizePubkey(pubkey),
     })
       .split("")
-      .map((c) => c.charCodeAt(0))
+      .map((c) => c.charCodeAt(0)),
   );
 }
 
