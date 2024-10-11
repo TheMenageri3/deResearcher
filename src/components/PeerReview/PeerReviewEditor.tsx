@@ -33,7 +33,11 @@ export default function PeerReviewEditor({
   };
 
   // TODO: Add peer review, pass paper and content
-  const handleSubmit = (data: { title: string; content: string }) => {
+  const handleSubmit = (data: {
+    title: string;
+    content: string;
+    rating: object;
+  }) => {
     console.log(data);
   };
 

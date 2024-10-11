@@ -63,8 +63,8 @@ export const RATINGCATEGORYLABELS: Record<keyof RatingSchema, string> = {
 };
 
 export const INITIALRATING: RatingSchema = {
-  qualityOfResearch: 0,
-  potentialForRealWorldUseCase: 0,
-  domainKnowledge: 0,
-  practicalityOfResultObtained: 0,
+  qualityOfResearch: undefined,
+  potentialForRealWorldUseCase: undefined,
+  domainKnowledge: undefined,
+  practicalityOfResultObtained: undefined,
 };

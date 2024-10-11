@@ -189,4 +189,9 @@ export type PeerReviewCommentsFormData = z.infer<
 export type PeerReviewRatingFormData = z.infer<typeof PeerReviewRatingFormData>;
 export type PeerReviewSchema = z.infer<typeof PeerReviewSchema>;
 export type PaperSchema = z.infer<typeof PaperSchema>;
-export type RatingSchema = z.infer<typeof RatingSchema>;
+export type RatingSchema = {
+  qualityOfResearch: number | undefined;
+  potentialForRealWorldUseCase: number | undefined;
+  domainKnowledge: number | undefined;
+  practicalityOfResultObtained: number | undefined;
+};

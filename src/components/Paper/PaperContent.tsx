@@ -130,31 +130,31 @@ export default function PaperContentComponent({
     setIsRatingModalOpen(true);
   };
 
-  const handleRatingSubmit = async (rating: RatingSchema) => {
-    console.log("Parent component received rating:", rating);
-    const { wallet } = useUserStore.getState();
+  // const handleRatingSubmit = async (rating: RatingSchema) => {
+  //   console.log("Parent component received rating:", rating);
+  //   const { wallet } = useUserStore.getState();
 
-    if (!wallet) {
-      console.error("Wallet not connected");
-      setError("Please connect your wallet before submitting a rating.");
-      return;
-    }
-    try {
-      setError(null);
-      console.log("Initiating blockchain transaction...");
-      await addPeerReviewRating(paper as unknown as ResearchPaperType, rating);
-      console.log("Rating submitted successfully");
-    } catch (error) {
-      console.error("Error submitting rating:", error);
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unexpected error occurred while submitting the rating");
-      }
-      return;
-    }
-    setIsRatingModalOpen(false);
-  };
+  //   if (!wallet) {
+  //     console.error("Wallet not connected");
+  //     setError("Please connect your wallet before submitting a rating.");
+  //     return;
+  //   }
+  //   try {
+  //     setError(null);
+  //     console.log("Initiating blockchain transaction...");
+  //     await addPeerReviewRating(paper as unknown as ResearchPaperType, rating);
+  //     console.log("Rating submitted successfully");
+  //   } catch (error) {
+  //     console.error("Error submitting rating:", error);
+  //     if (error instanceof Error) {
+  //       setError(error.message);
+  //     } else {
+  //       setError("An unexpected error occurred while submitting the rating");
+  //     }
+  //     return;
+  //   }
+  //   setIsRatingModalOpen(false);
+  // };
 
   return (
     <div className="mx-auto px-4">
@@ -205,7 +205,7 @@ export default function PaperContentComponent({
                 />
               </div>
 
-              {(paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
+              {/* {(paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
                 paper.state === PAPER_STATUS.IN_PEER_REVIEW) && (
                 <Button
                   className="w-full mb-16 md:w-[240px] text-sm flex items-center justify-center"
@@ -215,7 +215,7 @@ export default function PaperContentComponent({
                 >
                   ⭐ Rate this Paper
                 </Button>
-              )}
+              )} */}
             </>
           )}
 
@@ -254,7 +254,7 @@ export default function PaperContentComponent({
                 isLoading={isLoading} // Pass isLoading here
               />
               {/** TEMPORARY APPROACH TO SHOW RATE PAPER BUTTON*/}
-              {
+              {/* {
                 // paper?.peerReviews &&
                 // paper?.peerReviews.length < 1 &&
                 (paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
@@ -268,7 +268,7 @@ export default function PaperContentComponent({
                     ⭐ Rate this Paper
                   </Button>
                 )
-              }
+              } */}
             </>
           )}
           <div className="md:hidden">
@@ -286,12 +286,12 @@ export default function PaperContentComponent({
         onClose={() => setIsEditorOpen(false)}
       />
 
-      <RatingModal
+      {/* <RatingModal
         isOpen={isRatingModalOpen}
         onClose={() => setIsRatingModalOpen(false)}
         paper={paper}
         onSubmit={handleRatingSubmit}
-      />
+      /> */}
     </div>
   );
 }

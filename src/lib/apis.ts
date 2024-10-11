@@ -1,3 +1,4 @@
+// Fetch the researcher profile
 export const fetchProfile = async (pubkey: string) => {
   const response = await fetch(
     `/api/researcher-profile?researcherPubkey=${pubkey}`,
@@ -7,6 +8,7 @@ export const fetchProfile = async (pubkey: string) => {
   return response.json();
 };
 
+// Get the URL for the tab data based on the tab and pubkey
 const getTabUrl = (tab: string, pubkey: string): string => {
   switch (tab) {
     case "contributions":
