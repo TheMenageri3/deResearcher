@@ -7,7 +7,8 @@ import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
 import { AvatarImageOrName } from "../Avatar";
 import { Lock } from "lucide-react";
-import { PaperSchema, PeerReviewSchema, RatingSchema } from "@/lib/validation";
+import { RatingSchema } from "@/lib/validation";
+
 import { formatTimeAgo } from "@/lib/helpers";
 import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
@@ -30,7 +31,7 @@ const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 export default function PaperContentComponent({
   paper,
 }: {
-  paper: PaperSchema;
+  paper: ResearchPaperType;
 }) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const screenSize = useScreen();
@@ -39,7 +40,7 @@ export default function PaperContentComponent({
   const [isMinter, setIsMinter] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
-  const [submittedRating, setSubmittedRating] = useState<RatingSchema | null>(
+  const [submittedRating, setSubmittedRating] = useState<PeerReviewType | null>(
     null,
   );
   const [expandedReviews, setExpandedReviews] = useState<
@@ -65,8 +66,11 @@ export default function PaperContentComponent({
 
   useEffect(() => {
     const fetchPeerReviews = async () => {
-      const peerReviews = await fetchPeerReviewsByPaperPubkey(paper.address);
-      if (peerReviews) setPeerReviews(peerReviews);
+      const peerReviewData = await fetchPeerReviewsByPaperPubkey(paper.address);
+      if (peerReviewData)
+        setPeerReviews(
+          peerReviewData as unknown as PeerReviewWithResearcherProfile[],
+        );
     };
 
     if (paper) {
@@ -120,7 +124,7 @@ export default function PaperContentComponent({
     } catch (error) {
       console.error("Error minting paper:", error);
     }
-  }, [paper, mintResearchPaper]);
+  }, [paper, mintResearchPaper, wallet]);
 
   const handleRateButtonClick = () => {
     setIsRatingModalOpen(true);
@@ -183,7 +187,7 @@ export default function PaperContentComponent({
             ))}
             <span className="text-sm text-zinc-500">
               {paper.metadata.authors.join(", ")} •{" "}
-              {formatTimeAgo(paper.createdAt)}
+              {formatTimeAgo(paper.createdAt?.toString() ?? "")}
             </span>
           </div>
 
@@ -198,7 +202,6 @@ export default function PaperContentComponent({
                   onPublishPaper={() => {}}
                   onBuyPaper={() => handleBuyPaper()} // Change this line
                   isLoading={isLoading} // Pass isLoading here
-                  isOwner={isOwner}
                 />
               </div>
 
@@ -249,7 +252,6 @@ export default function PaperContentComponent({
                 onPublishPaper={() => {}}
                 onBuyPaper={() => handleBuyPaper()} // Change this line
                 isLoading={isLoading} // Pass isLoading here
-                isOwner={isOwner}
               />
               {/** TEMPORARY APPROACH TO SHOW RATE PAPER BUTTON*/}
               {

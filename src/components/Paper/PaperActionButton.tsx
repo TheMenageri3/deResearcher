@@ -26,17 +26,8 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
   onBuyPaper,
   size = "lg",
   isLoading,
-  isOwner,
 }) => {
   const getButtonContent = () => {
-    if (isOwner) {
-      return {
-        text: "Publish Paper",
-        action: onPublishPaper,
-        icon: null,
-      };
-    }
-
     switch (paper.state) {
       case PAPER_STATUS.AWAITING_PEER_REVIEW:
       case PAPER_STATUS.IN_PEER_REVIEW:
@@ -51,12 +42,12 @@ const PaperActionButton: React.FC<PaperActionButtonProps> = ({
           action: onUpdateNewPaper,
           icon: null,
         };
-      // case PAPER_STATUS.APPROVED:
-      //   return {
-      //     text: "Publish Paper",
-      //     action: onPublishPaper,
-      //     icon: null,
-      //   };
+      case PAPER_STATUS.APPROVED:
+        return {
+          text: "Publish Paper",
+          action: onPublishPaper,
+          icon: null,
+        };
       case PAPER_STATUS.PUBLISHED:
       case PAPER_STATUS.MINTED:
         return {

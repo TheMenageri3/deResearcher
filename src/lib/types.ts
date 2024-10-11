@@ -9,7 +9,9 @@ import { Date, Document } from "mongoose";
 
 export type SessionType = Omit<Session, keyof Document>;
 
-export type ResearchPaperType = Omit<ResearchPaper, keyof Document>;
+export type ResearchPaperType = Omit<ResearchPaper, keyof Document> & {
+  createdAt?: Date;
+};
 
 export interface ResearchPaperMetadata {
   title: string;

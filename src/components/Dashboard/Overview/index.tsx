@@ -34,7 +34,6 @@ const transformPaperData = (paperData: any) => {
   }
 
   return {
-    id: paper._id || paper.address, // Use address as fallback if _id is not available
     address: paper.address,
     title: paper.metadata?.title || "Untitled",
     authors: Array.isArray(paper.metadata?.authors)

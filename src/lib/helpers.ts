@@ -32,7 +32,7 @@ const gradients = [
   "linear-gradient(to bottom, #919393, #9574E2)",
   "linear-gradient(to bottom, #FF1875, #9574E2)",
   "linear-gradient(to bottom, #51A637, #9574E2)",
-  "linear-gradient(to bottom, #A984FF, #9574E2)",
+  "linear-gradient(to bottom, #6226EF, #9574E2)",
 ];
 
 export const getGradientForPaper = (pubkey: string): string => {
@@ -111,6 +111,21 @@ export const getLinkIcon = (url: string) => {
   } else {
     return Globe;
   }
+};
+
+// Format date
+export const formatDate = (dateInput: any): string => {
+  if (!dateInput) return "N/A";
+  if (dateInput.$date) {
+    return new Date(dateInput.$date).toISOString().split("T")[0];
+  }
+  if (typeof dateInput === "string") {
+    return dateInput.split("T")[0];
+  }
+  if (typeof dateInput === "number") {
+    return new Date(dateInput).toISOString().split("T")[0];
+  }
+  return "N/A";
 };
 
 export function isLimitedByteArray(data: string) {

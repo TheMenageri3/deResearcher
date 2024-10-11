@@ -6,6 +6,7 @@ import P from "../P";
 import H3 from "../H3";
 import { formatNumber, getLinkIcon } from "@/lib/helpers";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface ProfileInfoProps {
   name: string;
@@ -64,26 +65,38 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({
           )}
         </button>
 
-        {WebsiteIcon && (
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full bg-primary hover:bg-primary/80 w-6 h-6"
-            onClick={() => window.open(websiteUrl, "_blank")}
-          >
-            <WebsiteIcon className="h-4 w-4 text-white " />
-          </Button>
+        {WebsiteIcon && websiteUrl && (
+          <Tooltip>
+            <Button
+              size="icon"
+              className="rounded-full bg-primary hover:bg-primary/80 w-6 h-6"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(websiteUrl, "_blank", "noopener,noreferrer");
+              }}
+              aria-label="Visit website"
+              title={websiteUrl}
+            >
+              <WebsiteIcon className="h-4 w-4 text-white" />
+            </Button>
+          </Tooltip>
         )}
 
-        {SocialIcon && (
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full bg-primary hover:bg-primary/80 w-6 h-6"
-            onClick={() => window.open(socialLink, "_blank")}
-          >
-            <SocialIcon className="h-4 w-4 text-white " />
-          </Button>
+        {SocialIcon && socialLink && (
+          <Tooltip>
+            <Button
+              size="icon"
+              className="rounded-full bg-primary hover:bg-primary/80 w-6 h-6"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(socialLink, "_blank", "noopener,noreferrer");
+              }}
+              aria-label="Visit social profile"
+              title={socialLink}
+            >
+              <SocialIcon className="h-4 w-4 text-white" />
+            </Button>
+          </Tooltip>
         )}
       </div>
       <P className="text-sm text-zinc-500 text-pretty max-w-full sm:max-w-xl md:max-w-3xl mx-auto mb-6">
@@ -93,7 +106,9 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({
       <div className="flex justify-center space-x-12 mb-6">
         <div className="text-center">
           <P className="text-2xl font-bold">{formatNumber(stats.papers)}</P>
-          <P className="text-sm text-zinc-500">Papers</P>
+          <P className="text-sm text-zinc-500">
+            {stats.papers === 1 ? "Paper" : "Papers"}
+          </P>
         </div>
         <div className="text-center">
           <P className="text-2xl font-bold">
