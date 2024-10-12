@@ -7,7 +7,7 @@ import * as sdk from "@/lib/sdk";
 import {
   CreateResearcherProfile,
   ResearcherProfileMetadata,
-  ResearchMintCollectionType,
+  ResearchTokenAccountWithResearchePaper,
 } from "@/lib/types";
 import { ProfileFormData } from "@/lib/validation";
 import { ResearcherProfileType, ResearchPaperType } from "../api/types";
@@ -16,7 +16,7 @@ interface UserState {
   isAuthenticated: boolean;
   walletSignature: string | null;
   researcherProfile: ResearcherProfileType | null;
-  researchMintCollection: ResearchMintCollectionType | null;
+  researchTokenAccounts: ResearchTokenAccountWithResearchePaper[];
   wallet: string | null;
   isLoading: boolean;
   lastChecked: number;
@@ -28,9 +28,9 @@ interface UserState {
   requestToAssignRepuation: () => Promise<void>;
   setError: (error: string | null) => void;
   fetchAndStoreResearcherProfile: () => Promise<void>;
-  fetchAndStoreResearchMintCollection: () => Promise<void>;
-  updateResearchMintCollection: (
-    researchMintCollection: ResearchMintCollectionType,
+  fetchAndStoreResearchTokenAccounts: () => Promise<void>;
+  pushToResearchTokenAccounts: (
+    researchTokenAccount: ResearchTokenAccountWithResearchePaper
   ) => void;
 }
 
@@ -45,7 +45,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   isLoading: false,
   lastChecked: 0,
   researcherProfile: null,
-  researchMintCollection: null,
+  researchTokenAccounts: [],
   error: null,
   checkAuthAndTryLogin: async (wallet: WalletContextState) => {
     if (!wallet.connected || !wallet.publicKey) {
@@ -79,7 +79,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       const encodedMessage = getEncodedLoginMessage(
-        wallet.publicKey.toBase58(),
+        wallet.publicKey.toBase58()
       );
       const signature = await wallet.signMessage(encodedMessage);
 
@@ -192,7 +192,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       if (filesToUpload.length > 0) {
         arweaveUploadedIds = await sdkInstance.arweaveUploadFiles(
           filesToUpload,
-          tags,
+          tags
         );
       }
 
@@ -220,7 +220,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       const metadataMerkleRoot =
         await sdk.SDK.compressObjectAndGenerateMerkleRoot(
-          researcherProfileMetadata,
+          researcherProfileMetadata
         );
 
       const createResearcherProfileInput: Omit<
@@ -232,7 +232,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       };
 
       const researcherProfile = await sdkInstance.createResearcherProfile(
-        createResearcherProfileInput,
+        createResearcherProfileInput
       );
 
       // off-chain part
@@ -256,7 +256,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       if (!response.ok) {
         throw new Error(
-          `Failed to create researcher profile: ${response.statusText}`,
+          `Failed to create researcher profile: ${response.statusText}`
         );
       }
 
@@ -294,18 +294,19 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
   },
 
-  async fetchAndStoreResearchMintCollection() {
+  async fetchAndStoreResearchTokenAccounts() {
     const { sdk } = useSDKStore.getState();
     if (!sdk) {
       return;
     }
     set({ isLoading: true });
     try {
-      const researchMintCollection: ResearchMintCollectionType =
-        await fetchResearchMintCollection(sdk.pubkey.toBase58());
+      const researchTokenAccounts = await fetchResearchTokenAccounts(
+        sdk.pubkey.toBase58()
+      );
 
-      console.log("researchMintCollection", researchMintCollection);
-      set({ researchMintCollection, isLoading: false });
+      console.log("researchTokenAccounts", researchTokenAccounts);
+      set({ researchTokenAccounts, isLoading: false });
     } catch (error) {
       set({
         error: `Failed to fetch research mint collection: ${
@@ -314,10 +315,17 @@ export const useUserStore = create<UserState>((set, get) => ({
       });
     }
   },
-  updateResearchMintCollection(researchMintCollection) {
-    set({ researchMintCollection });
-  },
+
   async requestToAssignRepuation() {},
+
+  pushToResearchTokenAccounts(researchTokenAccount) {
+    set((state) => ({
+      researchTokenAccounts: [
+        ...state.researchTokenAccounts,
+        researchTokenAccount,
+      ],
+    }));
+  },
   setError: (error) => set({ error }),
 }));
 
@@ -325,22 +333,22 @@ async function fetchResearcherProfile(researcherPubkey: string) {
   const urlSearchParams = new URLSearchParams({ researcherPubkey });
 
   const response = await fetch(
-    `/api/researcher-profile?${urlSearchParams.toString()}`,
+    `/api/researcher-profile?${urlSearchParams.toString()}`
   );
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch researcher profile: ${response.statusText}`,
+      `Failed to fetch researcher profile: ${response.statusText}`
     );
   }
   return await response.json();
 }
 
-async function fetchResearchMintCollection(researcherPubkey: string) {
+async function fetchResearchTokenAccounts(researcherPubkey: string) {
   const urlSearchParams = new URLSearchParams({ researcherPubkey });
   const response = await fetch(`/api/mint?${urlSearchParams.toString()}`);
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch research mint collection: ${response.statusText}`,
+      `Failed to fetch research mint collection: ${response.statusText}`
     );
   }
   return await response.json();

@@ -7,7 +7,11 @@ import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
 import { AvatarWithName } from "../Avatar";
 import { Lock } from "lucide-react";
-import { PaperSchema, PeerReviewSchema, RatingSchema } from "@/lib/validation";
+import {
+  PaperSchema,
+  PeerReviewFormData,
+  PeerReviewSchema,
+} from "@/lib/validation";
 import { formatTimeAgo } from "@/lib/helpers";
 import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
@@ -35,14 +39,13 @@ export default function PaperContentComponent({
   const [isMinter, setIsMinter] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
-  const [submittedRating, setSubmittedRating] = useState<RatingSchema | null>(
-    null
-  );
+  const [submittedRating, setSubmittedRating] =
+    useState<PeerReviewSchema | null>(null);
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
   const {
-    addPeerReviewRating,
+    addPeerReview,
     fetchPeerReviewsByPaperPubkey,
     mintResearchPaper,
     isLoading,
@@ -105,7 +108,6 @@ export default function PaperContentComponent({
   };
 
   const handleBuyPaper = useCallback(() => {
-    console.log("handleBuyPaper called");
     const { wallet } = useUserStore.getState();
     if (!wallet) {
       console.error("Wallet not connected");
@@ -125,8 +127,7 @@ export default function PaperContentComponent({
     setIsRatingModalOpen(true);
   };
 
-  const handleRatingSubmit = async (rating: RatingSchema) => {
-    console.log("Parent component received rating:", rating);
+  const handleRatingSubmit = async (peerReview: PeerReviewFormData) => {
     const { wallet } = useUserStore.getState();
     if (!wallet) {
       console.error("Wallet not connected");
@@ -136,8 +137,8 @@ export default function PaperContentComponent({
     try {
       setError(null);
       console.log("Initiating blockchain transaction...");
-      await addPeerReviewRating(paper as unknown as ResearchPaperType, rating);
-      console.log("Rating submitted successfully");
+      await addPeerReview(paper, peerReview);
+      console.log("Peer Review submitted successfully");
     } catch (error) {
       console.error("Error submitting rating:", error);
       if (error instanceof Error) {

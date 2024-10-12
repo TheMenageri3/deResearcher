@@ -107,23 +107,13 @@ export const PaperFormData = z.object({
     ),
 });
 
-export const PeerReviewCommentsFormData = z.object({
-  title: z.string(),
-  reviewComments: z.string(),
-});
-
-export const PeerReviewRatingFormData = z.object({
+export const PeerReviewFormData = z.object({
   qualityOfResearch: z.number(),
   potentialForRealWorldUseCase: z.number(),
   domainKnowledge: z.number(),
   practicalityOfResultObtained: z.number(),
-});
-
-export const RatingSchema = z.object({
-  qualityOfResearch: z.number(),
-  potentialForRealWorldUseCase: z.number(),
-  domainKnowledge: z.number(),
-  practicalityOfResultObtained: z.number(),
+  title: z.string().trim().min(5, "Title must be at least 5 characters"),
+  reviewComments: z.string().trim().min(50, "Review must be at least 50 words"),
 });
 
 export const PeerReviewSchema = z.object({
@@ -181,11 +171,7 @@ export const PaperSchema = z.object({
 // TypeScript types
 export type ProfileFormData = z.infer<typeof ProfileFormData>;
 export type PaperFormData = z.infer<typeof PaperFormData>;
-export type PeerReviewCommentsFormData = z.infer<
-  typeof PeerReviewCommentsFormData
->;
 
-export type PeerReviewRatingFormData = z.infer<typeof PeerReviewRatingFormData>;
+export type PeerReviewFormData = z.infer<typeof PeerReviewFormData>;
 export type PeerReviewSchema = z.infer<typeof PeerReviewSchema>;
 export type PaperSchema = z.infer<typeof PaperSchema>;
-export type RatingSchema = z.infer<typeof RatingSchema>;

@@ -1,8 +1,8 @@
 import {
   PeerReview,
   ResearcherProfile,
-  ResearchMintCollection,
   ResearchPaper,
+  ResearchTokenAccount,
   Session,
 } from "@/app/models";
 import { Document } from "mongoose";
@@ -33,14 +33,10 @@ export type CreateResearchPaper = {
   bump: number;
 };
 
-export type ResearchMintCollectionType = Omit<
-  ResearchMintCollection,
+export type ResearchTokenAccountType = Omit<
+  ResearchTokenAccount,
   keyof Document
 >;
-
-export type ResearchMintCollectionMetadata = {
-  mintedResearchPaperIds: string[];
-};
 
 export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
@@ -85,18 +81,11 @@ export type AddPeerReview = {
   bump: number;
 };
 
-export type PushToResearchMintCollection = {
+export type MintResearchPaper = {
   address: string;
-  readerPubkey: string;
+  researcherPubkey: string;
+  paperPubkey: string;
   bump: number;
-  newMintedResearchPaperPubkey: string;
-  metaDataMerkleRoot: string;
-};
-
-export type AddPeerReviewComments = {
-  address: string;
-  title: string;
-  reviewComments: string;
 };
 
 export type PeerReviewWithResearcherProfile = {
@@ -107,4 +96,9 @@ export type PeerReviewWithResearcherProfile = {
 export type ResearchPaperWithResearcherProfile = {
   researchPaper: ResearchPaperType;
   researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchTokenAccountWithResearchePaper = {
+  researchTokenAccount: ResearchTokenAccountType;
+  researchPaper: ResearchPaperType;
 };
