@@ -10,11 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { PaperSchema, RatingSchema } from "@/lib/validation";
+import { PaperSchema, PeerReviewSchema } from "@/lib/validation";
 import {
-  INITIALRATING,
+  INITIALPEERREVIEWDATA,
   RATINGCATEGORIES,
-  RATINGCATEGORYLABELS,
+  PEERREVIEWCATEGORYLABELS,
 } from "@/lib/constants";
 import { Loader2 } from "lucide-react"; // Import a loading icon
 import { ResearchPaperType } from "@/lib/types";
@@ -23,7 +23,7 @@ interface RatingModalProps {
   isOpen: boolean;
   onClose: () => void;
   paper: ResearchPaperType;
-  onSubmit: (rating: RatingSchema) => Promise<void>;
+  onSubmit: (peerReview: PeerReviewSchema) => Promise<void>;
 }
 
 export default function RatingModal({
@@ -32,7 +32,7 @@ export default function RatingModal({
   paper,
   onSubmit,
 }: RatingModalProps) {
-  const [rating, setRating] = useState<RatingSchema>(INITIALRATING);
+  const [rating, setRating] = useState<PeerReviewSchema>(INITIALPEERREVIEWDATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +62,7 @@ export default function RatingModal({
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setRating(INITIALRATING);
+      setRating(INITIALPEERREVIEWDATA);
       setError(null);
       onClose();
     }
@@ -83,7 +83,7 @@ export default function RatingModal({
           {RATINGCATEGORIES.map((category) => (
             <div key={category} className="mb-2">
               <Label className="block text-sm font-medium text-zinc-100 mb-2">
-                {RATINGCATEGORYLABELS[category]}
+                {PEERREVIEWCATEGORYLABELS[category]}
               </Label>
               <RadioGroup
                 onValueChange={(value) => handleScoreChange(category, value)}

@@ -39,7 +39,6 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
     }
 
     const result = await response.json();
-    console.log("API response:", result);
 
     return result;
   }

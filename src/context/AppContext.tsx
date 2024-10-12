@@ -22,8 +22,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const {
     researcherProfile,
-    researchMintCollection,
-    fetchAndStoreResearchMintCollection,
+    researchTokenAccounts,
+    fetchAndStoreResearchTokenAccounts,
     fetchAndStoreResearcherProfile,
   } = useUserStore();
 
@@ -63,10 +63,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     // };
 
     // Fetch Research Mint Collection UI
-    const fetchResearchMintCollectionUI = async () => {
-      if (!sdk || researchMintCollection) return;
+    const fetchResearchTokenAccountsUI = async () => {
+      if (!sdk || researchTokenAccounts.length > 0) return;
       try {
-        await fetchAndStoreResearchMintCollection();
+        await fetchAndStoreResearchTokenAccounts();
       } catch (error) {
         console.error("Error fetching Research Mint Collection:", error);
       }
@@ -75,7 +75,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (sdk) {
       fetchResearcherProfileUI();
       // fetchResearchPapersUI();
-      fetchResearchMintCollectionUI();
+      fetchResearchTokenAccountsUI();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sdk]);

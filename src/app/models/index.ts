@@ -2,12 +2,12 @@ import connectToDatabase from "@/lib/mongoServer";
 import ResearcherProfileModel from "./ResearcherProfile.model";
 import PeerReviewModel from "./PeerReview.model";
 import ResearchPaperModel from "./ResearchPaper.model";
-import ResearchMintCollectionModel from "./ResearchMintCollection.model";
+import ResearchTokenAccountModel from "./ResearchTokenAccount.model";
 import SessionModel from "./Session.model";
 
 // Import types
 import type { PeerReview } from "./PeerReview.model";
-import type { ResearchMintCollection } from "./ResearchMintCollection.model";
+import type { ResearchTokenAccount } from "./ResearchTokenAccount.model";
 import type { ResearchPaper } from "./ResearchPaper.model";
 import type { ResearcherProfile } from "./ResearcherProfile.model";
 import type { Session } from "./Session.model";
@@ -26,14 +26,14 @@ export {
   ResearcherProfileModel,
   PeerReviewModel,
   ResearchPaperModel,
-  ResearchMintCollectionModel,
+  ResearchTokenAccountModel,
   SessionModel,
 };
 
 // Re-export types
 export type {
   PeerReview,
-  ResearchMintCollection,
+  ResearchTokenAccount,
   ResearchPaper,
   ResearcherProfile,
   Session,

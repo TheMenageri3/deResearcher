@@ -14,7 +14,6 @@ interface ResearchLayoutProps {
 }
 
 async function fetchPapersByState(state: string) {
-  console.log("fetchPapersByState", state);
   const response = await fetch(`/api/research?researchPaperstate=${state}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch papers: ${response.statusText}`);

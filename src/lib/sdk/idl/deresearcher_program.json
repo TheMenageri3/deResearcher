@@ -9,25 +9,19 @@
           "name": "researcherAcc",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Researcher's account"
-          ]
+          "docs": ["Researcher's account"]
         },
         {
           "name": "researcherProfilePdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Researcher's profile PDA account"
-          ]
+          "docs": ["Researcher's profile PDA account"]
         },
         {
           "name": "systemProgramAcc",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "System program account"
-          ]
+          "docs": ["System program account"]
         }
       ],
       "args": [
@@ -50,33 +44,25 @@
           "name": "publisherAcc",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Publisher's account"
-          ]
+          "docs": ["Publisher's account"]
         },
         {
           "name": "researcherProfilePdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Researcher's profile PDA account"
-          ]
+          "docs": ["Researcher's profile PDA account"]
         },
         {
           "name": "paperPdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Research paper account"
-          ]
+          "docs": ["Research paper account"]
         },
         {
           "name": "systemProgramAcc",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "System program account"
-          ]
+          "docs": ["System program account"]
         }
       ],
       "args": [
@@ -99,17 +85,13 @@
           "name": "publisherAcc",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Publisher's account"
-          ]
+          "docs": ["Publisher's account"]
         },
         {
           "name": "paperPdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Research paper PDA account"
-          ]
+          "docs": ["Research paper PDA account"]
         }
       ],
       "args": [
@@ -132,41 +114,31 @@
           "name": "reviewerAcc",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Reviewer's account"
-          ]
+          "docs": ["Reviewer's account"]
         },
         {
           "name": "researcherProfilePdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Researcher's profile PDA account"
-          ]
+          "docs": ["Researcher's profile PDA account"]
         },
         {
           "name": "paperPdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Research paper PDA account"
-          ]
+          "docs": ["Research paper PDA account"]
         },
         {
           "name": "peerReviewPdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Peer review PDA account"
-          ]
+          "docs": ["Peer review PDA account"]
         },
         {
           "name": "systemProgramAcc",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "System program account"
-          ]
+          "docs": ["System program account"]
         }
       ],
       "args": [
@@ -186,52 +158,40 @@
       "name": "MintResearchPaper",
       "accounts": [
         {
-          "name": "readerAcc",
+          "name": "researcherAcc",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Reader's account"
-          ]
+          "docs": ["Researcher's account"]
         },
         {
           "name": "researcherProfilePdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Researcher's profile PDA account"
-          ]
+          "docs": ["Researcher's profile PDA account"]
         },
         {
-          "name": "researchMintCollectionPdaAcc",
+          "name": "researchTokenPdaAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Research mint collection PDA account"
-          ]
+          "docs": ["Research token PDA account"]
         },
         {
           "name": "paperPdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Research paper PDA account"
-          ]
+          "docs": ["Research paper PDA account"]
         },
         {
           "name": "feeReceiverAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Fee receiver's account"
-          ]
+          "docs": ["Fee receiver's account"]
         },
         {
           "name": "systemProgramAcc",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "System program account"
-          ]
+          "docs": ["System program account"]
         }
       ],
       "args": [
@@ -254,17 +214,13 @@
           "name": "reputationCheckerAcc",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "Reputation checker's account"
-          ]
+          "docs": ["Reputation checker's account"]
         },
         {
           "name": "researcherProfilePdaAcc",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "Researcher's profile account"
-          ]
+          "docs": ["Researcher's profile account"]
         }
       ],
       "args": [
@@ -292,12 +248,13 @@
             "type": "publicKey"
           },
           {
+            "name": "researcherPubkey",
+            "type": "publicKey"
+          },
+          {
             "name": "name",
             "type": {
-              "array": [
-                "u8",
-                64
-              ]
+              "array": ["u8", 64]
             }
           },
           {
@@ -325,10 +282,7 @@
           {
             "name": "metaDataMerkleRoot",
             "type": {
-              "array": [
-                "u8",
-                64
-              ]
+              "array": ["u8", 64]
             }
           },
           {
@@ -368,10 +322,7 @@
           {
             "name": "paperContentHash",
             "type": {
-              "array": [
-                "u8",
-                64
-              ]
+              "array": ["u8", 64]
             }
           },
           {
@@ -389,10 +340,7 @@
           {
             "name": "metaDataMerkleRoot",
             "type": {
-              "array": [
-                "u8",
-                64
-              ]
+              "array": ["u8", 64]
             }
           },
           {
@@ -438,10 +386,7 @@
           {
             "name": "metaDataMerkleRoot",
             "type": {
-              "array": [
-                "u8",
-                64
-              ]
+              "array": ["u8", 64]
             }
           },
           {
@@ -452,22 +397,21 @@
       }
     },
     {
-      "name": "ResearchMintCollection",
+      "name": "ResearchTokenAccount",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "readerPubkey",
+            "name": "address",
             "type": "publicKey"
           },
           {
-            "name": "dataMerkleRoot",
-            "type": {
-              "array": [
-                "u8",
-                64
-              ]
-            }
+            "name": "paperPubkey",
+            "type": "publicKey"
+          },
+          {
+            "name": "researcherPubkey",
+            "type": "publicKey"
           },
           {
             "name": "bump",
@@ -485,6 +429,10 @@
         "fields": [
           {
             "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "metaDataMerkleRoot",
             "type": "string"
           },
           {
@@ -567,10 +515,6 @@
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "metaDataMerkleRoot",
-            "type": "string"
-          },
           {
             "name": "pdaBump",
             "type": "u8"
@@ -724,11 +668,16 @@
       "code": 17,
       "name": "InvalidReputationChecker",
       "msg": "Invalid Reputation checker"
+    },
+    {
+      "code": 18,
+      "name": "ResearchTokenAccountAlreadyExists",
+      "msg": "Research Token account already exists"
     }
   ],
   "metadata": {
     "origin": "shank",
-    "address": "C5M2JxBaxmsW62BgujPXEPytw65igtUjr6mFbD5pmypM",
+    "address": "BdtzNv4J5DSCA52xK6KLyKG5qorajuwfmJV2WivPkRsW",
     "binaryVersion": "0.4.2",
     "libVersion": "0.4.2"
   }

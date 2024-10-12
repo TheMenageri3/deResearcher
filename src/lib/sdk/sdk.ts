@@ -6,8 +6,8 @@ import * as solana from "@solana/web3.js";
 import { WebIrys } from "@irys/sdk";
 import {
   MAX_PDF_UPLOD_SIZE_BYTES,
-  RESEARCH_MINT_COLLECTION_PDA_SEED,
   RESEARCH_PAPER_PDA_SEED,
+  RESEARCH_TOKEN_ACCOUNT_PDA_SEED,
   RESEARCHER_PROFILE_PDA_SEED,
 } from "../constants";
 import {
@@ -360,12 +360,11 @@ export class SDK {
     return peerReview;
   }
 
-  async mintResearchPaper(
-    paperPda: string,
-    data: Omit<sdk.MintResearchPaper, "pdaBump">
-  ): Promise<sdk.ResearchMintCollection> {
-    const [mintCollectionPda, bump] =
-      deriveResearchMintCollectionPdaPubkeyAndBump(this.pubkey);
+  async mintResearchPaper(paperPda: string): Promise<sdk.ResearchTokenAccount> {
+    const [researchTokenAccPda, bump] = deriveResearchTokenAccPdaPubkeyAndBump(
+      this.pubkey,
+      new solana.PublicKey(paperPda)
+    );
 
     const [researcherProfilePda, researcherProfileBump] =
       deriveResearcherProfilePdaPubkeyAndBump(this.pubkey);
@@ -376,17 +375,16 @@ export class SDK {
     );
 
     const accounts: sdk.MintResearchPaperInstructionAccounts = {
-      readerAcc: this.pubkey,
+      researcherAcc: this.pubkey,
       paperPdaAcc: new solana.PublicKey(paperPda),
       researcherProfilePdaAcc: researcherProfilePda,
-      researchMintCollectionPdaAcc: mintCollectionPda,
+      researchTokenPdaAccount: researchTokenAccPda,
       feeReceiverAcc: paper.creatorPubkey,
       systemProgramAcc: solana.SystemProgram.programId,
     };
 
     const ixData: sdk.MintResearchPaperInstructionArgs = {
       mintResearchPaper: {
-        ...data,
         pdaBump: bump,
       },
     };
@@ -399,9 +397,9 @@ export class SDK {
 
     await this.buildTxSignAndSend([instruction]);
 
-    const mintCollection = await sdk.ResearchMintCollection.fromAccountAddress(
+    const mintCollection = await sdk.ResearchTokenAccount.fromAccountAddress(
       this.connection,
-      mintCollectionPda
+      researchTokenAccPda
     );
 
     return mintCollection;
@@ -505,37 +503,37 @@ export class SDK {
     }
   }
 
-  async fetchResearchMintCollectionByPubkey(
-    mintCollectionPda: solana.PublicKey
+  async fetchResearchTokenAccountsByPubkey(
+    researchTokenAccount: solana.PublicKey
   ) {
     try {
-      return await sdk.ResearchMintCollection.fromAccountAddress(
+      return await sdk.ResearchTokenAccount.fromAccountAddress(
         this.connection,
-        mintCollectionPda
+        researchTokenAccount
       );
     } catch (e) {
       console.error(e);
     }
   }
 
-  async fetchResearchMintCollectionByResearcherPubkey(
+  async fetchResearchTokenAccountBYResearcherPubkey(
     researcherAcc: solana.PublicKey
   ) {
     try {
-      const gpaBuilder = sdk.ResearchMintCollection.gpaBuilder(sdk.PROGRAM_ID);
-      gpaBuilder.addInnerFilter("readerPubkey", researcherAcc.toBase58());
+      const gpaBuilder = sdk.ResearchTokenAccount.gpaBuilder(sdk.PROGRAM_ID);
+      gpaBuilder.addInnerFilter("researcherPubkey", researcherAcc.toBase58());
       const accountsWithPubkeys = await gpaBuilder.run(this.connection);
 
-      const mintCollections: sdk.ResearchMintCollection[] = [];
+      const researchTokenAccounts: sdk.ResearchTokenAccount[] = [];
 
       for (const account of accountsWithPubkeys) {
         const [mintCollection, _index] =
-          sdk.ResearchMintCollection.fromAccountInfo(account.account);
+          sdk.ResearchTokenAccount.fromAccountInfo(account.account);
 
-        mintCollections.push(mintCollection);
+        researchTokenAccounts.push(mintCollection);
       }
 
-      return mintCollections;
+      return researchTokenAccounts;
     } catch (e) {
       console.error(e);
       return [];
@@ -661,18 +659,20 @@ function derivePeerReviewPdaPubkeyAndBump(
   return [peerReviewPda, bump];
 }
 
-function deriveResearchMintCollectionPdaPubkeyAndBump(
-  researcherAcc: solana.PublicKey
+function deriveResearchTokenAccPdaPubkeyAndBump(
+  researcherAcc: solana.PublicKey,
+  paperPda: solana.PublicKey
 ): [solana.PublicKey, number] {
   const seeds = [
-    Buffer.from(RESEARCH_MINT_COLLECTION_PDA_SEED),
+    Buffer.from(RESEARCH_TOKEN_ACCOUNT_PDA_SEED),
+    paperPda.toBuffer(),
     researcherAcc.toBuffer(),
   ];
 
-  const [mintCollectionPda, bump] = solana.PublicKey.findProgramAddressSync(
+  const [researchTokenAccPda, bump] = solana.PublicKey.findProgramAddressSync(
     seeds,
     sdk.PROGRAM_ID
   );
 
-  return [mintCollectionPda, bump];
+  return [researchTokenAccPda, bump];
 }

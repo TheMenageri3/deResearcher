@@ -27,7 +27,7 @@ interface SDKActions {
   mintResearchPaper: (
     paperPda: string,
     data: sdk.MintResearchPaper
-  ) => Promise<sdk.ResearchMintCollection | null>;
+  ) => Promise<sdk.ResearchTokenAccount | null>;
   clearError: () => void;
   isSDKInitialized: () => boolean;
   reset: () => void;
@@ -137,12 +137,9 @@ export const useSDKStore = create<SDKStore>()((set, get) => ({
     }
     set({ isLoading: true, error: null });
     try {
-      const researchMintCollection = await sdk.mintResearchPaper(
-        paperPda,
-        data
-      );
+      const researchTokenAccount = await sdk.mintResearchPaper(paperPda);
 
-      return researchMintCollection;
+      return researchTokenAccount;
     } catch (error) {
       set({
         error: `Failed to mint research paper: ${

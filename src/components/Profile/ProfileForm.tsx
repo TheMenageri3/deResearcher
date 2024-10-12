@@ -26,7 +26,7 @@ export default function ProfileForm() {
   const router = useRouter();
 
   const createResearcherProfile = useUserStore(
-    (state) => state.createResearcherProfile,
+    (state) => state.createResearcherProfile
   );
 
   const publicKey = useUserStore((state) => state.wallet);
@@ -52,8 +52,6 @@ export default function ProfileForm() {
 
   const handleSubmit = async (values: ProfileFormData) => {
     try {
-      console.log(values);
-      // setIsEditing(false);
       await createResearcherProfile(values);
       router.push(`/profile/${publicKey}`);
     } catch (error) {
