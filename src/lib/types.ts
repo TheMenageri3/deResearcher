@@ -113,13 +113,3 @@ export type ResearchTokenAccountWithResearchePaper = {
   researchTokenAccount: ResearchTokenAccountType;
   researchPaper: ResearchPaperType;
 };
-
-export type PeerReviewWithResearcherProfile = {
-  peerReview: PeerReviewType;
-  researcherProfile: ResearcherProfileType;
-};
-
-export type ResearchPaperWithResearcherProfile = {
-  researchPaper: ResearchPaperType;
-  researcherProfile: ResearcherProfileType;
-};

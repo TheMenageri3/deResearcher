@@ -136,7 +136,7 @@ export function verifySignature(signature: string, pubkey: PublicKey) {
   return solanaCrypto.sign.detached.verify(
     getEncodedLoginMessage(pubkey.toBase58()),
     bs58.decode(signature),
-    bs58.decode(pubkey.toBase58()),
+    bs58.decode(pubkey.toBase58())
   );
 }
 
@@ -147,7 +147,7 @@ export function getEncodedLoginMessage(pubkey: string) {
       pubkey: minimizePubkey(pubkey),
     })
       .split("")
-      .map((c) => c.charCodeAt(0)),
+      .map((c) => c.charCodeAt(0))
   );
 }
 
@@ -180,13 +180,11 @@ export const getConnection = (cluster: Cluster) => {
 export const getRPCUrlFromCluster = (cluster: Cluster) => {
   switch (cluster) {
     case "devnet":
-      return "https://devnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
-    case "testnet":
-      return "https://testnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+      return "https://devnet.helius-rpc.com/?api-key=0289f1b5-ef00-4e39-8da9-d5e373ad4820";
     case "mainnet-beta":
-      return "https://mainnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+      return "https://mainnet.helius-rpc.com/?api-key=0289f1b5-ef00-4e39-8da9-d5e373ad4820";
     default:
-      return "https://devnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+      return "https://devnet.helius-rpc.com/?api-key=0289f1b5-ef00-4e39-8da9-d5e373ad4820";
   }
 };
 
