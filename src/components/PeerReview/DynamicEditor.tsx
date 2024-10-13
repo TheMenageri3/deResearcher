@@ -1,18 +1,19 @@
 "use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Italic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AvatarImageOrName } from "../Avatar";
 import Placeholder from "@tiptap/extension-placeholder";
 import { INITIALRATING, PLACEHOLDER } from "@/lib/constants";
-import { RatingSchema } from "@/lib/validation";
 import { useUserStore } from "@/app/store/userStore";
+import { RatingSchema, ResearchPaperType } from "@/lib/types";
 
 export default function DynamicEditor({
   onClose,
   onSubmit,
+  paper,
 }: {
   onClose: () => void;
   onSubmit: (data: {
@@ -20,11 +21,15 @@ export default function DynamicEditor({
     content: string;
     rating: RatingSchema;
   }) => void;
+  paper: ResearchPaperType;
 }) {
   const { researcherProfile } = useUserStore();
 
   const [title, setTitle] = useState("");
-  const [rating, setRating] = useState<RatingSchema>(INITIALRATING);
+  const [rating, setRating] = useState<RatingSchema>(
+    INITIALRATING as RatingSchema,
+  );
+
   const [errors, setErrors] = useState<{
     title?: boolean;
     content?: boolean;
@@ -54,7 +59,7 @@ export default function DynamicEditor({
       rating: Object.fromEntries(
         Object.entries(rating).map(([key, value]) => [
           key,
-          value === undefined || value < 0.1 || value > 5.0,
+          value === undefined || value < 0.0 || value > 10.0,
         ]),
       ),
     };
@@ -84,7 +89,6 @@ export default function DynamicEditor({
       editor.commands.clearContent();
       setTitle("");
       setAttemptedSubmit(false);
-      onClose();
     }
   };
 
@@ -175,10 +179,10 @@ export default function DynamicEditor({
                     e.target.value === "" ? undefined : Number(e.target.value);
                   setRating({ ...rating, [key]: newValue });
                 }}
-                min={0.1}
-                max={5}
+                min={0}
+                max={10}
                 step={0.1}
-                placeholder="0.1 - 5.0"
+                placeholder="0.0 - 10.0"
                 className={`w-full bg-zinc-700 text-zinc-100 p-2 text-sm text-center transition-colors duration-300 ${
                   attemptedSubmit && errors.rating[key]
                     ? "border border-destructive"

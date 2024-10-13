@@ -3,7 +3,7 @@ import H4 from "../H4";
 import P from "../P";
 import { AvatarImageOrName } from "../Avatar";
 import { formatTimeAgo, getScoreColorClass } from "@/lib/helpers";
-import { PeerReviewWithResearcherProfile } from "@/lib/types";
+import { PeerReviewWithResearcherProfile, RatingSchema } from "@/lib/types";
 
 interface PeerReviewProps {
   review: PeerReviewWithResearcherProfile;
@@ -11,7 +11,7 @@ interface PeerReviewProps {
   onToggle: () => void;
 }
 
-const calculateScore = (reviewScores: ReviewScores): number => {
+const calculateScore = (reviewScores: RatingSchema): number => {
   const {
     qualityOfResearch,
     potentialForRealWorldUseCase,
@@ -19,13 +19,16 @@ const calculateScore = (reviewScores: ReviewScores): number => {
     practicalityOfResultObtained,
   } = reviewScores;
 
-  return (
+  // Calculate the average score on the 0-100 scale
+  const averageScore =
     (qualityOfResearch +
       potentialForRealWorldUseCase +
       domainKnowledge +
       practicalityOfResultObtained) /
-    80
-  );
+    4;
+
+  // Convert the average score from 0-100 scale to 0-10 scale
+  return Number((averageScore / 10).toFixed(1));
 };
 
 const PeerReviewComponent: React.FC<PeerReviewProps> = React.memo(
@@ -40,19 +43,19 @@ const PeerReviewComponent: React.FC<PeerReviewProps> = React.memo(
           practicalityOfResultObtained:
             review.peerReview.practicalityOfResultObtained,
         }),
-      [review.peerReview]
+      [review.peerReview],
     );
 
     const scoreColorClass = useMemo(
       () => getScoreColorClass(calculatedScore),
-      [calculatedScore]
+      [calculatedScore],
     );
 
     const createdAtString = useMemo(() => {
       const date =
         review.peerReview.createdAt instanceof Date
           ? review.peerReview.createdAt
-          : new Date(review.peerReview.createdAt as string);
+          : new Date();
       return formatTimeAgo(date.toISOString());
     }, [review.peerReview.createdAt]);
 
@@ -92,7 +95,7 @@ const PeerReviewComponent: React.FC<PeerReviewProps> = React.memo(
         )}
       </div>
     );
-  }
+  },
 );
 
 PeerReviewComponent.displayName = "PeerReviewComponent";

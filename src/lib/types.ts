@@ -71,6 +71,13 @@ export type PeerReviewType = Omit<PeerReview, keyof Document> & {
   createdAt?: Date;
 };
 
+export type RatingSchema = {
+  qualityOfResearch: number;
+  potentialForRealWorldUseCase: number;
+  domainKnowledge: number;
+  practicalityOfResultObtained: number;
+};
+
 export type PeerReviewMetadata = {
   title: string;
   reviewComments: string;

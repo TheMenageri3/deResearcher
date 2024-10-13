@@ -284,6 +284,7 @@ export default function PaperContentComponent({
       <PeerReviewEditor
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}
+        paper={paper}
       />
 
       {/* <RatingModal

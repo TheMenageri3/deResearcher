@@ -3,6 +3,7 @@ import { Inter, Arbutus, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { UIProvider } from "@/components/Providers/UIProvider";
 import { LoadingProvider } from "@/context/LoadingContext";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 const arbutus = Arbutus({
@@ -33,7 +34,10 @@ export default function RootLayout({
     <html lang="en" className={`${arbutus.variable} ${atkinson.variable}`}>
       <body className={`${inter.className} min-w-[350px]`}>
         <LoadingProvider>
-          <UIProvider>{children}</UIProvider>
+          <UIProvider>
+            {children}
+            <Toaster />
+          </UIProvider>
         </LoadingProvider>
       </body>
     </html>
