@@ -1,4 +1,5 @@
-import { RatingSchema } from "./validation";
+import { title } from "process";
+import { PeerReviewFormData, RatingSchema } from "./validation";
 
 interface ColumnDefinition {
   key: string;
@@ -31,8 +32,7 @@ export const PROFILE_COLUMNS = [
 ];
 export const RESEARCH_PAPER_PDA_SEED: string = "deres_research_paper";
 export const PEER_REVIEW_PDA_SEED: string = "deres_peer_review";
-export const RESEARCH_MINT_COLLECTION_PDA_SEED: string =
-  "deres_mint_collection";
+export const RESEARCH_TOKEN_ACCOUNT_PDA_SEED: string = "deres_token_account";
 export const RESEARCHER_PROFILE_PDA_SEED: string = "deres_researcher_profile";
 
 export const MAX_PDF_UPLOD_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
@@ -48,18 +48,23 @@ export const PLACEHOLDER = `Providing a Quality Peer Review:
 - Discussion: Review if the findings are interpreted well and their significance is clear.
 `;
 
-export const RATINGCATEGORIES: (keyof RatingSchema)[] = [
+export const RATINGCATEGORIES: (keyof PeerReviewFormData)[] = [
   "qualityOfResearch",
   "potentialForRealWorldUseCase",
   "domainKnowledge",
   "practicalityOfResultObtained",
 ];
 
-export const RATINGCATEGORYLABELS: Record<keyof RatingSchema, string> = {
+export const PEERREVIEWCATEGORYLABELS: Record<
+  keyof PeerReviewFormData,
+  string
+> = {
   qualityOfResearch: "Quality of Research",
   potentialForRealWorldUseCase: "Potential for Real-World Use Case",
   domainKnowledge: "Domain Knowledge",
   practicalityOfResultObtained: "Practicality of Results Obtained",
+  title: "Title",
+  reviewComments: "Review Comments",
 };
 
 export const INITIALRATING: RatingSchema = {
@@ -67,4 +72,13 @@ export const INITIALRATING: RatingSchema = {
   potentialForRealWorldUseCase: undefined,
   domainKnowledge: undefined,
   practicalityOfResultObtained: undefined,
+};
+
+export const INITIALPEERREVIEWDATA: PeerReviewFormData = {
+  qualityOfResearch: 0,
+  potentialForRealWorldUseCase: 0,
+  domainKnowledge: 0,
+  practicalityOfResultObtained: 0,
+  title: "",
+  reviewComments: "",
 };

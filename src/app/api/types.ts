@@ -1,7 +1,7 @@
 import {
   PeerReview,
   ResearcherProfile,
-  ResearchMintCollection,
+  ResearchTokenAccount,
   ResearchPaper,
   Session,
 } from "@/app/models";
@@ -44,14 +44,10 @@ export const CreateResearchPaperSchema = z.object({
   bump: z.number(),
 });
 
-export type ResearchMintCollectionType = Omit<
-  ResearchMintCollection,
+export type ResearchTokenAccountType = Omit<
+  ResearchTokenAccount,
   keyof Document
 >;
-
-export type ResearchMintCollectionMetadata = {
-  mintedResearchPaperIds: string[];
-};
 
 export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
@@ -142,18 +138,31 @@ export const AddPeerReviewCommentsSchema = z.object({
   reviewComments: z.string(),
 });
 
-export type PushToResearchMintCollection = {
+export type MintResearchPaper = {
   address: string;
-  readerPubkey: string;
+  researcherPubkey: string;
+  paperPubkey: string;
   bump: number;
-  newMintedResearchPaperPubkey: string;
-  metaDataMerkleRoot: string;
 };
 
-export const PushToResearchMintCollectionSchema = z.object({
+export const MintResearchPaperSchema = z.object({
   address: z.string(),
-  readerPubkey: z.string(),
+  researcherPubkey: z.string(),
+  paperPubkey: z.string(),
   bump: z.number(),
-  newMintedResearchPaperPubkey: z.string(),
-  metaDataMerkleRoot: z.string(),
 });
+
+export type PeerReviewWithResearcherProfile = {
+  peerReview: PeerReviewType;
+  researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchPaperWithResearcherProfile = {
+  researchPaper: ResearchPaperType;
+  researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchTokenAccountWithResearchePaper = {
+  researchTokenAccount: ResearchTokenAccountType;
+  researchPaper: ResearchPaperType;
+};

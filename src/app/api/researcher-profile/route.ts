@@ -53,7 +53,6 @@ export async function GET(req: NextRequest) {
     await connectToDatabase();
 
     const searchParams = req.nextUrl.searchParams;
-
     const researcherPubkey = searchParams.get("researcherPubkey");
 
     if (!researcherPubkey) {

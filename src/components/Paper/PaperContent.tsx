@@ -7,8 +7,11 @@ import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
 import { AvatarImageOrName } from "../Avatar";
 import { Lock } from "lucide-react";
-import { RatingSchema } from "@/lib/validation";
-
+import {
+  PaperSchema,
+  PeerReviewFormData,
+  PeerReviewSchema,
+} from "@/lib/validation";
 import { formatTimeAgo } from "@/lib/helpers";
 import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
@@ -40,14 +43,13 @@ export default function PaperContentComponent({
   const [isMinter, setIsMinter] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
-  const [submittedRating, setSubmittedRating] = useState<PeerReviewType | null>(
-    null,
-  );
+  const [submittedRating, setSubmittedRating] =
+    useState<PeerReviewSchema | null>(null);
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
   const {
-    addPeerReviewRating,
+    addPeerReview,
     fetchPeerReviewsByPaperPubkey,
     mintResearchPaper,
     isLoading,
@@ -112,7 +114,7 @@ export default function PaperContentComponent({
   };
 
   const handleBuyPaper = useCallback(() => {
-    console.log("handleBuyPaper called");
+    const { wallet } = useUserStore.getState();
     if (!wallet) {
       console.error("Wallet not connected");
       return;
@@ -124,7 +126,7 @@ export default function PaperContentComponent({
     } catch (error) {
       console.error("Error minting paper:", error);
     }
-  }, [paper, mintResearchPaper, wallet]);
+  }, [paper, mintResearchPaper]);
 
   const handleRateButtonClick = () => {
     setIsRatingModalOpen(true);

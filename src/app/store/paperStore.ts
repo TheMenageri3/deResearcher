@@ -5,36 +5,31 @@ import {
   PeerReviewType,
   ResearchPaperMetadata,
   ResearchPaperType,
+  ResearchTokenAccountWithResearchePaper,
+  MintResearchPaper,
 } from "@/lib/types";
-import {
-  PaperFormData,
-  PeerReviewCommentsFormData,
-  PeerReviewRatingFormData,
-} from "@/lib/validation";
+import { PaperFormData, PeerReviewFormData } from "@/lib/validation";
 import { useSDKStore } from "./sdkStore";
 import * as sdk from "@/lib/sdk";
 import { toPaperDbState } from "@/lib/helpers";
 import { useUserStore } from "./userStore";
-import {
-  AddPeerReviewComments,
-  PushToResearchMintCollection,
-} from "@/lib/types";
-import { PeerReview } from "../models";
-import { PublicKey } from "@solana/web3.js";
+import { ResearchPaperWithResearcherProfile } from "../api/types";
 
 interface PaperStore {
-  papers: ResearchPaperType[];
+  papers: ResearchPaperWithResearcherProfile[];
   peerReviews: PeerReviewType[];
   isLoading: boolean;
   error: string | null;
   fetchAndStorePapers: () => Promise<void>;
-  fetchPapersByState: (state: string) => Promise<ResearchPaperType[] | null>;
+  fetchPapersByState: (
+    state: string
+  ) => Promise<ResearchPaperWithResearcherProfile[] | null>;
   fetchPaperByPubkey: (
-    paperPubkey: string,
-  ) => Promise<ResearchPaperType | null>;
+    paperPubkey: string
+  ) => Promise<ResearchPaperWithResearcherProfile | null>;
   fetchAllPapersByResearcherPubkey: (
-    researcherPubkey: string,
-  ) => Promise<ResearchPaperType[] | null>;
+    researcherPubkey: string
+  ) => Promise<ResearchPaperWithResearcherProfile[] | null>;
   fetchAndStorePeerReviewsByReviewerPubkey: (
     reviewerPubkey: string,
   ) => Promise<void>;
@@ -47,20 +42,16 @@ interface PaperStore {
     paper: PaperFormData,
   ) => Promise<{ success: boolean; error?: string }>;
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
-  addPeerReviewRating: (
+  addPeerReview: (
     paper: ResearchPaperType,
-    data: PeerReviewRatingFormData,
-  ) => Promise<void>;
-  addPeerReviewComments: (
-    paper: PeerReviewType,
-    data: PeerReviewCommentsFormData,
+    data: PeerReviewFormData
   ) => Promise<void>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
-  pushToPapersStore: (paper: ResearchPaperType) => void;
+  pushToPapersStore: (paper: ResearchPaperWithResearcherProfile) => void;
   pushToPeerReviewsStore: (peerReview: PeerReviewType) => void;
   updatePeerReviewInStore: (peerReview: PeerReviewType) => void;
-  updatePaperInStore: (paper: ResearchPaperType) => void;
+  updatePaperInStore: (paper: ResearchPaperWithResearcherProfile) => void;
 }
 
 export const usePaperStore = create<PaperStore>((set, get) => ({
@@ -75,8 +66,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       if (!response.ok) {
         throw new Error("Failed to fetch papers");
       }
-      const papers: ResearchPaperType[] = await response.json();
-      console.log("papers", papers);
+      const papers: ResearchPaperWithResearcherProfile[] =
+        await response.json();
       set({ papers, isLoading: false, error: null });
     } catch (error: any) {
       set({ error: "Failed to fetch papers", isLoading: false });
@@ -85,7 +76,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
   fetchPapersByState: async (state: string) => {
     try {
-      const papers: ResearchPaperType[] = await fetchPapersByStateFromDB(state);
+      const papers: ResearchPaperWithResearcherProfile[] =
+        await fetchPapersByStateFromDB(state);
       return papers;
     } catch (error: any) {
       console.error(error);
@@ -94,7 +86,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   },
   fetchPaperByPubkey: async (paperId: string) => {
     try {
-      const paper: ResearchPaperType = await fetchPaperByPubkeyFromDB(paperId);
+      const paper: ResearchPaperWithResearcherProfile =
+        await fetchPaperByPubkeyFromDB(paperId);
       return paper;
     } catch (error: any) {
       console.error(error);
@@ -103,7 +96,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   },
   fetchAllPapersByResearcherPubkey: async (researcherPubkey: string) => {
     try {
-      const papers: ResearchPaperType[] =
+      const papers: ResearchPaperWithResearcherProfile[] =
         await fetchPapersByResearcherPubkeyFromDB(researcherPubkey);
       return papers;
     } catch (error: any) {
@@ -177,7 +170,6 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       // Generate merkle roots for paper content and metadata
 
       const content = await paper.paperFile.text();
-      console.log("content", content);
 
       const [paperContentHash, metaDataMerkleRoot] = await Promise.all([
         sdk.SDK.compressObjectAndGenerateMerkleRoot({
@@ -235,7 +227,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       };
 
       // Store the paper in the database
-      const newPaper: ResearchPaperType = await storePaperOnDB(paperDbData);
+      const newPaper: ResearchPaperWithResearcherProfile = await storePaperOnDB(
+        paperDbData
+      );
 
       // Add the paper to the store
       pushToPapersStore(newPaper);
@@ -271,9 +265,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         state: toPaperDbState(updatedPaper.state),
       };
 
-      const updatedPaperDB: ResearchPaperType = await updateResearchPaperDB(
-        data,
-      );
+      const updatedPaperDB: ResearchPaperWithResearcherProfile =
+        await updateResearchPaperDB(data);
 
       // Update the paper in the store
 
@@ -284,7 +277,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       set({ error: "Failed to publish paper", isLoading: false });
     }
   },
-  addPeerReviewRating: async (paper, data) => {
+  addPeerReview: async (paper, data) => {
     const { sdk: sdkInstance } = useSDKStore.getState();
     const { pushToPeerReviewsStore } = get();
     if (!sdkInstance) {
@@ -297,7 +290,6 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
     try {
       // on-chain part
-
       const metaDataMerkleRoot =
         await sdk.SDK.compressObjectAndGenerateMerkleRoot({
           ...data,
@@ -331,8 +323,8 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
         metaDataMerkleRoot,
         domainKnowledge: data.domainKnowledge,
         metadata: {
-          title: "...",
-          reviewComments: "...",
+          title: data.title,
+          reviewComments: data.reviewComments,
         },
         bump: peerReview.bump,
       };
@@ -355,41 +347,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
   },
 
-  addPeerReviewComments: async (peerReview, data) => {
-    const { sdk: sdkInstance } = useSDKStore.getState();
-
-    const { updatePeerReviewInStore } = get();
-
-    if (!sdkInstance) {
-      set({ error: "SDK not initialized" });
-      return;
-    }
-    set({ isLoading: true });
-    try {
-      // off-chain part
-
-      const addPeerReviewCommentsDbData: AddPeerReviewComments = {
-        address: peerReview.address,
-        title: data.title,
-        reviewComments: data.reviewComments,
-      };
-
-      const updatedPeerReview: PeerReviewType = await addCommentsPeerReviewDB(
-        addPeerReviewCommentsDbData,
-      );
-
-      // Add the peer review to the store
-
-      updatePeerReviewInStore(updatedPeerReview);
-
-      set({ isLoading: false });
-    } catch (error: any) {
-      set({ error: "Failed to add peer review comments", isLoading: false });
-    }
-  },
   mintResearchPaper: async (paper) => {
     const { sdk: sdkInstance } = useSDKStore.getState();
-    const { researchMintCollection, updateResearchMintCollection } =
+    const { researchTokenAccounts, pushToResearchTokenAccounts } =
       useUserStore.getState();
     if (!sdkInstance) {
       set({ error: "SDK not initialized" });
@@ -398,42 +358,22 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     set({ isLoading: true });
     try {
       // on-chain part
-      let data: string[] = [];
 
-      if (researchMintCollection) {
-        data = [...researchMintCollection.metadata.mintedResearchPaperPubkeys];
-      }
-
-      data.push(paper.address);
-
-      const metaDataMerkleRoot =
-        await sdk.SDK.compressObjectAndGenerateMerkleRoot({
-          data,
-        });
-      const mintCollection = await sdkInstance.mintResearchPaper(
-        paper.address,
-        {
-          metaDataMerkleRoot,
-        },
-      );
+      const mintCollection = await sdkInstance.mintResearchPaper(paper.address);
 
       // off-chain part
 
-      const mintCollectionDBData: PushToResearchMintCollection = {
+      const researchTokenAccountDBData: MintResearchPaper = {
         address: mintCollection.address.toBase58(),
-        readerPubkey: sdkInstance.pubkey.toBase58(),
+        researcherPubkey: sdkInstance.pubkey.toBase58(),
+        paperPubkey: paper.address,
         bump: mintCollection.bump,
-        newMintedResearchPaperPubkey: paper.address,
-        metaDataMerkleRoot,
       };
 
-      const updatedMiningCollection = await mintResearchPaperDB(
-        mintCollectionDBData,
-      );
+      const researchTokenAccountWithPaper: ResearchTokenAccountWithResearchePaper =
+        await mintResearchPaperDB(researchTokenAccountDBData);
 
-      // Update the mint collection in the store
-
-      updateResearchMintCollection(updatedMiningCollection);
+      pushToResearchTokenAccounts(researchTokenAccountWithPaper);
 
       set({ isLoading: false });
     } catch (error: any) {
@@ -465,13 +405,18 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
   },
 
-  pushToPapersStore: (paper) => {
-    set((state) => ({ papers: [...state.papers, paper] }));
+  pushToPapersStore: (paper: ResearchPaperWithResearcherProfile) => {
+    set((state) => ({
+      papers: [...state.papers, paper],
+    }));
   },
+
   updatePaperInStore: (paper) => {
     set((state) => ({
       papers: state.papers.map((p) =>
-        p.address === paper.address ? paper : p,
+        p.researchPaper.address === paper.researchPaper.address
+          ? { ...p, ...paper }
+          : p
       ),
     }));
   },
@@ -575,7 +520,7 @@ async function fetchPeerReviewsByReviewerPubkeyFromDB(reviewerPubkey: string) {
   return await response.json();
 }
 
-async function mintResearchPaperDB(data: PushToResearchMintCollection) {
+async function mintResearchPaperDB(data: MintResearchPaper) {
   const response = await fetch("/api/mint", {
     method: "POST",
     body: JSON.stringify(data),
@@ -596,19 +541,6 @@ async function updateResearchPaperDB(data: {}) {
 
   if (!response.ok) {
     throw new Error("Failed to update research paper");
-  }
-
-  return await response.json();
-}
-
-async function addCommentsPeerReviewDB(data: AddPeerReviewComments) {
-  const response = await fetch("/api/peer-review/add-comments", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to update peer review");
   }
 
   return await response.json();
