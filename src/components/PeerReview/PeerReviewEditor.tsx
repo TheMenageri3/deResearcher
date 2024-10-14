@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { RatingSchema, ResearchPaperType } from "@/lib/types";
 import { useUserStore } from "@/app/store/userStore";
 import toast from "react-hot-toast";
+import { usePaperStore } from "@/app/store/paperStore";
 
 const DynamicEditor = dynamic(() => import("./DynamicEditor"), { ssr: false });
 
@@ -14,15 +15,18 @@ export default function PeerReviewEditor({
   isOpen,
   onClose,
   paper,
+  onReviewSubmitted,
 }: {
   isOpen: boolean;
   onClose: () => void;
   paper: ResearchPaperType;
+  onReviewSubmitted: () => void;
 }) {
   const [isTransitioned, setIsTransitioned] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const { wallet } = useUserStore();
+  const { addPeerReview, isLoading } = usePaperStore();
 
   useLayoutEffect(() => {
     if (isOpen) {
@@ -45,6 +49,7 @@ export default function PeerReviewEditor({
     content: string;
     rating: RatingSchema;
   }) => {
+    setError(null);
     try {
       if (!wallet) {
         toast.error("Please connect your wallet to submit a peer review");
@@ -59,19 +64,34 @@ export default function PeerReviewEditor({
         ]),
       ) as RatingSchema;
 
+      // Remove <p> tags and use them as line break indicators
+      const formattedContent = data.content
+        .replace(/<\/p><p>/g, "</p>\n<p>") // Add newline between paragraphs
+        .replace(/<p>/g, "") // Remove opening <p> tags
+        .replace(/<\/p>/g, "\n") // Replace closing </p> tags with newline
+        .trim();
+
       console.log("Submitting peer review for paper:", paper.address, {
         ...data,
+        content: formattedContent,
         rating: convertedRating,
       });
 
-      // await addPeerReviewRating(paper, {
-      //   ...convertedRating,
-      //   title: data.title,
-      //   reviewComments: data.content,
-      // });
-
-      toast.success("Peer review submitted successfully");
-      onClose();
+      const result = await addPeerReview(paper, {
+        ...convertedRating,
+        title: data.title,
+        reviewComments: formattedContent,
+      });
+      if (result.success) {
+        toast.success("Peer review submitted successfully");
+        onReviewSubmitted();
+        onClose();
+      } else {
+        console.log(result.error);
+        const errorMessage = result.error || "Failed to create paper";
+        toast.error(errorMessage);
+        setError(errorMessage);
+      }
     } catch (error) {
       toast.error("Error submitting peer review");
       console.error("Error submitting peer review:", error);
@@ -100,6 +120,7 @@ export default function PeerReviewEditor({
               onClose={handleClose}
               onSubmit={handleSubmit}
               paper={paper}
+              isSubmitting={isLoading}
             />
           )}
         </div>

@@ -66,7 +66,7 @@ export const PaperFormData = z.object({
     )
     .transform((val) => {
       const num = typeof val === "string" ? parseFloat(val) : val;
-      return Number(num.toFixed(2));
+      return isNaN(num) ? 0 : Number(num.toFixed(1));
     }),
   abstract: z.string().trim().min(250, "Abstract must be at least 250 words"),
   domains: z

@@ -22,13 +22,13 @@ interface PaperStore {
   error: string | null;
   fetchAndStorePapers: () => Promise<void>;
   fetchPapersByState: (
-    state: string
+    state: string,
   ) => Promise<ResearchPaperWithResearcherProfile[] | null>;
   fetchPaperByPubkey: (
-    paperPubkey: string
+    paperPubkey: string,
   ) => Promise<ResearchPaperWithResearcherProfile | null>;
   fetchAllPapersByResearcherPubkey: (
-    researcherPubkey: string
+    researcherPubkey: string,
   ) => Promise<ResearchPaperWithResearcherProfile[] | null>;
   fetchAndStorePeerReviewsByReviewerPubkey: (
     reviewerPubkey: string,
@@ -44,8 +44,8 @@ interface PaperStore {
   publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   addPeerReview: (
     paper: ResearchPaperType,
-    data: PeerReviewFormData
-  ) => Promise<void>;
+    data: PeerReviewFormData,
+  ) => Promise<{ success: boolean; error?: string }>;
   mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
   setError: (error: string | null) => void;
   pushToPapersStore: (paper: ResearchPaperWithResearcherProfile) => void;
@@ -105,7 +105,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
   },
 
-  createResearchPaper: async (paper) => {
+  createResearchPaper: async (
+    paper: PaperFormData,
+  ): Promise<{ success: boolean; error?: string }> => {
     set({ isLoading: true, error: null });
 
     const { pushToPapersStore } = get();
@@ -228,7 +230,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // Store the paper in the database
       const newPaper: ResearchPaperWithResearcherProfile = await storePaperOnDB(
-        paperDbData
+        paperDbData,
       );
 
       // Add the paper to the store
@@ -240,9 +242,9 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       return { success: true };
     } catch (error: any) {
-      console.error(error);
-      set({ error: error.message, isLoading: false });
-      return { success: false, error: error.message };
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      return { success: false, error: errorMessage };
     }
   },
   publishResearchPaper: async (paper) => {
@@ -277,12 +279,16 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       set({ error: "Failed to publish paper", isLoading: false });
     }
   },
-  addPeerReview: async (paper, data) => {
+
+  addPeerReview: async (
+    paper,
+    data,
+  ): Promise<{ success: boolean; error?: string }> => {
     const { sdk: sdkInstance } = useSDKStore.getState();
     const { pushToPeerReviewsStore } = get();
     if (!sdkInstance) {
       set({ error: "SDK not initialized" });
-      return;
+      return { success: false, error: "SDK not initialized" };
     }
     set({ isLoading: true });
     console.log("data", data);
@@ -342,8 +348,10 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       pushToPeerReviewsStore(newPeerReview);
 
       set({ isLoading: false });
+      return { success: true };
     } catch (error: any) {
       set({ error: "Failed to add peer review", isLoading: false });
+      return { success: false, error: "Failed to add peer review" };
     }
   },
 
@@ -394,13 +402,18 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
   },
 
   fetchPeerReviewsByPaperPubkey: async (paperPubkey) => {
+    set({ isLoading: true });
+
     try {
       const peerReviews = await fetchPeerReviewsByPaperPubkeyFromDB(
         paperPubkey,
       );
+      set({ isLoading: false });
+
       return peerReviews;
     } catch (error: any) {
       console.error(error);
+      set({ isLoading: false, error: "Failed to fetch peer reviews" });
       return null;
     }
   },
@@ -416,7 +429,7 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       papers: state.papers.map((p) =>
         p.researchPaper.address === paper.researchPaper.address
           ? { ...p, ...paper }
-          : p
+          : p,
       ),
     }));
   },

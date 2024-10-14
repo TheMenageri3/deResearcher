@@ -52,10 +52,15 @@ const PeerReviewComponent: React.FC<PeerReviewProps> = React.memo(
     );
 
     const createdAtString = useMemo(() => {
+      const createdAt = review.peerReview.createdAt as
+        | string
+        | Date
+        | undefined;
+      if (!createdAt) {
+        return "Unknown date";
+      }
       const date =
-        review.peerReview.createdAt instanceof Date
-          ? review.peerReview.createdAt
-          : new Date();
+        typeof createdAt === "string" ? new Date(createdAt) : createdAt;
       return formatTimeAgo(date.toISOString());
     }, [review.peerReview.createdAt]);
 
@@ -88,7 +93,7 @@ const PeerReviewComponent: React.FC<PeerReviewProps> = React.memo(
         </div>
         {isExpanded && (
           <div className="mt-4">
-            <P className="text-pretty text-sm text-zinc-600">
+            <P className="text-pretty text-sm text-zinc-600 whitespace-pre-line">
               {review.peerReview.metadata.reviewComments}
             </P>
           </div>

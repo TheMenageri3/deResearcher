@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera, Loader2, Upload } from "lucide-react";
 import { z } from "zod";
 import React from "react";
+import toast from "react-hot-toast";
 
 type PaperFormDataType = z.infer<typeof PaperFormData>;
 
@@ -56,16 +57,24 @@ export default function CreatePaperForm() {
 
   const handleSubmit = async (values: PaperFormDataType) => {
     try {
-      let result = await createResearchPaper(values);
+      setError(null);
+      const result = await createResearchPaper(values);
 
       if (result.success) {
+        toast.success("Paper created successfully!");
         router.push("/dashboard/papers/overview");
       } else {
-        setError(result.error || "An unknown error occurred");
+        console.log(result.error);
+        const errorMessage = result.error || "Failed to create paper";
+        toast.error(errorMessage);
+        setError(errorMessage);
       }
     } catch (error) {
       console.error("Error creating paper:", error);
-      setError("An unexpected error occurred while creating the paper");
+      const errorMessage =
+        "An unexpected error occurred while creating the paper";
+      toast.error(errorMessage);
+      setError(errorMessage);
     }
   };
 
@@ -128,6 +137,7 @@ export default function CreatePaperForm() {
                   inputProps={{
                     type: "number",
                     min: 0,
+                    step: 0.1,
                   }}
                 />
               )}

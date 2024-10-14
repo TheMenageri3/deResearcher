@@ -24,13 +24,15 @@ interface UserState {
   checkAuth: (walletPubkey: string) => Promise<void>;
   checkAuthAndTryLogin: (wallet: WalletContextState) => Promise<void>;
   logout: (walletPubkey: string) => Promise<void>;
-  createResearcherProfile: (data: ProfileFormData) => Promise<void>;
+  createResearcherProfile: (
+    data: ProfileFormData,
+  ) => Promise<{ success: boolean; error?: string }>;
   requestToAssignRepuation: () => Promise<void>;
   setError: (error: string | null) => void;
   fetchAndStoreResearcherProfile: () => Promise<void>;
   fetchAndStoreResearchTokenAccounts: () => Promise<void>;
   pushToResearchTokenAccounts: (
-    researchTokenAccount: ResearchTokenAccountWithResearchePaper
+    researchTokenAccount: ResearchTokenAccountWithResearchePaper,
   ) => void;
 }
 
@@ -79,7 +81,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       const encodedMessage = getEncodedLoginMessage(
-        wallet.publicKey.toBase58()
+        wallet.publicKey.toBase58(),
       );
       const signature = await wallet.signMessage(encodedMessage);
 
@@ -154,12 +156,14 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ isLoading: false });
     }
   },
-  async createResearcherProfile(data) {
+
+  createResearcherProfile: async (
+    data: ProfileFormData,
+  ): Promise<{ success: boolean; error?: string }> => {
     const { sdk: sdkInstance } = useSDKStore.getState();
 
     if (!sdkInstance) {
-      set({ error: "SDK not initialized" });
-      return;
+      return { success: false, error: "SDK not initialized" };
     }
 
     set({ isLoading: true });
@@ -192,7 +196,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       if (filesToUpload.length > 0) {
         arweaveUploadedIds = await sdkInstance.arweaveUploadFiles(
           filesToUpload,
-          tags
+          tags,
         );
       }
 
@@ -220,7 +224,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       const metadataMerkleRoot =
         await sdk.SDK.compressObjectAndGenerateMerkleRoot(
-          researcherProfileMetadata
+          researcherProfileMetadata,
         );
 
       const createResearcherProfileInput: Omit<
@@ -232,7 +236,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       };
 
       const researcherProfile = await sdkInstance.createResearcherProfile(
-        createResearcherProfileInput
+        createResearcherProfileInput,
       );
 
       // off-chain part
@@ -256,7 +260,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       if (!response.ok) {
         throw new Error(
-          `Failed to create researcher profile: ${response.statusText}`
+          `Failed to create researcher profile: ${response.statusText}`,
         );
       }
 
@@ -266,12 +270,16 @@ export const useUserStore = create<UserState>((set, get) => ({
         researcherProfile: newResearcherProfile,
         isLoading: false,
       });
+      return { success: true };
     } catch (error) {
+      const errorMessage = `Failed to create researcher profile: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`;
       set({
-        error: `Failed to create researcher profile: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        error: errorMessage,
+        isLoading: false,
       });
+      return { success: false, error: errorMessage };
     }
   },
   async fetchAndStoreResearcherProfile() {
@@ -302,7 +310,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ isLoading: true });
     try {
       const researchTokenAccounts = await fetchResearchTokenAccounts(
-        sdk.pubkey.toBase58()
+        sdk.pubkey.toBase58(),
       );
 
       console.log("researchTokenAccounts", researchTokenAccounts);
@@ -333,11 +341,11 @@ async function fetchResearcherProfile(researcherPubkey: string) {
   const urlSearchParams = new URLSearchParams({ researcherPubkey });
 
   const response = await fetch(
-    `/api/researcher-profile?${urlSearchParams.toString()}`
+    `/api/researcher-profile?${urlSearchParams.toString()}`,
   );
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch researcher profile: ${response.statusText}`
+      `Failed to fetch researcher profile: ${response.statusText}`,
     );
   }
   return await response.json();
@@ -348,7 +356,7 @@ async function fetchResearchTokenAccounts(researcherPubkey: string) {
   const response = await fetch(`/api/mint?${urlSearchParams.toString()}`);
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch research mint collection: ${response.statusText}`
+      `Failed to fetch research mint collection: ${response.statusText}`,
     );
   }
   return await response.json();

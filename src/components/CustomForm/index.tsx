@@ -41,23 +41,19 @@ export default function CustomFormItem({
   labelClassName = "",
   inputClassName = "",
 }: CustomFormItemProps) {
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
     if (
       InputComponent === Input &&
       (inputProps as InputProps).type === "number"
     ) {
-      const numberValue = Number(value);
-      if (!isNaN(numberValue)) {
-        field.onChange(numberValue);
-        return;
-      }
+      // Allow leading zero only if it's followed by a decimal point
+      const numberValue = value.replace(/^0+(?=\d)/, "").replace(/^\./, "0.");
+      field.onChange(numberValue === "" ? "" : numberValue);
+    } else {
+      field.onChange(value);
     }
-
-    field.onChange(value);
   };
 
   return (

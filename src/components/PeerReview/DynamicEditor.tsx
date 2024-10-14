@@ -9,11 +9,13 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { INITIALRATING, PLACEHOLDER } from "@/lib/constants";
 import { useUserStore } from "@/app/store/userStore";
 import { RatingSchema, ResearchPaperType } from "@/lib/types";
+import { Loader2 } from "lucide-react";
 
 export default function DynamicEditor({
   onClose,
   onSubmit,
   paper,
+  isSubmitting,
 }: {
   onClose: () => void;
   onSubmit: (data: {
@@ -22,6 +24,7 @@ export default function DynamicEditor({
     rating: RatingSchema;
   }) => void;
   paper: ResearchPaperType;
+  isSubmitting: boolean;
 }) {
   const { researcherProfile } = useUserStore();
 
@@ -206,8 +209,16 @@ export default function DynamicEditor({
           size="lg"
           className="w-full bg-primary hover:bg-primary/90"
           onClick={handleSend}
+          disabled={isSubmitting}
         >
-          Send
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            "Send"
+          )}
         </Button>
       </div>
     </div>

@@ -89,8 +89,8 @@ export const formatPaper = (paper: PaperSchema) => ({
 
 // Get score color
 export const getScoreColorClass = (score: number): string => {
-  if (score >= 4) return "bg-primary";
-  if (score >= 3) return "bg-yellow-500";
+  if (score >= 8) return "bg-primary";
+  if (score >= 5) return "bg-yellow-500";
   return "bg-rose-500/80";
 };
 
@@ -136,7 +136,7 @@ export function verifySignature(signature: string, pubkey: PublicKey) {
   return solanaCrypto.sign.detached.verify(
     getEncodedLoginMessage(pubkey.toBase58()),
     bs58.decode(signature),
-    bs58.decode(pubkey.toBase58())
+    bs58.decode(pubkey.toBase58()),
   );
 }
 
@@ -147,7 +147,7 @@ export function getEncodedLoginMessage(pubkey: string) {
       pubkey: minimizePubkey(pubkey),
     })
       .split("")
-      .map((c) => c.charCodeAt(0))
+      .map((c) => c.charCodeAt(0)),
   );
 }
 

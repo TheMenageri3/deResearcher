@@ -6,12 +6,7 @@ import P from "../P";
 import H2 from "../H2";
 import PeerReviewComponent from "../PeerReview";
 import { AvatarImageOrName } from "../Avatar";
-import { Lock } from "lucide-react";
-import {
-  PaperSchema,
-  PeerReviewFormData,
-  PeerReviewSchema,
-} from "@/lib/validation";
+import { Loader2, Lock } from "lucide-react";
 import { formatTimeAgo } from "@/lib/helpers";
 import { PAPER_STATUS } from "@/lib/constants";
 import dynamic from "next/dynamic";
@@ -20,7 +15,6 @@ import PeerReviewEditor from "../PeerReview/PeerReviewEditor";
 import PaperActionButton from "./PaperActionButton";
 import useScreen from "@/hooks/useScreen";
 import { Button } from "../ui/button";
-import RatingModal from "../Rating";
 import { useUserStore } from "@/app/store/userStore";
 import { usePaperStore } from "@/app/store/paperStore";
 import {
@@ -42,19 +36,12 @@ export default function PaperContentComponent({
   const { wallet } = useUserStore();
   const [isMinter, setIsMinter] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
-  const [submittedRating, setSubmittedRating] =
-    useState<PeerReviewSchema | null>(null);
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
-  const {
-    addPeerReview,
-    fetchPeerReviewsByPaperPubkey,
-    mintResearchPaper,
-    isLoading,
-  } = usePaperStore();
-  const [error, setError] = useState<string | null>(null);
+  const { fetchPeerReviewsByPaperPubkey, mintResearchPaper, isLoading } =
+    usePaperStore();
+  const [isActionLoading, setIsActionLoading] = useState(false);
   const [peerReviews, setPeerReviews] = useState<
     PeerReviewWithResearcherProfile[]
   >([]);
@@ -66,19 +53,24 @@ export default function PaperContentComponent({
     ).toString();
   }, []);
 
-  useEffect(() => {
-    const fetchPeerReviews = async () => {
-      const peerReviewData = await fetchPeerReviewsByPaperPubkey(paper.address);
-      if (peerReviewData)
-        setPeerReviews(
-          peerReviewData as unknown as PeerReviewWithResearcherProfile[],
-        );
-    };
+  const fetchPeerReviews = useCallback(async () => {
+    const peerReviewData = await fetchPeerReviewsByPaperPubkey(paper.address);
+    if (peerReviewData)
+      setPeerReviews(
+        peerReviewData as unknown as PeerReviewWithResearcherProfile[],
+      );
+  }, [fetchPeerReviewsByPaperPubkey, paper.address]);
 
+  useEffect(() => {
     if (paper) {
       fetchPeerReviews();
     }
-  }, [fetchPeerReviewsByPaperPubkey, paper]);
+  }, [paper, fetchPeerReviews]);
+
+  const handleReviewSubmitted = () => {
+    fetchPeerReviews();
+    setIsEditorOpen(false);
+  };
 
   const toggleReview = (reviewId: string) => {
     setExpandedReviews((prev) => ({
@@ -95,7 +87,19 @@ export default function PaperContentComponent({
   }, [wallet, paper.creatorPubkey]);
 
   const renderReviews = () => {
-    if (!peerReviews || peerReviews.length === 0) {
+    if (isLoading) {
+      console.log("Showing spinner");
+      return (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        </div>
+      );
+    }
+
+    if (
+      (!isLoading && !peerReviews) ||
+      (!isLoading && peerReviews.length === 0)
+    ) {
       return (
         <div className="text-left py-8">
           <P className="text-zinc-500 mb-4">No peer reviews found yet.</P>
@@ -113,50 +117,36 @@ export default function PaperContentComponent({
     ));
   };
 
-  const handleBuyPaper = useCallback(() => {
-    const { wallet } = useUserStore.getState();
-    if (!wallet) {
-      console.error("Wallet not connected");
-      return;
-    }
-    try {
-      console.log("Attempting to mint paper:", paper);
-      mintResearchPaper(paper as ResearchPaperType);
-      console.log("Paper minting initiated");
-    } catch (error) {
-      console.error("Error minting paper:", error);
-    }
-  }, [paper, mintResearchPaper]);
-
-  const handleRateButtonClick = () => {
-    setIsRatingModalOpen(true);
+  const handleToggleReview = () => {
+    setIsEditorOpen(true);
   };
 
-  // const handleRatingSubmit = async (rating: RatingSchema) => {
-  //   console.log("Parent component received rating:", rating);
-  //   const { wallet } = useUserStore.getState();
+  const handleUpdateNewPaper = async () => {
+    setIsActionLoading(true);
+    // TODO: update logic here
+    setIsActionLoading(false);
+  };
 
+  const handlePublishPaper = async () => {
+    setIsActionLoading(true);
+    // TODO: publish logic here
+    setIsActionLoading(false);
+  };
+
+  // const handleBuyPaper = useCallback(() => {
+  //   const { wallet } = useUserStore.getState();
   //   if (!wallet) {
   //     console.error("Wallet not connected");
-  //     setError("Please connect your wallet before submitting a rating.");
   //     return;
   //   }
   //   try {
-  //     setError(null);
-  //     console.log("Initiating blockchain transaction...");
-  //     await addPeerReviewRating(paper as unknown as ResearchPaperType, rating);
-  //     console.log("Rating submitted successfully");
+  //     console.log("Attempting to mint paper:", paper);
+  //     mintResearchPaper(paper as ResearchPaperType);
+  //     console.log("Paper minting initiated");
   //   } catch (error) {
-  //     console.error("Error submitting rating:", error);
-  //     if (error instanceof Error) {
-  //       setError(error.message);
-  //     } else {
-  //       setError("An unexpected error occurred while submitting the rating");
-  //     }
-  //     return;
+  //     console.error("Error minting paper:", error);
   //   }
-  //   setIsRatingModalOpen(false);
-  // };
+  // }, [paper, mintResearchPaper]);
 
   return (
     <div className="mx-auto px-4">
@@ -199,25 +189,13 @@ export default function PaperContentComponent({
               <div className="mt-16 mb-5 flex justify-center">
                 <PaperActionButton
                   paper={paper}
-                  onToggleReview={() => setIsEditorOpen(true)}
-                  onUpdateNewPaper={() => {}}
-                  onPublishPaper={() => {}}
-                  onBuyPaper={() => handleBuyPaper()} // Change this line
-                  isLoading={isLoading} // Pass isLoading here
+                  onToggleReview={handleToggleReview}
+                  onUpdateNewPaper={handleUpdateNewPaper}
+                  onPublishPaper={handlePublishPaper}
+                  // onBuyPaper={handleBuyPaper}
+                  isLoading={isActionLoading}
                 />
               </div>
-
-              {/* {(paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
-                paper.state === PAPER_STATUS.IN_PEER_REVIEW) && (
-                <Button
-                  className="w-full mb-16 md:w-[240px] text-sm flex items-center justify-center"
-                  size="lg"
-                  variant="outline"
-                  onClick={handleRateButtonClick}
-                >
-                  ⭐ Rate this Paper
-                </Button>
-              )} */}
             </>
           )}
 
@@ -249,28 +227,12 @@ export default function PaperContentComponent({
             <>
               <PaperActionButton
                 paper={paper}
-                onToggleReview={() => setIsEditorOpen(true)}
-                onUpdateNewPaper={() => {}}
-                onPublishPaper={() => {}}
-                onBuyPaper={() => handleBuyPaper()} // Change this line
-                isLoading={isLoading} // Pass isLoading here
+                onToggleReview={handleToggleReview}
+                onUpdateNewPaper={handleUpdateNewPaper}
+                onPublishPaper={handlePublishPaper}
+                // onBuyPaper={handleBuyPaper}
+                isLoading={isActionLoading}
               />
-              {/** TEMPORARY APPROACH TO SHOW RATE PAPER BUTTON*/}
-              {/* {
-                // paper?.peerReviews &&
-                // paper?.peerReviews.length < 1 &&
-                (paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
-                  paper.state === PAPER_STATUS.IN_PEER_REVIEW) && (
-                  <Button
-                    className="mt-5 w-full md:w-[240px] text-sm flex items-center justify-center"
-                    size="lg"
-                    variant="outline"
-                    onClick={handleRateButtonClick}
-                  >
-                    ⭐ Rate this Paper
-                  </Button>
-                )
-              } */}
             </>
           )}
           <div className="md:hidden">
@@ -287,14 +249,8 @@ export default function PaperContentComponent({
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}
         paper={paper}
+        onReviewSubmitted={handleReviewSubmitted}
       />
-
-      {/* <RatingModal
-        isOpen={isRatingModalOpen}
-        onClose={() => setIsRatingModalOpen(false)}
-        paper={paper}
-        onSubmit={handleRatingSubmit}
-      /> */}
     </div>
   );
 }
