@@ -1,3 +1,5 @@
+import { fetchPaperByPubkey } from "@/app/store/paperStore";
+
 // Fetch the researcher profile
 export const fetchProfile = async (pubkey: string) => {
   const response = await fetch(
@@ -26,6 +28,17 @@ export const fetchTabData = async (tab: string, pubkey: string) => {
   const url = getTabUrl(tab, pubkey);
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  const data = await response.json();
+  let data = await response.json();
+
+  // Fetch the paper for the peer-reviews tab
+  if (tab === "peer-reviews" && Array.isArray(data)) {
+    data = await Promise.all(
+      data.map(async (review) => {
+        const papers = await fetchPaperByPubkey(review.paperPubkey);
+        return { ...review, papers };
+      }),
+    );
+  }
+
   return Array.isArray(data) ? data : [];
 };

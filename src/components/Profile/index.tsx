@@ -42,24 +42,77 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
   } = useBackgroundImage();
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
+  // TODO: clean up this when finishing minted tab
   const memoizedFormatTableData = useMemo(() => {
-    return (paperData: any) => {
-      const paper = paperData.researchPaper;
-      return {
-        address: paper.address || "N/A",
-        title: paper.metadata?.title || "Untitled",
-        authors: Array.isArray(paper.metadata?.authors)
-          ? paper.metadata.authors.join(", ")
-          : "Unknown",
-        createdDate: formatDate(paper.createdAt),
-        domains: Array.isArray(paper.metadata?.tags)
-          ? paper.metadata.tags.join(", ")
-          : "N/A",
-        status: paper.state || "Unknown",
-        minted: paper.totalMints || 0,
-      };
+    const formatters = {
+      contributions: (data: any) => {
+        const paper = data.researchPaper || data;
+        return {
+          address: paper?.address,
+          title: paper?.metadata?.title || "Untitled",
+          authors: formatArray(paper?.metadata?.authors, "Unknown"),
+          domains: formatArray(paper?.metadata?.tags, "N/A"),
+          status: paper?.state || "Unknown",
+        };
+      },
+      "peer-reviews": (data: any) => {
+        const papers = Array.isArray(data.papers) ? data.papers : [];
+        const addresses = papers.map((p: any) => p.researchPaper?.address);
+        const titles = papers.map(
+          (p: any) => p.researchPaper?.metadata?.title || "Untitled",
+        );
+        const authors = uniqueFlatMap(
+          papers,
+          (p: any) => p.researchPaper?.metadata?.authors,
+        );
+        const domains = uniqueFlatMap(
+          papers,
+          (p: any) => p.researchPaper?.metadata?.tags,
+        );
+        const status = Array.from(
+          new Set(papers.map((p: any) => p.researchPaper?.state || "Unknown")),
+        );
+
+        return {
+          address: addresses.join(", "),
+          title: titles.join(", "),
+          authors: formatList(authors, "authors"),
+          domains: domains.join(", ") || "N/A",
+          status: status.join(", "),
+        };
+      },
+      "paid-reads": (data: any) => ({
+        address: data.address,
+        title: data.paperTitle || "Untitled",
+        authors: data.paperAuthors || "Unknown",
+        domains: data.paperDomains || "N/A",
+        status: "Minted",
+      }),
     };
-  }, []);
+
+    return (data: any) => {
+      console.log("Current tab:", tabState.activeTab);
+      console.log("Data received:", data);
+      return (
+        formatters[tabState.activeTab as keyof typeof formatters]?.(data) || {}
+      );
+    };
+  }, [tabState.activeTab]);
+
+  // Helper functions
+  const formatArray = (arr: any[] | undefined, defaultValue: string): string =>
+    Array.isArray(arr) ? arr.join(", ") : defaultValue;
+
+  const uniqueFlatMap = (arr: any[], mapper: (item: any) => any[]): any[] =>
+    Array.from(new Set(arr.flatMap(mapper)));
+
+  const formatList = (items: any[], label: string): string => {
+    if (items.length === 0) return "Unknown";
+    const itemsList = items.join(", ");
+    return items.length > 1
+      ? `${itemsList} (${items.length} ${label})`
+      : itemsList;
+  };
 
   useEffect(() => {
     const loadProfile = async () => {

@@ -84,10 +84,10 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return null;
     }
   },
-  fetchPaperByPubkey: async (paperId: string) => {
+  fetchPaperByPubkey: async (paperPubkey: string) => {
     try {
       const paper: ResearchPaperWithResearcherProfile =
-        await fetchPaperByPubkeyFromDB(paperId);
+        await fetchPaperByPubkeyFromDB(paperPubkey);
       return paper;
     } catch (error: any) {
       console.error(error);
@@ -558,3 +558,7 @@ async function updateResearchPaperDB(data: {}) {
 
   return await response.json();
 }
+
+export const fetchPaperByPubkey = async (paperPubkey: string) => {
+  return fetchPaperByPubkeyFromDB(paperPubkey);
+};

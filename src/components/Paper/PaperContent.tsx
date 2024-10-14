@@ -88,7 +88,6 @@ export default function PaperContentComponent({
 
   const renderReviews = () => {
     if (isLoading) {
-      console.log("Showing spinner");
       return (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
