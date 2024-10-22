@@ -35,12 +35,11 @@ export default function PaperCard({
 }: PaperCardProps) {
   const router = useRouter();
   const handleClick = () => router.push(`/research/${status}/${paperPubkey}`);
-
   const gradient = getGradientForPaper(paperPubkey);
 
   return (
     <div
-      className={`rounded-lg overflow-hidden shadow-lg ${
+      className={`rounded-lg overflow-hidden shadow-lg h-full flex flex-col ${
         status === PAPER_STATUS.PUBLISHED ? "cursor-pointer" : ""
       }`}
     >
@@ -51,23 +50,29 @@ export default function PaperCard({
         handleClick={handleClick}
         gradient={gradient}
       />
-      <div className="px-6 py-4 bg-white">
-        <AuthorsList authors={authors} />
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mt-8">
-          <div className="flex items-center">
-            {status === PAPER_STATUS.PUBLISHED && (
-              <MintedInfo count={minted ?? 0} />
-            )}
-            {status === PAPER_STATUS.IN_PEER_REVIEW ||
-              (status === PAPER_STATUS.AWAITING_PEER_REVIEW && (
-                <ReviewersInfo count={reviewers ?? 0} />
-              ))}
+      <div className="flex flex-col flex-grow bg-white justify-between">
+        {/* Increased top padding to pt-6 */}
+        <div className="px-6 pt-6">
+          <AuthorsList authors={authors} />
+        </div>
+        {/* Increased the margin-top to mt-12 or adjust as needed */}
+        <div className="px-6 pb-6 mt-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center">
+              {status === PAPER_STATUS.PUBLISHED && (
+                <MintedInfo count={minted ?? 0} />
+              )}
+              {status === PAPER_STATUS.IN_PEER_REVIEW ||
+                (status === PAPER_STATUS.AWAITING_PEER_REVIEW && (
+                  <ReviewersInfo count={reviewers ?? 0} />
+                ))}
+            </div>
+            <ActionButton
+              status={status}
+              price={price}
+              handleClick={handleClick}
+            />
           </div>
-          <ActionButton
-            status={status}
-            price={price}
-            handleClick={handleClick}
-          />
         </div>
       </div>
     </div>
@@ -89,16 +94,22 @@ const CardHeader = ({
   gradient: string;
 }) => (
   <div
-    className="relative h-48 p-6 md:h-56 group"
+    className="relative h-[12rem] p-6 md:h-[14rem] group"
     style={{ background: gradient }}
   >
     {status === PAPER_STATUS.PUBLISHED && (
       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
     )}
-    <span className="inline-block bg-zinc-800 bg-opacity-50 rounded-full px-3 py-1 text-xs font-semibold text-white mb-2">
-      {domain}
-    </span>
-    <H4 className="text-white font-semibold mb-2 text-balance">{title}</H4>
+    <div className="h-full flex flex-col">
+      <div className="flex">
+        <span className="bg-zinc-800 bg-opacity-50 rounded-full px-3 py-1 text-xs font-semibold text-white mb-2">
+          {domain}
+        </span>
+      </div>
+      <H4 className="text-white font-semibold mb-2 text-balance line-clamp-4">
+        {title}
+      </H4>
+    </div>
     {status === PAPER_STATUS.PUBLISHED && (
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <Button
