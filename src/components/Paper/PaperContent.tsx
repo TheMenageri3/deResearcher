@@ -22,6 +22,8 @@ import {
   PeerReviewWithResearcherProfile,
   ResearchPaperType,
 } from "@/lib/types";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 
@@ -30,17 +32,20 @@ export default function PaperContentComponent({
 }: {
   paper: ResearchPaperType;
 }) {
+  const router = useRouter();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const screenSize = useScreen();
   const isMobile = screenSize === "sm" || screenSize === "md";
   const { wallet } = useUserStore();
   const [isMinter, setIsMinter] = useState(false);
-  const [isOwner, setIsOwner] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
-  const { fetchPeerReviewsByPaperPubkey, mintResearchPaper, isLoading } =
+  const { fetchPeerReviewsByPaperPubkey, publishResearchPaper } =
     usePaperStore();
+
+  // Split into two separate loading states
+  const [isPeerReviewsLoading, setIsPeerReviewsLoading] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [peerReviews, setPeerReviews] = useState<
     PeerReviewWithResearcherProfile[]
@@ -54,11 +59,19 @@ export default function PaperContentComponent({
   }, []);
 
   const fetchPeerReviews = useCallback(async () => {
-    const peerReviewData = await fetchPeerReviewsByPaperPubkey(paper.address);
-    if (peerReviewData)
-      setPeerReviews(
-        peerReviewData as unknown as PeerReviewWithResearcherProfile[],
-      );
+    try {
+      setIsPeerReviewsLoading(true);
+      const peerReviewData = await fetchPeerReviewsByPaperPubkey(paper.address);
+      if (peerReviewData) {
+        setPeerReviews(
+          peerReviewData as unknown as PeerReviewWithResearcherProfile[],
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching peer reviews:", error);
+    } finally {
+      setIsPeerReviewsLoading(false);
+    }
   }, [fetchPeerReviewsByPaperPubkey, paper.address]);
 
   useEffect(() => {
@@ -79,15 +92,8 @@ export default function PaperContentComponent({
     }));
   };
 
-  useEffect(() => {
-    if (wallet && paper.creatorPubkey) {
-      const isOwner = wallet.toString() === paper.creatorPubkey.toString();
-      setIsOwner(isOwner);
-    }
-  }, [wallet, paper.creatorPubkey]);
-
   const renderReviews = () => {
-    if (isLoading) {
+    if (isPeerReviewsLoading) {
       return (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -96,8 +102,8 @@ export default function PaperContentComponent({
     }
 
     if (
-      (!isLoading && !peerReviews) ||
-      (!isLoading && peerReviews.length === 0)
+      (!isPeerReviewsLoading && !peerReviews) ||
+      (!isPeerReviewsLoading && peerReviews.length === 0)
     ) {
       return (
         <div className="text-left py-8">
@@ -120,16 +126,28 @@ export default function PaperContentComponent({
     setIsEditorOpen(true);
   };
 
-  const handleUpdateNewPaper = async () => {
-    setIsActionLoading(true);
-    // TODO: update logic here
-    setIsActionLoading(false);
-  };
+  // TODO: update paper version
+  // const handleUpdateNewPaper = async () => {
+  //   setIsActionLoading(true);
+  //   setIsActionLoading(false);
+  // };
 
   const handlePublishPaper = async () => {
     setIsActionLoading(true);
-    // TODO: publish logic here
-    setIsActionLoading(false);
+    try {
+      const result = await publishResearchPaper(paper);
+      if (result.success) {
+        toast.success("Paper published successfully!");
+        router.push(`/research/Published/${paper.address}`);
+      } else {
+        toast.error(result.error || "Failed to publish paper");
+      }
+    } catch (error) {
+      console.error("Error publishing paper:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   // const handleBuyPaper = useCallback(() => {
@@ -189,7 +207,7 @@ export default function PaperContentComponent({
                 <PaperActionButton
                   paper={paper}
                   onToggleReview={handleToggleReview}
-                  onUpdateNewPaper={handleUpdateNewPaper}
+                  // onUpdateNewPaper={handleUpdateNewPaper}
                   onPublishPaper={handlePublishPaper}
                   // onBuyPaper={handleBuyPaper}
                   isLoading={isActionLoading}
@@ -213,6 +231,7 @@ export default function PaperContentComponent({
             paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
             paper.state === PAPER_STATUS.REQUEST_REVISION ||
             paper.state === PAPER_STATUS.APPROVED ||
+            paper.creatorPubkey === wallet ||
             isMinter) && (
             <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
               <PDFViewComponent url={paper.metadata.decentralizedStorageURI} />
@@ -227,7 +246,7 @@ export default function PaperContentComponent({
               <PaperActionButton
                 paper={paper}
                 onToggleReview={handleToggleReview}
-                onUpdateNewPaper={handleUpdateNewPaper}
+                // onUpdateNewPaper={handleUpdateNewPaper}
                 onPublishPaper={handlePublishPaper}
                 // onBuyPaper={handleBuyPaper}
                 isLoading={isActionLoading}

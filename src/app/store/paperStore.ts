@@ -41,7 +41,9 @@ interface PaperStore {
   createResearchPaper: (
     paper: PaperFormData,
   ) => Promise<{ success: boolean; error?: string }>;
-  publishResearchPaper: (paper: ResearchPaperType) => Promise<void>;
+  publishResearchPaper: (
+    paper: ResearchPaperType,
+  ) => Promise<{ success: boolean; error?: string }>;
   addPeerReview: (
     paper: ResearchPaperType,
     data: PeerReviewFormData,
@@ -247,13 +249,16 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
       return { success: false, error: errorMessage };
     }
   },
-  publishResearchPaper: async (paper) => {
+  publishResearchPaper: async (
+    paper,
+  ): Promise<{ success: boolean; error?: string }> => {
     const { updatePaperInStore } = get();
     const { sdk: sdkInstance } = useSDKStore.getState();
+
     if (!sdkInstance) {
-      set({ error: "SDK not initialized" });
-      return;
+      return { success: false, error: "SDK not initialized" };
     }
+
     set({ isLoading: true });
     try {
       // on-chain part
@@ -264,19 +269,28 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       // off-chain part
       const data = {
+        address: paper.address,
         state: toPaperDbState(updatedPaper.state),
       };
 
       const updatedPaperDB: ResearchPaperWithResearcherProfile =
         await updateResearchPaperDB(data);
 
-      // Update the paper in the store
+      if (!updatedPaperDB) {
+        throw new Error("Failed to update paper in database");
+      }
 
+      // Update the paper in the store
       updatePaperInStore(updatedPaperDB);
 
-      set({ isLoading: false });
+      return { success: true };
     } catch (error: any) {
-      set({ error: "Failed to publish paper", isLoading: false });
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to publish paper";
+      console.error("Error publishing paper:", errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      set({ isLoading: false });
     }
   },
 
