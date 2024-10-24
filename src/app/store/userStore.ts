@@ -21,6 +21,7 @@ interface UserState {
   isLoading: boolean;
   lastChecked: number;
   error: string | null;
+  isMinterForPaper: (paperAddress: string) => boolean;
   checkAuth: (walletPubkey: string) => Promise<void>;
   checkAuthAndTryLogin: (wallet: WalletContextState) => Promise<void>;
   logout: (walletPubkey: string) => Promise<void>;
@@ -343,6 +344,14 @@ export const useUserStore = create<UserState>((set, get) => ({
       ],
     }));
   },
+
+  isMinterForPaper: (paperAddress: string) => {
+    const { researchTokenAccounts } = get();
+    return researchTokenAccounts.some(
+      (account) => account.researchTokenAccount.paperPubkey === paperAddress,
+    );
+  },
+
   setError: (error) => set({ error }),
 }));
 

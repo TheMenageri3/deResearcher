@@ -79,8 +79,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
             "Failed to fetch research token accounts:",
             response.error,
           );
-        } else {
-          console.log("Successfully fetched research token accounts");
         }
       } catch (error) {
         console.error("Error in fetchResearchTokenAccountsUI:", error);

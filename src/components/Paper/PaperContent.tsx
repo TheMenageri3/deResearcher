@@ -16,12 +16,11 @@ import PaperActionButton from "./PaperActionButton";
 import useScreen from "@/hooks/useScreen";
 import { useUserStore } from "@/app/store/userStore";
 import { usePaperStore } from "@/app/store/paperStore";
+import { usePaperActions } from "@/hooks/usePaperActions";
 import {
   PeerReviewWithResearcherProfile,
   ResearchPaperType,
 } from "@/lib/types";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
 const PDFViewComponent = dynamic(() => import("../PDFView"), { ssr: false });
 
@@ -30,25 +29,33 @@ export default function PaperContentComponent({
 }: {
   paper: ResearchPaperType;
 }) {
-  const router = useRouter();
+  // const router = useRouter();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const screenSize = useScreen();
   const isMobile = screenSize === "sm" || screenSize === "md";
-  const { wallet, researchTokenAccounts } = useUserStore();
-  const [isMinter, setIsMinter] = useState(false);
   const [isMinted, setIsMinted] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
+  const { fetchPeerReviewsByPaperPubkey } = usePaperStore();
+
+  const wallet = useUserStore((state) => state.wallet);
+  const isMinter = useUserStore(
+    useCallback(
+      (state) => state.isMinterForPaper(paper.address),
+      [paper.address],
+    ),
+  );
+
   const {
-    fetchPeerReviewsByPaperPubkey,
-    publishResearchPaper,
-    mintResearchPaper,
-  } = usePaperStore();
+    handlePublishPaper,
+    handleBuyPaper,
+    handleToggleReview,
+    isActionLoading,
+  } = usePaperActions(paper, setIsMinted, setIsEditorOpen);
 
   // Split into two separate loading states
   const [isPeerReviewsLoading, setIsPeerReviewsLoading] = useState(false);
-  const [isActionLoading, setIsActionLoading] = useState(false);
   const [peerReviews, setPeerReviews] = useState<
     PeerReviewWithResearcherProfile[]
   >([]);
@@ -59,19 +66,6 @@ export default function PaperContentComponent({
       import.meta.url,
     ).toString();
   }, []);
-
-  const checkIsMinter = useCallback(() => {
-    const tokenAccounts = researchTokenAccounts.filter(
-      (account) => account.researchTokenAccount.paperPubkey === paper.address,
-    );
-    if (tokenAccounts.length > 0) {
-      setIsMinter(true);
-    }
-  }, [researchTokenAccounts, paper.address]);
-
-  useEffect(() => {
-    checkIsMinter();
-  }, [checkIsMinter]);
 
   const fetchPeerReviews = useCallback(async () => {
     try {
@@ -136,65 +130,6 @@ export default function PaperContentComponent({
       />
     ));
   };
-
-  const handleToggleReview = useCallback(() => {
-    setIsEditorOpen(true);
-  }, []);
-
-  // TODO: update paper version
-  // const handleUpdateNewPaper = async () => {
-  //   setIsActionLoading(true);
-  //   setIsActionLoading(false);
-  // };
-
-  const handlePublishPaper = useCallback(async () => {
-    if (!wallet) {
-      toast.error("Please connect your wallet to publish a paper");
-      return;
-    }
-    setIsActionLoading(true);
-    try {
-      const result = await publishResearchPaper(paper);
-      if (result.success) {
-        toast.success("Paper published successfully!");
-        router.push(`/research/Published/${paper.address}`);
-      } else {
-        toast.error(result.error || "Failed to publish paper");
-      }
-    } catch (error) {
-      console.error("Error publishing paper:", error);
-      toast.error("An unexpected error occurred");
-    } finally {
-      setIsActionLoading(false);
-    }
-  }, [paper, publishResearchPaper, router, wallet]);
-
-  const handleBuyPaper = useCallback(async () => {
-    if (!wallet) {
-      toast.error(
-        "Please connect your wallet to proceed with the purchase and access the paper.",
-      );
-      return;
-    }
-
-    setIsActionLoading(true);
-    try {
-      const result = await mintResearchPaper(paper);
-      if (result.success) {
-        console.log("Minting successful, about to show toast");
-        setIsMinted(true);
-        toast.success("Paper minted successfully!");
-        console.log("Toast should be visible now");
-      } else {
-        toast.error(result.error || "Failed to mint paper");
-      }
-    } catch (error) {
-      console.error("Error minting paper:", error);
-      toast.error("An unexpected error occurred");
-    } finally {
-      setIsActionLoading(false);
-    }
-  }, [paper, mintResearchPaper, wallet]);
 
   const renderPaperContent = () => {
     const isCreator = paper.creatorPubkey === wallet;
