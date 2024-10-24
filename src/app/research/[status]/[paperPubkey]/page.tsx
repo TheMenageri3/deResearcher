@@ -9,9 +9,6 @@ import { usePaperStore } from "@/app/store/paperStore";
 async function fetchPaperByPubkeyFromDB(status: string, paperPubkey: string) {
   const response = await fetch(
     `${process.env.BASE_URL}/api/research/${status}/${paperPubkey}`,
-    {
-      cache: "no-store",
-    }
   );
   if (!response.ok) {
     throw new Error("Failed to fetch paper");

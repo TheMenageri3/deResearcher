@@ -7,6 +7,7 @@ mongoose.Promise = global.Promise;
 export interface ResearchTokenAccount extends Document {
   address: string; // Storing the PublicKey as a String
   researcherPubkey: string; // Storing the PublicKey as a String
+  paperPubkey: string; // Add this field
   bump: number;
 }
 
@@ -15,6 +16,10 @@ const ResearchTokenAccountSchema: Schema = new Schema<ResearchTokenAccount>(
   {
     address: {
       type: String, // Storing the PublicKey as a String
+      required: true,
+    },
+    paperPubkey: {
+      type: String,
       required: true,
     },
     researcherPubkey: {
@@ -28,12 +33,12 @@ const ResearchTokenAccountSchema: Schema = new Schema<ResearchTokenAccount>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Export the model
 export default mongoose.models.ResearchTokenAccount ||
   mongoose.model<ResearchTokenAccount>(
     "ResearchTokenAccount",
-    ResearchTokenAccountSchema
+    ResearchTokenAccountSchema,
   );

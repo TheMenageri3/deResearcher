@@ -14,11 +14,9 @@ import { pdfjs } from "react-pdf";
 import PeerReviewEditor from "../PeerReview/PeerReviewEditor";
 import PaperActionButton from "./PaperActionButton";
 import useScreen from "@/hooks/useScreen";
-import { Button } from "../ui/button";
 import { useUserStore } from "@/app/store/userStore";
 import { usePaperStore } from "@/app/store/paperStore";
 import {
-  PeerReviewType,
   PeerReviewWithResearcherProfile,
   ResearchPaperType,
 } from "@/lib/types";
@@ -36,13 +34,17 @@ export default function PaperContentComponent({
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const screenSize = useScreen();
   const isMobile = screenSize === "sm" || screenSize === "md";
-  const { wallet } = useUserStore();
+  const { wallet, researchTokenAccounts } = useUserStore();
   const [isMinter, setIsMinter] = useState(false);
+  const [isMinted, setIsMinted] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<
     Record<string, boolean>
   >({});
-  const { fetchPeerReviewsByPaperPubkey, publishResearchPaper } =
-    usePaperStore();
+  const {
+    fetchPeerReviewsByPaperPubkey,
+    publishResearchPaper,
+    mintResearchPaper,
+  } = usePaperStore();
 
   // Split into two separate loading states
   const [isPeerReviewsLoading, setIsPeerReviewsLoading] = useState(false);
@@ -57,6 +59,19 @@ export default function PaperContentComponent({
       import.meta.url,
     ).toString();
   }, []);
+
+  const checkIsMinter = useCallback(() => {
+    const tokenAccounts = researchTokenAccounts.filter(
+      (account) => account.researchTokenAccount.paperPubkey === paper.address,
+    );
+    if (tokenAccounts.length > 0) {
+      setIsMinter(true);
+    }
+  }, [researchTokenAccounts, paper.address]);
+
+  useEffect(() => {
+    checkIsMinter();
+  }, [checkIsMinter]);
 
   const fetchPeerReviews = useCallback(async () => {
     try {
@@ -122,9 +137,9 @@ export default function PaperContentComponent({
     ));
   };
 
-  const handleToggleReview = () => {
+  const handleToggleReview = useCallback(() => {
     setIsEditorOpen(true);
-  };
+  }, []);
 
   // TODO: update paper version
   // const handleUpdateNewPaper = async () => {
@@ -132,7 +147,11 @@ export default function PaperContentComponent({
   //   setIsActionLoading(false);
   // };
 
-  const handlePublishPaper = async () => {
+  const handlePublishPaper = useCallback(async () => {
+    if (!wallet) {
+      toast.error("Please connect your wallet to publish a paper");
+      return;
+    }
     setIsActionLoading(true);
     try {
       const result = await publishResearchPaper(paper);
@@ -148,22 +167,83 @@ export default function PaperContentComponent({
     } finally {
       setIsActionLoading(false);
     }
-  };
+  }, [paper, publishResearchPaper, router, wallet]);
 
-  // const handleBuyPaper = useCallback(() => {
-  //   const { wallet } = useUserStore.getState();
-  //   if (!wallet) {
-  //     console.error("Wallet not connected");
-  //     return;
-  //   }
-  //   try {
-  //     console.log("Attempting to mint paper:", paper);
-  //     mintResearchPaper(paper as ResearchPaperType);
-  //     console.log("Paper minting initiated");
-  //   } catch (error) {
-  //     console.error("Error minting paper:", error);
-  //   }
-  // }, [paper, mintResearchPaper]);
+  const handleBuyPaper = useCallback(async () => {
+    if (!wallet) {
+      toast.error(
+        "Please connect your wallet to proceed with the purchase and access the paper.",
+      );
+      return;
+    }
+
+    setIsActionLoading(true);
+    try {
+      const result = await mintResearchPaper(paper);
+      if (result.success) {
+        console.log("Minting successful, about to show toast");
+        setIsMinted(true);
+        toast.success("Paper minted successfully!");
+        console.log("Toast should be visible now");
+      } else {
+        toast.error(result.error || "Failed to mint paper");
+      }
+    } catch (error) {
+      console.error("Error minting paper:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsActionLoading(false);
+    }
+  }, [paper, mintResearchPaper, wallet]);
+
+  const renderPaperContent = () => {
+    const isCreator = paper.creatorPubkey === wallet;
+    const hasAccessRights = isCreator || isMinted || isMinter;
+
+    console.log("Debug: ", {
+      paperState: paper.state,
+      isPublished: paper.state === PAPER_STATUS.PUBLISHED,
+      isCreator,
+      isMinted,
+      isMinter,
+    });
+
+    // TODO: This is loaded in the client side for now, need to improve this whether using encrypted pdf or server side checking
+    const renderPDF = () => (
+      <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
+        <PDFViewComponent url={paper.metadata.decentralizedStorageURI} />
+      </div>
+    );
+
+    const renderLockedMessage = (message: string) => (
+      <div className="mt-6 bg-zinc-100 p-4 flex items-center">
+        <Lock className="w-4 h-4 mr-2" />
+        <P className="text-pretty text-sm text-zinc-900">{message}</P>
+      </div>
+    );
+
+    switch (paper.state) {
+      case PAPER_STATUS.PUBLISHED:
+        return hasAccessRights
+          ? renderPDF()
+          : renderLockedMessage("Support research to show the paper");
+
+      case PAPER_STATUS.IN_PEER_REVIEW:
+      case PAPER_STATUS.AWAITING_PEER_REVIEW:
+      case PAPER_STATUS.REQUEST_REVISION:
+        return isCreator || wallet
+          ? renderPDF()
+          : renderLockedMessage(
+              "Create a researcher profile to review the paper",
+            );
+
+      case PAPER_STATUS.APPROVED:
+        return renderPDF();
+
+      default:
+        return isCreator ? renderPDF() : null;
+    }
+  };
 
   return (
     <div className="mx-auto px-4">
@@ -200,7 +280,7 @@ export default function PaperContentComponent({
             </span>
           </div>
 
-          {/* Write a review button for mobile and tablet */}
+          {/* action button for mobile and tablet */}
           {(screenSize === "sm" || screenSize === "md") && (
             <>
               <div className="mt-16 mb-5 flex justify-center">
@@ -209,38 +289,19 @@ export default function PaperContentComponent({
                   onToggleReview={handleToggleReview}
                   // onUpdateNewPaper={handleUpdateNewPaper}
                   onPublishPaper={handlePublishPaper}
-                  // onBuyPaper={handleBuyPaper}
+                  onBuyPaper={handleBuyPaper}
                   isLoading={isActionLoading}
                 />
               </div>
             </>
           )}
 
-          {/* TODO: NEED TO CHECK PAPER STATUS + USER ROLE + MINTED ID TO SHOW PDF*/}
-          {paper.state === PAPER_STATUS.PUBLISHED &&
-            paper.creatorPubkey !== wallet &&
-            !isMinter && (
-              <div className="mt-6 bg-zinc-100 p-4 flex items-center">
-                <Lock className="w-4 h-4 mr-2" />
-                <P className="text-pretty text-sm text-zinc-900">
-                  Support research to show the paper
-                </P>
-              </div>
-            )}
-          {(paper.state === PAPER_STATUS.IN_PEER_REVIEW ||
-            paper.state === PAPER_STATUS.AWAITING_PEER_REVIEW ||
-            paper.state === PAPER_STATUS.REQUEST_REVISION ||
-            paper.state === PAPER_STATUS.APPROVED ||
-            paper.creatorPubkey === wallet ||
-            isMinter) && (
-            <div className="mt-6 bg-zinc-700 p-4 flex items-center justify-center">
-              <PDFViewComponent url={paper.metadata.decentralizedStorageURI} />
-            </div>
-          )}
+          {/* TODO: NEED TO IMPLETEMEN USER ROLE SO ONLY SHOW PDF WHEN USER IS RESEARCHER && PAPER IS PEER-REVIEWING */}
+          {renderPaperContent()}
         </div>
 
         <div className="flex flex-col mt-20">
-          {/* Write a review button for desktop */}
+          {/* action button for desktop */}
           {(screenSize === "lg" || screenSize === "xl") && (
             <>
               <PaperActionButton
@@ -248,7 +309,7 @@ export default function PaperContentComponent({
                 onToggleReview={handleToggleReview}
                 // onUpdateNewPaper={handleUpdateNewPaper}
                 onPublishPaper={handlePublishPaper}
-                // onBuyPaper={handleBuyPaper}
+                onBuyPaper={handleBuyPaper}
                 isLoading={isActionLoading}
               />
             </>

@@ -12,7 +12,7 @@ export default function PaperList({ papers }: PaperListProps) {
     <>
       {papers.map((paper) => (
         <PaperCard
-          key={paper.researchPaper.creatorPubkey}
+          key={paper.researchPaper.address}
           title={paper.researchPaper.metadata.title}
           authors={paper.researchPaper.metadata.authors}
           domain={paper.researchPaper.metadata.domain}

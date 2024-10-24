@@ -4,7 +4,6 @@ import { fetchPaperByPubkey } from "@/app/store/paperStore";
 export const fetchProfile = async (pubkey: string) => {
   const response = await fetch(
     `/api/researcher-profile?researcherPubkey=${pubkey}`,
-    { cache: "no-store" },
   );
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   return response.json();

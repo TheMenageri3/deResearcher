@@ -64,11 +64,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Fetch Research Mint Collection UI
     const fetchResearchTokenAccountsUI = async () => {
-      if (!sdk || researchTokenAccounts.length > 0) return;
+      if (!sdk) {
+        console.log("SDK not initialized, skipping fetch");
+        return;
+      }
+
       try {
-        await fetchAndStoreResearchTokenAccounts();
+        console.log("Starting fetch of research token accounts...");
+        const response = await fetchAndStoreResearchTokenAccounts();
+        console.log("Fetch response:", response);
+
+        if (!response.success) {
+          console.error(
+            "Failed to fetch research token accounts:",
+            response.error,
+          );
+        } else {
+          console.log("Successfully fetched research token accounts");
+        }
       } catch (error) {
-        console.error("Error fetching Research Mint Collection:", error);
+        console.error("Error in fetchResearchTokenAccountsUI:", error);
       }
     };
 

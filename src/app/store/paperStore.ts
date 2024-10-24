@@ -48,7 +48,9 @@ interface PaperStore {
     paper: ResearchPaperType,
     data: PeerReviewFormData,
   ) => Promise<{ success: boolean; error?: string }>;
-  mintResearchPaper: (paper: ResearchPaperType) => Promise<void>;
+  mintResearchPaper: (
+    paper: ResearchPaperType,
+  ) => Promise<{ success: boolean; error?: string }>;
   setError: (error: string | null) => void;
   pushToPapersStore: (paper: ResearchPaperWithResearcherProfile) => void;
   pushToPeerReviewsStore: (peerReview: PeerReviewType) => void;
@@ -369,22 +371,23 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
     }
   },
 
-  mintResearchPaper: async (paper) => {
+  mintResearchPaper: async (
+    paper,
+  ): Promise<{ success: boolean; error?: string }> => {
     const { sdk: sdkInstance } = useSDKStore.getState();
-    const { researchTokenAccounts, pushToResearchTokenAccounts } =
-      useUserStore.getState();
+    const { pushToResearchTokenAccounts } = useUserStore.getState();
+
     if (!sdkInstance) {
-      set({ error: "SDK not initialized" });
-      return;
+      return { success: false, error: "SDK not initialized" };
     }
+
     set({ isLoading: true });
+
     try {
       // on-chain part
-
       const mintCollection = await sdkInstance.mintResearchPaper(paper.address);
 
       // off-chain part
-
       const researchTokenAccountDBData: MintResearchPaper = {
         address: mintCollection.address.toBase58(),
         researcherPubkey: sdkInstance.pubkey.toBase58(),
@@ -397,9 +400,15 @@ export const usePaperStore = create<PaperStore>((set, get) => ({
 
       pushToResearchTokenAccounts(researchTokenAccountWithPaper);
 
-      set({ isLoading: false });
+      return { success: true };
     } catch (error: any) {
-      set({ error: "Failed to mint paper", isLoading: false });
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to mint paper";
+      console.error("Error minting paper:", errorMessage);
+      set({ error: errorMessage });
+      return { success: false, error: errorMessage };
+    } finally {
+      set({ isLoading: false });
     }
   },
 

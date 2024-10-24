@@ -29,8 +29,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     for (const researchTokenAccount of researchTokenAccounts) {
       const researchPaper = await ResearchPaperModel.findOne<ResearchPaperType>(
         {
-          address: researchTokenAccount.address,
-        }
+          address: researchTokenAccount.paperPubkey,
+        },
       );
 
       if (researchPaper) {
@@ -51,12 +51,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const unsafeData = await req.json();
-
     const data = MintResearchPaperSchema.parse(unsafeData);
 
     const existing =
       await ResearchTokenAccountModel.findOne<ResearchTokenAccountType>({
-        readerPubkey: data.researcherPubkey,
+        researcherPubkey: data.researcherPubkey,
         address: data.address,
       });
 
@@ -64,8 +63,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return toErrResponse("Research Token Account already exists");
     }
 
-    const researchPaper = await ResearchTokenAccountModel.findOne({
-      address: data.address,
+    const researchPaper = await ResearchPaperModel.findOne<ResearchPaperType>({
+      address: data.paperPubkey, // Look up paper using paperPubkey
     });
 
     if (!researchPaper) {
@@ -75,11 +74,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let newResearchTokenAccount: ResearchTokenAccountType = {
       researcherPubkey: data.researcherPubkey,
       address: data.address,
+      paperPubkey: data.paperPubkey,
       bump: data.bump,
     };
 
     newResearchTokenAccount = await ResearchTokenAccountModel.create(
-      newResearchTokenAccount
+      newResearchTokenAccount,
     );
 
     const newResearchTokenAccountWithResearchPaper: ResearchTokenAccountWithResearchePaper =
@@ -90,6 +90,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return toSuccessResponse(newResearchTokenAccountWithResearchPaper);
   } catch (err) {
+    console.error("Error in /api/mint:", err);
     return toErrResponse("Error creating Research Mint Collection");
   }
 }

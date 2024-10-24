@@ -30,7 +30,10 @@ interface UserState {
   requestToAssignRepuation: () => Promise<void>;
   setError: (error: string | null) => void;
   fetchAndStoreResearcherProfile: () => Promise<void>;
-  fetchAndStoreResearchTokenAccounts: () => Promise<void>;
+  fetchAndStoreResearchTokenAccounts: () => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
   pushToResearchTokenAccounts: (
     researchTokenAccount: ResearchTokenAccountWithResearchePaper,
   ) => void;
@@ -302,10 +305,13 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
   },
 
-  async fetchAndStoreResearchTokenAccounts() {
+  async fetchAndStoreResearchTokenAccounts(): Promise<{
+    success: boolean;
+    error?: string;
+  }> {
     const { sdk } = useSDKStore.getState();
     if (!sdk) {
-      return;
+      return { success: false, error: "SDK not initialized" };
     }
     set({ isLoading: true });
     try {
@@ -313,14 +319,17 @@ export const useUserStore = create<UserState>((set, get) => ({
         sdk.pubkey.toBase58(),
       );
 
-      console.log("researchTokenAccounts", researchTokenAccounts);
       set({ researchTokenAccounts, isLoading: false });
+      return { success: true };
     } catch (error) {
-      set({
-        error: `Failed to fetch research mint collection: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-      });
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to get research token accounts";
+      set({ error: errorMessage });
+      return { success: false, error: errorMessage };
+    } finally {
+      set({ isLoading: false });
     }
   },
 
@@ -352,12 +361,29 @@ async function fetchResearcherProfile(researcherPubkey: string) {
 }
 
 async function fetchResearchTokenAccounts(researcherPubkey: string) {
-  const urlSearchParams = new URLSearchParams({ researcherPubkey });
-  const response = await fetch(`/api/mint?${urlSearchParams.toString()}`);
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch research mint collection: ${response.statusText}`,
-    );
+  if (!researcherPubkey) {
+    console.error("researcherPubkey is undefined or null");
+    return [];
   }
-  return await response.json();
+
+  const urlSearchParams = new URLSearchParams({ researcherPubkey });
+  const url = `/api/mint?${urlSearchParams.toString()}`;
+  console.log("Fetching from URL:", url);
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch research mint collection: ${response.statusText}`,
+      );
+    }
+
+    const data = await response.json();
+    console.log("Raw API response:", data);
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching research token accounts:", error);
+    return [];
+  }
 }
