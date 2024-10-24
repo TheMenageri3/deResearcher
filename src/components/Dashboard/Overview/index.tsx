@@ -15,10 +15,12 @@ async function fetchPapers(pubkey: string) {
   }
   const data = await response.json();
   console.log("API Response:", data); // Log the entire response
-  return Array.isArray(data) ? data : data.data || []; // Handle both array and object responses
+  return Array.isArray(data) ? data : data.data.researchPapers || []; // Handle both array and object responses
 }
 
-const transformPaperData = (paper: any) => {
+const transformPaperData = (paperData: any) => {
+  const paper = paperData.researchPaper;
+
   let createdDate = "N/A";
   if (paper.createdAt) {
     if (paper.createdAt.$date) {
@@ -32,7 +34,6 @@ const transformPaperData = (paper: any) => {
   }
 
   return {
-    id: paper._id,
     address: paper.address,
     title: paper.metadata?.title || "Untitled",
     authors: Array.isArray(paper.metadata?.authors)

@@ -93,7 +93,8 @@ const TableRow: React.FC<{
         {column.key === "status" ? (
           <span
             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              item.status === PAPER_STATUS.APPROVED
+              item.status === PAPER_STATUS.APPROVED ||
+              item.status === PAPER_STATUS.MINTED
                 ? "bg-secondary-foreground text-secondary"
                 : item.status === PAPER_STATUS.IN_PEER_REVIEW ||
                   item.status === PAPER_STATUS.AWAITING_PEER_REVIEW
@@ -178,8 +179,9 @@ export default function Table({
     });
   };
 
-  const handleRowClick = (item: { id: string; status: string }) =>
-    router.push(`/research/${item.status}/${item.id}`);
+  // NOTE: id changes to pubkey
+  const handleRowClick = (item: { address: string; status: string }) =>
+    router.push(`/research/${item.status}/${item.address}`);
 
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available</div>;

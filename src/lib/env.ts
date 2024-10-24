@@ -1,5 +1,7 @@
 export const getMongoDbUri = () => {
-  return (
-    (process.env.MONGODB_PROD_URI as string) || "mongodb://localhost:27017/"
-  );
+  if (process.env.NODE_ENV === "production") {
+    return process.env.MONGODB_PROD_URI;
+  } else {
+    return process.env.MONGODB_DEV_URI || "mongodb://localhost:27017/";
+  }
 };

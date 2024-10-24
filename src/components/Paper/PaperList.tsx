@@ -1,10 +1,10 @@
 import React from "react";
 import PaperCard from "./PaperCard";
 
-import { ResearchPaperType } from "@/lib/types";
+import { ResearchPaperWithResearcherProfile } from "@/lib/types";
 
 interface PaperListProps {
-  papers: ResearchPaperType[];
+  papers: ResearchPaperWithResearcherProfile[];
 }
 
 export default function PaperList({ papers }: PaperListProps) {
@@ -12,15 +12,15 @@ export default function PaperList({ papers }: PaperListProps) {
     <>
       {papers.map((paper) => (
         <PaperCard
-          key={paper.address}
-          title={paper.metadata.title}
-          authors={paper.metadata.authors}
-          domain={paper.metadata.domain}
-          tags={paper.metadata.tags}
-          minted={paper.totalMints}
-          price={paper.accessFee ?? 0}
-          status={paper.state}
-          paperPubkey={paper.address}
+          key={paper.researchPaper.address}
+          title={paper.researchPaper.metadata.title}
+          authors={paper.researchPaper.metadata.authors}
+          domain={paper.researchPaper.metadata.domain}
+          tags={paper.researchPaper.metadata.tags}
+          minted={paper.researchPaper.totalMints}
+          price={paper.researchPaper.accessFee ?? 0}
+          status={paper.researchPaper.state}
+          paperPubkey={paper.researchPaper.address}
           // reviewers={paper.peerReviews?.length}
         />
       ))}

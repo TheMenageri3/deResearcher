@@ -13,7 +13,7 @@ export async function GET(
     const paper = await ResearchPaperModel.findOne<ResearchPaper>({
       address: paperPubkey,
       state: status,
-    }).lean();
+    });
 
     if (!paper) {
       console.log("Paper not found");

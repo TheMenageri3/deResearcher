@@ -9,8 +9,13 @@ import { toErrResponse, toSuccessResponse } from "../../helpers";
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
-    let data = await req.json();
-    // Validate that the creator exists
+    const data = await req.json();
+
+    if (!data.address) {
+      return toErrResponse("Paper address is required");
+    }
+
+    // Find the paper first
     const paper = await ResearchPaperModel.findOne<ResearchPaperType>({
       address: data.address,
     });
@@ -26,43 +31,34 @@ export async function POST(req: NextRequest) {
     if (data.state) {
       setFields["state"] = data.state;
     }
-
     if (data.totalApprovals) {
       setFields["totalApprovals"] = data.totalApprovals;
     }
-
     if (data.totalCitations) {
       setFields["totalCitations"] = data.totalCitations;
     }
-
     if (data.totalMints) {
       setFields["totalMints"] = data.totalMints;
     }
 
-    await ResearchPaperModel.updateOne(
-      { address: paper.address },
-      {
-        $set: setFields,
-      }
+    // Use findOneAndUpdate to get the updated document
+    const updatedPaper = await ResearchPaperModel.findOneAndUpdate(
+      { address: data.address },
+      { $set: setFields },
+      { new: true }, // This option returns the modified document
     );
 
-    return toSuccessResponse(paper);
-  } catch (error: any) {
-    console.error("Error in POST /api/research-papers:", error);
-
-    if (error.name === "ValidationError") {
-      const validationErrors = Object.entries(error.errors).map(
-        ([field, err]: [string, any]) => ({
-          field,
-          message: err.message,
-          value: err.value,
-        })
-      );
-      return toErrResponse(
-        "Error in validation : " + JSON.stringify(validationErrors)
-      );
+    if (!updatedPaper) {
+      return toErrResponse("Failed to update paper");
     }
 
-    return toErrResponse("Error updating Research Paper");
+    return toSuccessResponse(updatedPaper);
+  } catch (error: any) {
+    console.error("Error updating research paper:", error);
+    return toErrResponse(
+      error.name === "ValidationError"
+        ? `Validation error: ${JSON.stringify(error.errors)}`
+        : "Error updating Research Paper",
+    );
   }
 }

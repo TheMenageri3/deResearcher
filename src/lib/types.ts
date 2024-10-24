@@ -1,15 +1,17 @@
 import {
   PeerReview,
   ResearcherProfile,
-  ResearchMintCollection,
   ResearchPaper,
+  ResearchTokenAccount,
   Session,
 } from "@/app/models";
-import { Document } from "mongoose";
+import { Date, Document } from "mongoose";
 
 export type SessionType = Omit<Session, keyof Document>;
 
-export type ResearchPaperType = Omit<ResearchPaper, keyof Document>;
+export type ResearchPaperType = Omit<ResearchPaper, keyof Document> & {
+  createdAt?: Date;
+};
 
 export interface ResearchPaperMetadata {
   title: string;
@@ -33,14 +35,10 @@ export type CreateResearchPaper = {
   bump: number;
 };
 
-export type ResearchMintCollectionType = Omit<
-  ResearchMintCollection,
+export type ResearchTokenAccountType = Omit<
+  ResearchTokenAccount,
   keyof Document
 >;
-
-export type ResearchMintCollectionMetadata = {
-  mintedResearchPaperIds: string[];
-};
 
 export type ResearcherProfileType = Omit<ResearcherProfile, keyof Document>;
 
@@ -65,7 +63,16 @@ export type CreateResearcherProfile = {
   metaDataMerkleRoot: string;
 };
 
-export type PeerReviewType = Omit<PeerReview, keyof Document>;
+export type PeerReviewType = Omit<PeerReview, keyof Document> & {
+  createdAt?: Date;
+};
+
+export type RatingSchema = {
+  qualityOfResearch: number;
+  potentialForRealWorldUseCase: number;
+  domainKnowledge: number;
+  practicalityOfResultObtained: number;
+};
 
 export type PeerReviewMetadata = {
   title: string;
@@ -85,16 +92,24 @@ export type AddPeerReview = {
   bump: number;
 };
 
-export type PushToResearchMintCollection = {
+export type MintResearchPaper = {
   address: string;
-  readerPubkey: string;
+  researcherPubkey: string;
+  paperPubkey: string;
   bump: number;
-  newMintedResearchPaperPubkey: string;
-  metaDataMerkleRoot: string;
 };
 
-export type AddPeerReviewComments = {
-  address: string;
-  title: string;
-  reviewComments: string;
+export type PeerReviewWithResearcherProfile = {
+  peerReview: PeerReviewType;
+  researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchPaperWithResearcherProfile = {
+  researchPaper: ResearchPaperType;
+  researcherProfile: ResearcherProfileType;
+};
+
+export type ResearchTokenAccountWithResearchePaper = {
+  researchTokenAccount: ResearchTokenAccountType;
+  researchPaper: ResearchPaperType;
 };

@@ -7,8 +7,8 @@ import * as sdk from "./sdk";
 import solanaCrypto from "tweetnacl";
 import { LOGIN_MESSAGE } from "./constants";
 import bs58 from "bs58";
-import { SDK } from "./sdk";
 import { PaperStateDB } from "@/app/models/ResearchPaper.model";
+import crypto from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -32,12 +32,13 @@ const gradients = [
   "linear-gradient(to bottom, #919393, #9574E2)",
   "linear-gradient(to bottom, #FF1875, #9574E2)",
   "linear-gradient(to bottom, #51A637, #9574E2)",
-  "linear-gradient(to bottom, #A984FF, #9574E2)",
+  "linear-gradient(to bottom, #6226EF, #9574E2)",
 ];
 
-export const getGradientForPaper = (paperId: string): string => {
-  const id = Math.ceil(gradients.length + Math.random() * 10);
-  const index = id % gradients.length;
+export const getGradientForPaper = (pubkey: string): string => {
+  const hash = crypto.createHash("sha1");
+  hash.update(pubkey);
+  const index = parseInt(hash.digest("hex").slice(-1), 16) % gradients.length;
   return gradients[index];
 };
 
@@ -88,8 +89,8 @@ export const formatPaper = (paper: PaperSchema) => ({
 
 // Get score color
 export const getScoreColorClass = (score: number): string => {
-  if (score >= 4) return "bg-primary";
-  if (score >= 3) return "bg-yellow-500";
+  if (score >= 8) return "bg-primary";
+  if (score >= 5) return "bg-yellow-500";
   return "bg-rose-500/80";
 };
 
@@ -111,6 +112,22 @@ export const getLinkIcon = (url: string) => {
     return Globe;
   }
 };
+
+// Format date
+export const formatDate = (dateInput: any): string => {
+  if (!dateInput) return "N/A";
+  if (dateInput.$date) {
+    return new Date(dateInput.$date).toISOString().split("T")[0];
+  }
+  if (typeof dateInput === "string") {
+    return dateInput.split("T")[0];
+  }
+  if (typeof dateInput === "number") {
+    return new Date(dateInput).toISOString().split("T")[0];
+  }
+  return "N/A";
+};
+
 export function isLimitedByteArray(data: string) {
   return data.length === 64;
 }
@@ -119,7 +136,7 @@ export function verifySignature(signature: string, pubkey: PublicKey) {
   return solanaCrypto.sign.detached.verify(
     getEncodedLoginMessage(pubkey.toBase58()),
     bs58.decode(signature),
-    bs58.decode(pubkey.toBase58())
+    bs58.decode(pubkey.toBase58()),
   );
 }
 
@@ -130,7 +147,7 @@ export function getEncodedLoginMessage(pubkey: string) {
       pubkey: minimizePubkey(pubkey),
     })
       .split("")
-      .map((c) => c.charCodeAt(0))
+      .map((c) => c.charCodeAt(0)),
   );
 }
 
@@ -163,13 +180,11 @@ export const getConnection = (cluster: Cluster) => {
 export const getRPCUrlFromCluster = (cluster: Cluster) => {
   switch (cluster) {
     case "devnet":
-      return "https://devnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
-    case "testnet":
-      return "https://testnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+      return "https://devnet.helius-rpc.com/?api-key=0289f1b5-ef00-4e39-8da9-d5e373ad4820";
     case "mainnet-beta":
-      return "https://mainnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+      return "https://mainnet.helius-rpc.com/?api-key=0289f1b5-ef00-4e39-8da9-d5e373ad4820";
     default:
-      return "https://devnet.helius-rpc.com/?api-key=d3e8f936-41b8-4ab0-80f0-50b7f885afb3";
+      return "https://devnet.helius-rpc.com/?api-key=0289f1b5-ef00-4e39-8da9-d5e373ad4820";
   }
 };
 

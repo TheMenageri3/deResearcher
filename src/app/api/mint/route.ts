@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { toErrResponse, toSuccessResponse } from "../helpers";
-import {
-  ResearchMintCollection,
-  ResearchMintCollectionModel,
-  ResearchPaperModel,
-} from "@/app/models";
+import { ResearchPaperModel, ResearchTokenAccountModel } from "@/app/models";
 
 import {
-  PushToResearchMintCollectionSchema,
-  ResearchMintCollectionType,
+  ResearchTokenAccountType,
+  MintResearchPaperSchema,
+  ResearchTokenAccountWithResearchePaper,
   ResearchPaperType,
 } from "../types";
 
@@ -21,15 +18,30 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return toErrResponse("researcherPubkey is required");
     }
 
-    const researchMintCollection = await ResearchMintCollectionModel.findOne({
-      readerPubkey: researcherPubkey,
-    });
+    const researchTokenAccounts =
+      await ResearchTokenAccountModel.find<ResearchTokenAccountType>({
+        researcherPubkey: researcherPubkey,
+      });
 
-    if (!researchMintCollection) {
-      return toSuccessResponse({ isMinter: false });
+    const researchTokenAccountsWithResearchPapers: ResearchTokenAccountWithResearchePaper[] =
+      [];
+
+    for (const researchTokenAccount of researchTokenAccounts) {
+      const researchPaper = await ResearchPaperModel.findOne<ResearchPaperType>(
+        {
+          address: researchTokenAccount.paperPubkey,
+        },
+      );
+
+      if (researchPaper) {
+        researchTokenAccountsWithResearchPapers.push({
+          researchTokenAccount: researchTokenAccount,
+          researchPaper: researchPaper,
+        });
+      }
     }
 
-    return toSuccessResponse({ isMinter: true });
+    return toSuccessResponse(researchTokenAccountsWithResearchPapers);
   } catch (err) {
     console.error("Error checking minter status:", err);
     return toErrResponse("Error checking minter status");
@@ -39,61 +51,46 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const unsafeData = await req.json();
-
-    const data = PushToResearchMintCollectionSchema.parse(unsafeData);
+    const data = MintResearchPaperSchema.parse(unsafeData);
 
     const existing =
-      await ResearchMintCollectionModel.findOne<ResearchMintCollectionType>({
-        readerPubkey: data.readerPubkey,
+      await ResearchTokenAccountModel.findOne<ResearchTokenAccountType>({
+        researcherPubkey: data.researcherPubkey,
         address: data.address,
       });
 
+    if (existing) {
+      return toErrResponse("Research Token Account already exists");
+    }
+
     const researchPaper = await ResearchPaperModel.findOne<ResearchPaperType>({
-      address: data.newMintedResearchPaperPubkey,
+      address: data.paperPubkey, // Look up paper using paperPubkey
     });
 
     if (!researchPaper) {
       return toErrResponse("Research Paper not found");
     }
 
-    if (existing) {
-      ResearchMintCollectionModel.updateOne<ResearchMintCollectionType>(
-        { readerPubkey: data.readerPubkey, address: data.address },
-        {
-          $set: {
-            metaDataMerkleRoot: data.metaDataMerkleRoot,
-          },
-          $addToSet: {
-            "metadata.mintedResearchPaperPubkeys": researchPaper.address,
-          },
-        }
-      );
+    let newResearchTokenAccount: ResearchTokenAccountType = {
+      researcherPubkey: data.researcherPubkey,
+      address: data.address,
+      paperPubkey: data.paperPubkey,
+      bump: data.bump,
+    };
 
-      return toSuccessResponse({
-        data: existing,
-        message: "Research Paper added to Research Mint Collection",
-      });
-    } else {
-      let newResearchMintCollection: ResearchMintCollectionType = {
-        readerPubkey: data.readerPubkey,
-        address: data.address,
-        metadata: {
-          mintedResearchPaperPubkeys: [researchPaper.address],
-        },
-        metaDataMerkleRoot: data.metaDataMerkleRoot,
-        bump: data.bump,
+    newResearchTokenAccount = await ResearchTokenAccountModel.create(
+      newResearchTokenAccount,
+    );
+
+    const newResearchTokenAccountWithResearchPaper: ResearchTokenAccountWithResearchePaper =
+      {
+        researchTokenAccount: newResearchTokenAccount,
+        researchPaper: researchPaper,
       };
 
-      newResearchMintCollection = await ResearchMintCollectionModel.create(
-        newResearchMintCollection
-      );
-
-      return toSuccessResponse({
-        data: newResearchMintCollection,
-        message: "Research Paper added to Research Mint Collection",
-      });
-    }
+    return toSuccessResponse(newResearchTokenAccountWithResearchPaper);
   } catch (err) {
+    console.error("Error in /api/mint:", err);
     return toErrResponse("Error creating Research Mint Collection");
   }
 }

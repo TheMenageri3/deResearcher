@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera, Loader2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/app/store/userStore";
+import toast from "react-hot-toast";
 
 type ProfileFormProps = {
   initialData: ProfileFormData & { isVerified: boolean; id: string };
@@ -52,12 +53,17 @@ export default function ProfileForm() {
 
   const handleSubmit = async (values: ProfileFormData) => {
     try {
-      console.log(values);
-      // setIsEditing(false);
-      await createResearcherProfile(values);
-      router.push(`/profile/${publicKey}`);
+      const result = await createResearcherProfile(values);
+      if (result.success) {
+        toast.success("Profile created successfully!");
+        router.push(`/profile/${publicKey}`);
+      } else {
+        toast.error(result.error || "Failed to create profile");
+        return;
+      }
     } catch (error) {
       console.error("An error occurred:", error);
+      toast.error("An unexpected error occurred");
     }
   };
   return (
