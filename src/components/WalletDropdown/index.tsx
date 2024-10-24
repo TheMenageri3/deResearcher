@@ -88,9 +88,13 @@ export const WalletDropdown: React.FC<WalletDropdownProps> = ({
         {wallet && (
           <Image
             alt={wallet.adapter.name}
-            src={wallet.adapter.icon}
+            src={
+              researcherProfile?.metadata?.profileImageURI ||
+              wallet.adapter.icon
+            }
             width={20}
             height={20}
+            className="rounded-full"
           />
         )}
         <span>Disconnect</span>
@@ -107,9 +111,13 @@ export const WalletDropdown: React.FC<WalletDropdownProps> = ({
             {wallet && (
               <Image
                 alt={wallet.adapter.name}
-                src={wallet.adapter.icon}
-                width={20}
-                height={20}
+                src={
+                  researcherProfile?.metadata?.profileImageURI ||
+                  wallet.adapter.icon
+                }
+                width={30}
+                height={30}
+                className="rounded-full"
               />
             )}
             <span className="font-bold text-zinc-800">

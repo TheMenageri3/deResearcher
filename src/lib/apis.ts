@@ -4,6 +4,7 @@ import { fetchPaperByPubkey } from "@/app/store/paperStore";
 export const fetchProfile = async (pubkey: string) => {
   const response = await fetch(
     `/api/researcher-profile?researcherPubkey=${pubkey}`,
+    { cache: "force-cache" },
   );
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   return response.json();
@@ -25,7 +26,7 @@ const getTabUrl = (tab: string, pubkey: string): string => {
 
 export const fetchTabData = async (tab: string, pubkey: string) => {
   const url = getTabUrl(tab, pubkey);
-  const response = await fetch(url, { cache: "no-store" });
+  const response = await fetch(url, { cache: "force-cache" });
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   let data = await response.json();
 

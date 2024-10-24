@@ -2,7 +2,6 @@ import { PAPER_STATUS } from "@/lib/constants";
 import { SolanaLogo } from "@/components/SolanaLogo";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useUserStore } from "@/app/store/userStore";
 import { ResearchPaperType } from "@/lib/types";
 import { memo, useMemo } from "react";
 
@@ -14,6 +13,9 @@ interface PaperActionButtonProps {
   onPublishPaper: () => void;
   onBuyPaper: () => void;
   isLoading: boolean;
+  isCreator: boolean;
+  isResearcher: boolean;
+  hasUserReviewed: boolean;
 }
 
 const PaperActionButton = memo(
@@ -25,19 +27,13 @@ const PaperActionButton = memo(
     onPublishPaper,
     onBuyPaper,
     isLoading,
+    isCreator,
+    isResearcher,
+    hasUserReviewed,
   }: PaperActionButtonProps) => {
-    const { wallet, researcherProfile } = useUserStore();
-
-    // Memoize these values since they're derived from props/state
-    const isOwner = useMemo(
-      () => wallet === paper.creatorPubkey,
-      [wallet, paper.creatorPubkey],
-    );
-    const isResearcher = !!researcherProfile;
-
     const buttonConfig = useMemo(() => {
       // If user is the paper owner
-      if (isOwner) {
+      if (isCreator) {
         switch (paper.state) {
           case PAPER_STATUS.REQUEST_REVISION:
             return {
@@ -59,14 +55,14 @@ const PaperActionButton = memo(
       }
 
       // If user is a researcher but not the owner
-      if (isResearcher && !isOwner) {
+      if (isResearcher && !isCreator) {
         switch (paper.state) {
           case PAPER_STATUS.AWAITING_PEER_REVIEW:
           case PAPER_STATUS.IN_PEER_REVIEW:
             return {
               text: "Write Review",
               action: onToggleReview,
-              show: true,
+              show: !hasUserReviewed,
             };
           case PAPER_STATUS.PUBLISHED:
           case PAPER_STATUS.APPROVED:
@@ -96,8 +92,9 @@ const PaperActionButton = memo(
 
       return { show: false };
     }, [
-      isOwner,
+      isCreator,
       isResearcher,
+      hasUserReviewed,
       paper.state,
       paper.accessFee,
       onUpdateNewPaper,

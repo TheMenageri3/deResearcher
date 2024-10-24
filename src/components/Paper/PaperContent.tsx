@@ -31,16 +31,22 @@ export default function PaperContentComponent({
   const [peerReviews, setPeerReviews] = useState<
     PeerReviewWithResearcherProfile[]
   >([]);
-  const screenSize = useScreen();
 
+  const screenSize = useScreen();
   const { fetchPeerReviewsByPaperPubkey } = usePaperStore();
+
   const wallet = useUserStore((state) => state.wallet);
-  const isMinter = useUserStore(
-    useCallback(
-      (state) => state.isMinterForPaper(paper.address),
-      [paper.address],
-    ),
+  const researcherProfile = useUserStore((state) => state.researcherProfile);
+  const isMinter = useUserStore((state) =>
+    state.isMinterForPaper(paper.address),
   );
+
+  const isCreator = wallet === paper.creatorPubkey;
+  const isResearcher = !!researcherProfile;
+  const hasUserReviewed = peerReviews.some(
+    (review) => review.peerReview.reviewerPubkey === wallet,
+  );
+  const hasAccessRights = isCreator || isMinted || isMinter;
 
   const {
     handlePublishPaper,
@@ -48,9 +54,6 @@ export default function PaperContentComponent({
     handleToggleReview,
     isActionLoading,
   } = usePaperActions(paper, setIsMinted, setIsEditorOpen);
-
-  const isCreator = paper.creatorPubkey === wallet;
-  const hasAccessRights = isCreator || isMinted || isMinter;
 
   const fetchPeerReviews = useCallback(async () => {
     try {
@@ -108,6 +111,10 @@ export default function PaperContentComponent({
                 onPublishPaper={handlePublishPaper}
                 onBuyPaper={handleBuyPaper}
                 isLoading={isActionLoading}
+                isCreator={isCreator}
+                isResearcher={isResearcher}
+                hasUserReviewed={hasUserReviewed}
+                // onUpdateNewPaper={}
               />
             </div>
           )}
@@ -130,7 +137,10 @@ export default function PaperContentComponent({
               onPublishPaper={handlePublishPaper}
               onBuyPaper={handleBuyPaper}
               isLoading={isActionLoading}
-              // onUpdateNewPaper={() => {}}
+              isCreator={isCreator}
+              isResearcher={isResearcher}
+              hasUserReviewed={hasUserReviewed}
+              // onUpdateNewPaper={}
             />
           )}
 

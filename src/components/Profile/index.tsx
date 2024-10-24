@@ -42,7 +42,6 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
   } = useBackgroundImage();
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
-  // TODO: clean up this when finishing minted tab
   const memoizedFormatTableData = useMemo(() => {
     const formatters = {
       contributions: (data: any) => {
@@ -81,13 +80,16 @@ export default function ProfileComponent({ pubkey }: { pubkey: string }) {
           status: status.join(", "),
         };
       },
-      "paid-reads": (data: any) => ({
-        address: data.address,
-        title: data.paperTitle || "Untitled",
-        authors: data.paperAuthors || "Unknown",
-        domains: data.paperDomains || "N/A",
-        status: "Minted",
-      }),
+      "paid-reads": (data: any) => {
+        const paper = data.researchPaper;
+        return {
+          address: paper?.address || "Unknown",
+          title: paper?.metadata?.title || "Untitled",
+          authors: formatArray(paper?.metadata?.authors, "Unknown"),
+          domains: formatArray(paper?.metadata?.tags, "N/A"),
+          status: "Minted",
+        };
+      },
     };
 
     return (data: any) => {
