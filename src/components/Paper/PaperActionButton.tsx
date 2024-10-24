@@ -12,8 +12,8 @@ interface PaperActionButtonProps {
   onToggleReview: () => void;
   onUpdateNewPaper?: () => void;
   onPublishPaper: () => void;
-  onBuyPaper?: () => void;
-  isLoading?: boolean;
+  onBuyPaper: () => void;
+  isLoading: boolean;
 }
 
 const PaperActionButton = memo(
